@@ -2,18 +2,17 @@
 
 Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.
 
-[![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
+Build Status: [![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
 
-## Stubbed Installation
+## Running Example App
 
 ```bash
-git clone git@github.com:TSLEducation/service-page-composer.git
-cd service-page-composer
+git clone git@github.com:TSLEducation/compoxure.git
+cd compoxure
 npm install
-TSL_ENV=stub node cluster
+node ./examples/app
 ```
 Visit [http://localhost:5000/](http://localhost:5000/)
-
 
 ## What is it
 
