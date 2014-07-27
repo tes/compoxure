@@ -19,7 +19,7 @@ Visit [http://localhost:5000/](http://localhost:5000/)
 
 ## What is it
 
-Compoxure is a composition proxy - you put it in front of a back end service that acts as a template into which content from microservices is composed.  It is designed to be simple, fast and failure tolerant - e.g. you won't need to build complex patterns around micro services to deal with failure scenarios.  
+Compoxure is a composition proxy - you put it in front of a back end service that acts as a template into which content from microservices is composed.  It is designed to be simple, fast and failure tolerant - e.g. you won't need to build complex patterns across and around all of your micro services to deal with failure scenarios, they just serve out HTML and should just fail fast.
 
 ## How it works
 
@@ -250,6 +250,10 @@ e.g. the HTML below would fail silently and quickly in the instance the cache di
 ```
 
 To do: build an API for the cache that enables jobs to do this without directly talking to Redis.
+
+## 404 Responses from Microservices
+
+If any of the requests to a backend service via cx-url return a 404, then compoxure itself will render a 404 back to the client.  At TES we have nginx capture the 404 and return a static 404 page.  Todo:  Make this behaviour configurable?
 
 ## Settings Time Intervals
 
