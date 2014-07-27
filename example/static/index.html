@@ -7,3 +7,11 @@
 <div cx-url='{{server:local}}/dynamic' cx-cache-key='dynamic' cx-cache-ttl='10s' class='block'>
     This will be replaced with some dynamic content that is cached if a cache is configured.
 </div>
+
+<div cx-url='{{server:local}}/500' cx-cache-key='error' cx-cache-ttl='10s' class='block'>
+    This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
+</div>
+
+<div cx-url='{{server:local}}/slow' cx-cache-key='error' cx-cache-ttl='10s' cx-timeout="50" class='block'>
+    This is a call to a service that is slower than the timeout.
+</div>

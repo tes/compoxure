@@ -14,6 +14,13 @@ server.use(serveStatic('example/static', {'index': ['index.html', 'index.htm']})
 server.use(function(req, res) {
 	if(req.url == '/dynamic') {
 		res.end("This is some dynamic comment: " + (new Date()));
+	} else if (req.url == '/500') {
+		res.writeHead(500);
+		res.end("This is an error.");
+	} else if (req.url == '/slow') {
+		setTimeout(function() {
+			res.end("This is a slow service");
+		},200)
 	}
 })
 

@@ -7,14 +7,8 @@
             "local": "http://localhost:5001"
         }
     },
-    "backend": [{
-            "pattern": "/quiet.*",
-            "target":"http://localhost:5001",
-            "host":"localhost",
-            "ttl":"10s",
-            "replaceOuter": false,
-            "quietFailure": true
-        },{
+    "backend": [
+        {
             "pattern": ".*",
             "target":"http://localhost:5001",
             "host":"localhost",
@@ -24,7 +18,7 @@
         }
     ],
     "cache": {
-        "engine": "nocache"
+        "engine": "memorycache"
     },
     "transformations":{
         "declarativeReplacements": {
