@@ -5,7 +5,7 @@ Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
 
 Build Status: [![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
-Dependencies: [![Dependencies](https://david-dm.org/tsleducation/compoxure.png)](https://david-dm.org/tsleducation/compoxure)
+Dependencies: [![Dependencies](https://david-dm.org/tsleducation/compoxure.svg)](https://david-dm.org/tsleducation/compoxure)
 ## Running Example App
 
 ```bash
