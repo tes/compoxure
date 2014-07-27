@@ -128,7 +128,7 @@ These properties configure the backend server that the initial request goes to g
 |replaceOuter|Used to configure if compoxure will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
 |dontPassUrl|Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
 
-Additionally, you can define multiple backends, by replacing the above simple configuration with a servers declaration that adds an additional 'pattern' regex parameter to select the backend based on the incoming path.  The first match wins.
+You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
 
 ```json
  "backend": [{
