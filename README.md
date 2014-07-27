@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
 [![Dependencies](https://david-dm.org/tsleducation/compoxure.svg)](https://david-dm.org/tsleducation/compoxure)
+=======
 
-Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.
+Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
 

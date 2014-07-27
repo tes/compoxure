@@ -1,0 +1,22 @@
+<html>
+    <body>
+        
+        <div id='removal1'>Remove me</div>
+        <div id='keepme'>Keep me</div>
+        <div id='replacement1'>Replace me</div>
+        <div id='replacement2'>Replace me</div>
+        <div id='replacement3'>Replace me</div>
+        <div id='replacement4'>Replace me</div>
+        <div id='replacement5'>Replace me</div>
+        <div id='replacement6'><h2>Replace me</h2></div>
+        <!-- 
+            Note that the removal below breaks if you use anything other than divs 
+            Need to explore as this appears to be a trumpet bug.
+        -->
+        <div class='removal2'><div>Remove me</div></div> 
+        <div id='backendreplacement'>Replace me via backend transformation</div>        
+        <div id='declarative' cx-url='{{server:local}}/replaced' cx-cache-ttl='5s' cx-cache-key='replace:declarative:me' cx-timeout='1s' class='block'>
+            Content to be replaced via a directive
+        </div>
+    </body>
+</html>

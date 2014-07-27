@@ -1,0 +1,9 @@
+<h1>Simple Example</h1>
+
+<div cx-url='{{server:local}}/include.html' cx-cache-key='shakespeare' cx-cache-ttl='10s' class='block'>
+    This will be replaced with some shakespeare.
+</div>
+
+<div cx-url='{{server:local}}/dynamic' cx-cache-key='dynamic' cx-cache-ttl='10s' class='block'>
+    This will be replaced with some dynamic content that is cached if a cache is configured.
+</div>

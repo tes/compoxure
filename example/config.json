@@ -24,8 +24,7 @@
         }
     ],
     "cache": {
-        "engine": "redis",
-        "url":"localhost:6379"
+        "engine": "nocache"
     },
     "transformations":{
         "declarativeReplacements": {

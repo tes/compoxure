@@ -16,6 +16,11 @@ setInterval(function() {
 
 module.exports = function(config, eventHandler) {
 
+    // Ensure event handler has sensible defaults
+    eventHandler = eventHandler || {logger:function() {}, stats: function() {}};
+    eventHandler.logger = eventHandler.logger || function() {};
+    eventHandler.stats = eventHandler.stats || function() {};
+
     var interrogator = new RequestInterrogator(config.parameters, eventHandler);
     var cache = cacheFactory.getCache(config.cache);
     var trumpetProxy = new TrumpetProxy(config, cache, eventHandler);
@@ -31,11 +36,10 @@ module.exports = function(config, eventHandler) {
 
             var referer = req.headers.referer || 'direct',
                 userAgent = req.headers['user-agent'] || 'unknown',
-                device = req.device.type,
                 remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress,
                 remoteIp = req.headers['x-forwarded-for'] || remoteAddress;
 
-            //logger.info('GET ' + req.url, {tracer:req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent, device: device});
+            eventHandler.logger('info', 'GET ' + req.url, {tracer:req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 
             var backend = req.backend,
                 targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
@@ -63,11 +67,11 @@ module.exports = function(config, eventHandler) {
             getThenCache(options, cache, eventHandler, res.trumpet, function(err, oldContent) {
                 if(req.backend.quietFailure && oldContent) {
                     res.trumpet.end(oldContent);
-                    //logger.error('Backend FAILED but serving STALE content: ' + err.message, {tracer:req.tracer});
+                    eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {tracer:req.tracer});
                 } else {
                     res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
                     res.end(err.message);
-                    //logger.error('Backend FAILED to respond: ' + err.message, {tracer:req.tracer});
+                    eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {tracer:req.tracer});
                 }
             });
 
@@ -101,7 +105,7 @@ module.exports = function(config, eventHandler) {
             return next();
         }
 
-        logger.warn('unsupported content type: [' + req.headers.accept + '], url was ' + req.url);
+        eventHandler.logger('warn', 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url);
         res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         res.end();
     }

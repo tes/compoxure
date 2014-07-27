@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <style>
+            .block {
+                margin: 15px;
+                padding: 15px;
+                border: solid 1px silver;
+            }
+            .block h1 {
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='ReplaceHeader' class='block'>
+            <h1>This is some simple content that will be replaced</h1>
+        </div>
+        <div id='SimpleReplacement' class='block'>
+            Content to be replaced via a configuration replacement tag.
+        </div>
+        <div cx-url='{{server:local}}/uuid' cx-cache-ttl='5s' cx-cache-key='delayed_declarative' cx-timeout='1s' class='block'>
+            Content to be replaced via a directive
+        </div>
+        <div cx-url='{{server:unknown}}/uuid' cx-cache-key='uuid' cx-cache-ttl='5s' class='block'>
+            Broken content based on bad server URL
+        </div>
+        <div cx-url='{{server:local}}/faulty' cx-cache-key='faulty' cx-cache-ttl='5s' class='block'>
+            Service that breaks 50% of the time!
+        </div>
+        <div cx-url='{{server:local}}/intermittentslow' cx-cache-key='intermittentslowdeclartive' cx-cache-ttl='5s' cx-timeout='500' class='block'>
+            Service that is sometimes very slow.
+        </div>
+    </body>
+</html>
