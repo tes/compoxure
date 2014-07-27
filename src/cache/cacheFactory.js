@@ -8,12 +8,12 @@ var engines = {
     memorycache: require('./MemoryCache')
 };
 
-var cacheInstance;
+var cacheInstance = {};
 
 var obtainCacheInstance = function(config) {
     var Engine = engines[config.engine];
-    cacheInstance = cacheInstance || new Engine(config);
-    return cacheInstance;
+    cacheInstance[config.engine] = cacheInstance[config.engine] || new Engine(config);
+    return cacheInstance[config.engine];
 };
 
 module.exports.getCache = function(_config) {
