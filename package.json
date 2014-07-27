@@ -21,13 +21,13 @@
   },
   "homepage": "https://github.com/TSLEducation/compoxure",
   "dependencies": {
-    "async": "~0.2.10",
+    "async": "^0.9.0",
     "http-status-codes": "^1.0.2",
     "lodash": "~2.4.1",
     "redis": "^0.11.0",
-    "request": "~2.34.0",
+    "request": "^2.39.0",
     "sf": "^0.1.7",
-    "supplant": "^0.1.2",
+    "supplant": "^0.2.0",
     "through": "^2.3.4",
     "trumpet": "1.6.4"
   },
