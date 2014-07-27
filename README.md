@@ -19,6 +19,14 @@ Visit [http://localhost:5000/](http://localhost:5000/)
 
 Compoxure is a composition proxy - you put it in front of a back end service that acts as a template into which content from microservices is composed.  It is designed to be simple, fast and failure tolerant - e.g. you won't need to build complex patterns across and around all of your micro services to deal with failure scenarios, they just serve out HTML and should just fail fast.
 
+## Examples of usage
+
+ - Branding: Imagine that you need to share common branding (masthead, navigation, footer) across a range of applications.  You can put this in front of the application and it can then include these elements in the page from a common set of microservices responsible for each.  
+ 
+ - Expose an app within a CMS: Instead of building your apps in your CMS (arrgh) instead include them in CMS managed pages with a simple declaration.  The apps won't need to know about the site branding, the CMS takes care of all of that.  Also makes it easy to have those apps expose small amounts of functionality across your site (e.g. small Top 10 lists etc.).
+ 
+ - Complex application decomposition:  Image you have to deliver a page that has some product data, as well as a range of content that depends on the user.  Compoxure will let you serve these fragments of the page at different TTLs, and if you add middleware that parses your user cookie it can actually pass back user information to these services so they dont have to - making those easier to test and reason about.
+
 ## How it works
 
 You have a back end service (e.g. a CMS) that returns HTML (with or without the declarative markup explained below), compoxure then parses the HTML on the way through and makes any requests to other micro services whose responses are then inserted into the HTML on the way through.
