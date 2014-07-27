@@ -2,23 +2,18 @@
 
 var expect = require('expect.js');
 var async = require('async');
-var config = require('module-tsl-config').init();
-var endpoints = require('module-tsl-endpoints');
-var environment = require('module-tsl-environment');
-var redisFactory = require('module-tsl-redis');
 var request = require('request');
 var http = require('http');
 var cheerio = require('cheerio');
 var stubServer = require('../common/stubServer');
+var pcServer = require('../common/pcServer');
 
 describe("Page Composer", function(){
 
-    var redisClient;
     var pageComposer;
 
     before(function(done){
-        async.series([
-            initRedis,
+        async.series([            
             initStubServer,
             initPageComposer
         ], done);
@@ -29,15 +24,8 @@ describe("Page Composer", function(){
         stubServer.init('pageComposerTest.html', parsedUrl.port, parsedUrl.hostname)(next);
     }
 
-    function initRedis(next) {
-        var redisEndpoint = endpoints.getSync('page-composer/cache', environment);
-        redisClient = redisFactory.createClient(redisEndpoint);
-        redisClient.info(next);
-    }
-
     function initPageComposer(next) {
-        process.send = function() { next(); };
-        pageComposer = require('../../app');
+        pcServer.init(5000, 'localhost')(next);
     }
 
     function getPageComposerUrl(path) {
