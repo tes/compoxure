@@ -1,11 +1,12 @@
 # Compoxure Composition Middleware
 
+[![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
+[![Dependencies](https://david-dm.org/tsleducation/compoxure.svg)](https://david-dm.org/tsleducation/compoxure)
+
 Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
 
-Build Status: [![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
-Dependencies: [![Dependencies](https://david-dm.org/tsleducation/compoxure.svg)](https://david-dm.org/tsleducation/compoxure)
 ## Running Example App
 
 ```bash
@@ -22,14 +23,11 @@ Compoxure is a composition proxy - you put it in front of a back end service tha
 
 ## How it works
 
-You have a back end service (e.g. a CMS) that returns HTML (with or without the declarative markup explained below), Page composer then parses the HTML on the way through and makes any requests to other micro services that are then inserted into the HTML on the way through.  The various responses (e.g. the backend HTML page, each service fragment response) can all be cached at differing TTLs (or not at all) and using a simple key construction method that covers the scenario that some fragments may differ for not logged in users vs logged in users.
+You have a back end service (e.g. a CMS) that returns HTML (with or without the declarative markup explained below), compoxure then parses the HTML on the way through and makes any requests to other micro services whose responses are then inserted into the HTML on the way through.
 
-Typically the backend service will be a CMS or a static HTML page containing specific markup.
+The various responses (e.g. the backend HTML page, each service fragment response) can all be cached at differing TTLs (or not at all) and using a simple key construction method that covers the scenario that some fragments may differ for not logged in users vs logged in users.
 
-This allows the following:
-
-CMS = Return base HTML page layout, with special declarations when it wants to include something more complex from another app, e.g.
-Application = Return a fragment of HTML that can be included in a parent page (more than one).
+Typically the backend service will be a CMS or a static HTML page containing specific markup, with the thing that is included being the output of more complex applications.
 
 ```html
 <div cx-url='{{server:local}}/application/widget/{{cookie:userId}}' cx-cache-ttl='10s' cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">
@@ -63,17 +61,20 @@ There are pros and cons to both approaches, with the declarative approach being 
 
 ### Configuration
 
-The full configuration options can be found in /config/default.json, with a file per TSL_ENV that can be used to over-write or add any additional configuration per environment.  I will explain the main ones here:
+The full configuration options can be found in /examples/example.json, but it is expected that you will store this configuration within your own application and pass it through into the middleware.  
+
+The configuration object looks as follows:
 
 ```json
 {
-    "backend": {
-        "target":"http://localhost:5001",
-        "host":"localhost",
+    "backend": [{
+        "pattern": ".*",
+        "target":"http://www.tes.co.uk",
+        "host":"www.tes.co.uk",
         "ttl":"10s",
-        "quietFailure":false,
-        "replaceOuter":false
-    },
+        "replaceOuter":false,
+        "quietFailure":true 
+    }],
     "parameters": {
         "urls": [
             {"pattern": "/teaching-resource/.*-(\\d+)", "names": ["resourceId"]}
@@ -118,40 +119,39 @@ These properties configure the backend server that the initial request goes to g
 
 |Property|Description|
 ---------|------------
+|pattern|The regexp used to select this backend based on the incoming request to compoxure.  First match wins.|
 |target|The base URL to the backend service that will serve HTML.  URLs are passed directly through, so /blah will be passed through to the backend as http://backend/blah|
 |host|The name to be passed through in the request (given the hostname of compoxure is likely to be different to that of the backend server.  The host is used as the key for all the statds stats.|
 |ttl|The amount of time to cache the backend response (TODO : make it honor cache headers)|
 |timeout|Time to wait for backend to respond - should set low|
-|quietFailure|Used to determine if page composer will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
-|replaceOuter|Used to configure if page composer will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
-|dontPassUrl|Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a template)|
+|quietFailure|Used to determine if compoxure will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
+|replaceOuter|Used to configure if compoxure will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
+|dontPassUrl|Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
 
 Additionally, you can define multiple backends, by replacing the above simple configuration with a servers declaration that adds an additional 'pattern' regex parameter to select the backend based on the incoming path.  The first match wins.
 
 ```json
- "backend": {
-        "servers": [{
-            "pattern": "/teaching-resource/.*",
-            "target":"http://www.kyotosolutions.co.uk",
-            "host":"www.kyotosolutions.co.uk",
-            "ttl":"10s",
-            "replaceOuter":false,
-            "quietFailure":true 
-        },
-        {
-            "pattern": ".*",
-            "target":"http://localhost:5001",
-            "host":"localhost",
-            "ttl":"10s",
-            "replaceOuter": false,
-            "quietFailure": true 
-        }]
-    }
+ "backend": [{
+        "pattern": "/teaching-resource/.*",
+        "target":"http://www.tes.co.uk",
+        "host":"www.tes.co.uk",
+        "ttl":"10s",
+        "replaceOuter":false,
+        "quietFailure":true 
+    },
+    {
+        "pattern": ".*",
+        "target":"http://localhost:5001",
+        "host":"localhost",
+        "ttl":"10s",
+        "replaceOuter": false,
+        "quietFailure": true 
+    }]
 ```
 
 #### Parameters
 
-The parameters section provides configuration that allows page composer to use data from the initial request (and config) to pass through to microservices (e.g. url parameters, values from the url path via regex, static server names to avoid duplication).
+The parameters section provides configuration that allows compoxure to use data from the initial request (and config) to pass through to microservices (e.g. url parameters, values from the url path via regex, static server names to avoid duplication).
 
 |Property|Description|
 ---------|------------
@@ -160,19 +160,23 @@ servers|A list of server name to server URL configurations that can be used to a
 
 #### Cache Engine
 
-Page composer allows caching of both the back end response and page fragments.  This is currently done using Redis, but other cache engines could be put in place.
+Compoxure allows caching of both the back end response and page fragments.  This is currently done using Redis, but other cache engines could be put in place.
 
-Note that the cache implementation in Redis is not done using TTLs, as this means that once Redis expires a key if the backend service is down that page composer will serve a broken page.  It is instead done slightly differently to allow for the situation that serving stale content is better than serving no content (this is one of the safe failure modes).
+Note that the cache implementation in Redis is not done using TTLs, as this means that once Redis expires a key if the backend service is down that compoxure will serve a broken page.  It is instead done slightly differently to allow for the situation that serving stale content is better than serving no content (this is one of the safe failure modes).
 
 To disable caching simply delete the entire config section.
 
 |Property|Description|
 ---------|------------
 engine|The engine to use (currently only 'redis' is valid).
+url|If Redis, set a url for the redis server - e.g. localhost:6379?db=0
+host|If Redis, set the host explicitly (this and params below are an alternative to using url)
+port|If Redis, set the port explicitly
+db|If Redis, set the db explicitly 
 
 #### Transformations
 
-The heart of Page Composer is the transformation area.  This is where you can add your own selector based transformations, or simply leave the default declarative transformation:
+The heart of compoxure is the transformation area.  This is where you can add your own selector based transformations, or simply leave the default declarative transformation:
 
 ```json
      "DeclarativeReplacement": {
@@ -193,14 +197,14 @@ cacheTTL|The time to cache the response
 statsdKey|The key to use in reporting stats to statds, if not set will use cacheKey
 timeout|The timeout to wait for the service to respond
 
-Note that page composer will always try to fail gracefully and serve as much of the page as possible.
+Note that compoxure will always try to fail gracefully and serve as much of the page as possible.
 
 ### Declarative Parameters
 
-To use page composer in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exist.
+To use compoxure in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exist.
 
 **Warning:**
-When using page composer params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}```
+When using compxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}```
 
 |Property|Description|
 ---------|------------
@@ -233,13 +237,9 @@ server|A server short name from the configuration in the parameters section of c
 
 Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}})
 
-To see a list of all the params for a given request (this will be based on your browser so just indicative) you can use the following on a compoxure server:
-
-[http://localhost:5000/interrorgate/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420/](http://localhost:5000/interrorgate/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420/)
-
 ## From Cache Only
 
-Note that the reason that we designed page composer to allow full control over cache keys was to support the use case of pre-warming a cache with content at given keys - e.g. so you could have a backend job that populated the cache with content so you never actually got a cache miss and called the backend service itself.
+Note that the reason that we designed compoxure to allow full control over cache keys was to support the use case of pre-warming a cache with content at given keys - e.g. so you could have a backend job that populated the cache with content so you never actually got a cache miss and called the backend service itself.
 
 e.g. the HTML below would fail silently and quickly in the instance the cache didn't have content, but expects the cache to be loaded:
 
@@ -253,17 +253,13 @@ To do: build an API for the cache that enables jobs to do this without directly 
 
 ## Settings Time Intervals
 
-Page composer uses a number of time intervals for timeouts and TTLS. To make this simpler, there is a simple library that can convert basic string based intervals into ms.
+Compoxure uses a number of time intervals for timeouts and TTLS. To make this simpler, there is a simple library that can convert basic string based intervals into ms.
 
 e.g. 1s = 1000, 1m = 60*1000 etc.  The valid values are 1s, 1m, 1h, 1d.  If you do not provide a suffix it assumes ms.
 
-## Stub Server
+## Alternatives / Rationale
 
-To assist with local development, there is a very simple stub server that can be invoked by simply adding --config=./config/stub.json as a parameter when running, this will spin up a simple HTTP server that will respond to the URL configured as the backend.
-
-## Alternatives
-
-We built page composer because it solved a set of problems that alternative solutions didn't quite reach.
+We built compoxure because it solved a set of problems that alternative solutions didn't quite reach.
 
 ### Ajax 
 
