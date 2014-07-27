@@ -2,6 +2,8 @@
 
 Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.
 
+[![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure)
+
 ## Stubbed Installation
 
 ```bash
