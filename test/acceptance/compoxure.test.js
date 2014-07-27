@@ -14,13 +14,13 @@ describe("Page Composer", function(){
     var pageComposer;
 
     before(function(done){
-        async.series([            
+        async.series([
             initStubServer,
             initPageComposer
         ], done);
     });
 
-    function initStubServer(next) {        
+    function initStubServer(next) {
         stubServer.init('pageComposerTest.html', 5001,'localhost')(next);
     }
 
@@ -66,7 +66,7 @@ describe("Page Composer", function(){
     });
 
     it('should remove specified sections with nested selectors', function(done) {
-        getSection('.removal2 > h2', function(text) {            
+        getSection('.removal2 > h2', function(text) {
             expect(text).to.be.equal('');
             done();
         });
@@ -143,10 +143,48 @@ describe("Page Composer", function(){
     });
 
     it('should return a 404 if any of the fragments return a 404', function(done) {
-
         var requestUrl = getPageComposerUrl('404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(404);
+            done();
+        });
+    });
+
+    it('should fail quietly if the backend is configured to do so', function(done) {
+        var requestUrl = getPageComposerUrl('quiet');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#faulty').text()).to.be.equal('');
+            done();
+        });
+    });
+
+    it('should fail loudly if the backend is configured to do so', function(done) {
+        var requestUrl = getPageComposerUrl();
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#faulty').text()).to.be.equal('Error: Service http://localhost:5001/500 FAILED due to status code 500');
+            done();
+        });
+    });
+
+    it('should ignore a cx-url that is invalid', function(done) {
+        getSection('#invalidurl', function(text) {
+            expect(text).to.be.equal('Error: Invalid CX url: invalid');
+            done();
+        });
+    });
+
+    it('should ignore a cx-url that is invalid unless it is cache', function(done) {
+        getSection('#cacheurl1', function(text) {
+            expect(text).to.be.equal('');
+            done();
+        });
+    });
+
+    it('should ignore a cx-url that is invalid unless it is cache, and get the content if cache is primed', function(done) {
+        getSection('#cacheurl2', function(text) {
+            expect(text).to.be.equal('Replaced');
             done();
         });
     });

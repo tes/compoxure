@@ -14,6 +14,14 @@
             "host": "localhost",
             "dontPassUrl": true
         },
+         {
+            "pattern":"/quiet.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "quietFailure":true,
+            "dontPassUrl":true
+        },
         {
             "pattern":".*",
             "target":"http://localhost:5001",

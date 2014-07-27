@@ -62,8 +62,10 @@ function transform(config, cxConfig) {
 
                 var isUrl = /^https?:|^unix:/;
                 if (!isUrl.test(options.url)) {
-                    var _error = {message: "Invalid CX url: " + options.url + ", from: " + options.unparsedUrl};
-                    return onError(_error);
+                    if(options.unparsedUrl !== 'cache') {
+                        var _error = {message: "Invalid CX url: " + options.unparsedUrl};
+                        return onError(_error);
+                    }
                 }
 
                 options.type = 'fragment';

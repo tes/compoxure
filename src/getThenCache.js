@@ -23,6 +23,10 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
             } else {
                 eventHandler.logger('debug', 'Cache MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
+                if(options.url == 'cache') {
+                    stream.end("");
+                    return;
+                }
             }
 
             pipeAndCacheContent(function(err, content) {
