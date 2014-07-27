@@ -126,6 +126,13 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should replace specified declarative section with stale content if the request fails', function(done) {
+        getSection('#declarativeStale', function(text) {
+            expect(text).to.be.equal('Replaced');
+            done();
+        });
+    });
+
     it('should ignore requests for anything other than html', function(done) {
         request.get(getPageComposerUrl(),{headers: {'accept': 'text/plain'}}, function(err, response) {
             expect(response.statusCode).to.be(415);
