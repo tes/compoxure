@@ -98,7 +98,6 @@ function transform(config, cxConfig) {
 
                         } else {
                             if(oldContent) {
-
                                 throughStream.end(oldContent);
                                 errorMsg = _.template('Service <%= url %> cache <%= cacheKey %> FAILED but serving STALE content.');
                                 eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
