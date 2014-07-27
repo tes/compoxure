@@ -1,9 +1,9 @@
 
-var utils = require('./lib/utils');
-var TrumpetProxy = require('./lib/middleware/trumpet');
-var RequestInterrogator = require('./lib/parameters/RequestInterrogator');
-var cacheFactory = require('./lib/cache/cacheFactory');
-var getThenCache = require('./lib/getThenCache');
+var utils = require('./src/utils');
+var TrumpetProxy = require('./src/middleware/trumpet');
+var RequestInterrogator = require('./src/parameters/RequestInterrogator');
+var cacheFactory = require('./src/cache/cacheFactory');
+var getThenCache = require('./src/getThenCache');
 var async = require('async');
 var _ = require('lodash');
 var HttpStatus = require('http-status-codes');

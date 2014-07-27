@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('expect.js');
-var utils = require('../../lib/utils');
+var utils = require('../../src/utils');
 
 describe('Utility Library', function() {
 

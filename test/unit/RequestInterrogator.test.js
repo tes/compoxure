@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var expect = require('expect.js');
 var httpMocks = require('node-mocks-http');
-var RequestInterrogator = require('../../lib/parameters/RequestInterrogator');
+var RequestInterrogator = require('../../src/parameters/RequestInterrogator');
 
 describe('RequestInterrogator', function() {
 

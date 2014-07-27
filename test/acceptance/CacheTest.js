@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('expect.js');
-var cacheFactory = require('../../lib/cache/cacheFactory');
+var cacheFactory = require('../../src/cache/cacheFactory');
 var cache = cacheFactory.getCache({engine:'memorycache'});
 
 describe("Cache Engine", function(){
