@@ -1,0 +1,12 @@
+.idea/
+.bin/
+logs/
+dist/
+.DS_Store
+*.log
+workspace.xml
+node_modules
+*.iml
+manifest.json
+dump.rdb
+coverage

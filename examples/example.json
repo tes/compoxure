@@ -1,0 +1,36 @@
+{
+    "parameters": {
+        "urls": [
+            {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
+        ],
+        "servers": {
+            "local": "http://localhost:5001"
+        }
+    },
+    "backend": [{
+            "pattern": "/quiet.*",
+            "target":"http://localhost:5001",
+            "host":"localhost",
+            "ttl":"10s",
+            "replaceOuter": false,
+            "quietFailure": true
+        },{
+            "pattern": ".*",
+            "target":"http://localhost:5001",
+            "host":"localhost",
+            "ttl":"10s",
+            "replaceOuter": false,
+            "quietFailure": false
+        }
+    ],
+    "cache": {
+        "engine": "redis",
+        "url":"localhost:6379"
+    },
+    "transformations":{
+        "declarativeReplacements": {
+            "type":"replacement",
+            "query": "[cx-url]"
+        }
+    }
+}
