@@ -127,8 +127,10 @@ describe("Page Composer", function(){
     });
 
     it('should replace specified declarative section with stale content if the request fails', function(done) {
-        getSection('#declarativeStale', function(text) {
-            expect(text).to.be.equal('Replaced');
+        var requestUrl = getPageComposerUrl('quiet');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#declarativeStale').text()).to.be.equal('Replaced');
             done();
         });
     });
