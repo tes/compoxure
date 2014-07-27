@@ -5,6 +5,7 @@ var async = require('async');
 var request = require('request');
 var http = require('http');
 var cheerio = require('cheerio');
+var config = require('../common/testConfig.json');
 var stubServer = require('../common/stubServer');
 var pcServer = require('../common/pcServer');
 
@@ -19,9 +20,8 @@ describe("Page Composer", function(){
         ], done);
     });
 
-    function initStubServer(next) {
-        var parsedUrl = require('url').parse(config.backend[0].target);
-        stubServer.init('pageComposerTest.html', parsedUrl.port, parsedUrl.hostname)(next);
+    function initStubServer(next) {        
+        stubServer.init('pageComposerTest.html', 5001,'localhost')(next);
     }
 
     function initPageComposer(next) {
@@ -31,22 +31,11 @@ describe("Page Composer", function(){
     function getPageComposerUrl(path) {
         return require('url').format({
             protocol: 'http',
-            hostname: config.server.host,
-            port: config.server.port,
+            hostname: 'localhost',
+            port: 5000,
             pathname: path
         });
     }
-
-    beforeEach(function(done) {
-        redisClient.flushdb(done);
-    });
-
-    after(function(done){
-        redisClient.flushdb(function() {
-            stubServer.close();
-            done();
-        });
-    });
 
     it('should not replace unspecified sections', function(done) {
         getSection('#keepme', function(text) {
@@ -77,7 +66,7 @@ describe("Page Composer", function(){
     });
 
     it('should remove specified sections with nested selectors', function(done) {
-        getSection('.removal2 > h2', function(text) {
+        getSection('.removal2 > h2', function(text) {            
             expect(text).to.be.equal('');
             done();
         });

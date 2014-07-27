@@ -83,25 +83,6 @@ function initStubServer(fileName, port, hostname) {
             }
         });
 
-        router.get('/header', function(req, res) {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            var backendHtml = fs.readFileSync('./test/common/furniture/header.html', { encoding: 'utf8' });
-            res.end(backendHtml);
-        });
-
-        router.get('/footer', function(req, res) {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            var backendHtml = fs.readFileSync('./test/common/furniture/footer.html', { encoding: 'utf8' });
-            res.end(backendHtml);
-        });
-
-        router.get('/furniture', function(req, res) {
-            res.writeHead(200, {"content-Type": "text/html"});
-            var backendHtml = fs.readFileSync('./test/common/furniture/page.html', { encoding: 'utf8' });
-            res.write(backendHtml);
-            res.end();
-        });
-
         router.get('/404backend', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
@@ -115,6 +96,5 @@ function initStubServer(fileName, port, hostname) {
 }
 
 module.exports = {
-    init: initStubServer,
-    close: stubServer.close || function() {}
+    init: initStubServer
 };
