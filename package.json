@@ -4,7 +4,7 @@
   "description": "Composition proxy middleware for Express, allows for composition of microservices using declarations and caching.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/*"
+    "test": "mocha test/unit/* test/acceptance/*"
   },
   "repository": {
     "type": "git",
