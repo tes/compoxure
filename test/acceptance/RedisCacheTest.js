@@ -2,9 +2,9 @@
 
 var expect = require('expect.js');
 var cacheFactory = require('../../src/cache/cacheFactory');
-var cache = cacheFactory.getCache({engine:'memorycache'});
+var cache = cacheFactory.getCache({engine:'redis'});
 
-describe("Cache Engine", function(){
+describe("Redis Cache Engine", function() {
 
 	it('should set and get values from cache', function(done) {
         cache.set('bar:123', 'content', 1000, function(err) {
@@ -37,3 +37,4 @@ describe("Cache Engine", function(){
     }
 
 });
+
