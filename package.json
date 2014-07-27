@@ -1,0 +1,23 @@
+{
+  "name": "compoxure",
+  "version": "0.0.0",
+  "description": "Composition proxy middleware for Express, allows for composition of microservices using declarations and caching.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:TSLEducation/compoxure.git"
+  },
+  "keywords": [
+    "composition",
+    "proxy"
+  ],
+  "author": "TES Global",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TSLEducation/compoxure/issues"
+  },
+  "homepage": "https://github.com/TSLEducation/compoxure"
+}
