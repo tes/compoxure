@@ -14,7 +14,7 @@ For rationale (e.g. why the heck would anyone build this), please see the ration
 git clone git@github.com:TSLEducation/compoxure.git
 cd compoxure
 npm install
-node ./examples/app
+node example
 ```
 Visit [http://localhost:5000/](http://localhost:5000/)
 
