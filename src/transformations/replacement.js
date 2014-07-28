@@ -21,7 +21,11 @@ function transform(config, cxConfig) {
 
 			return function(node) {
 
-                var throughStream = node.createWriteStream({outer:req.backend.replaceOuter ? true : false});
+                var throughStream = node.createStream({outer:req.backend.replaceOuter ? true : false});
+
+                var originalContent, originalContentBuffer = "";
+                throughStream.on('data', function(data) { originalContentBuffer += data;}).on('end', function() { originalContent = originalContentBuffer});
+
                 var start = new Date();
                 var content = '';
                 var templateVars = _.clone(req.templateVars);
@@ -101,9 +105,8 @@ function transform(config, cxConfig) {
                                 throughStream.end(oldContent);
                                 errorMsg = _.template('Service <%= url %> cache <%= cacheKey %> FAILED but serving STALE content.');
                                 eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
-
                             } else {
-                                throughStream.end("");
+                                throughStream.end(req.backend.leaveContentOnFail ? originalContent : "" );
                             }
                         }
 

@@ -23,6 +23,15 @@
             "dontPassUrl":true
         },
         {
+            "pattern":"/leave.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "quietFailure":true,
+            "dontPassUrl":true,
+            "leaveContentOnFail":true
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "host": "localhost",

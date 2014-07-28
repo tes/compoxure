@@ -177,6 +177,15 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should leave the content that was originally in the element if it is configured to do so', function(done) {
+        var requestUrl = getPageComposerUrl('leave');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#faulty').text()).to.be.equal('Faulty service');
+            done();
+        });
+    });
+
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('#invalidurl', function(text) {
             expect(text).to.be.equal('Error: Invalid CX url: invalid');
