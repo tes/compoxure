@@ -59,7 +59,7 @@ function transform(config, cxConfig) {
                     options.timeout = utils.timeToMillis(node.getAttribute('CX-TIMEOUT') || "1s");
                     options.cacheKey = subs.text(node.getAttribute('CX-CACHE-KEY') || node.getAttribute('CX-URL'), templateVars);
                     options.cacheTTL = utils.timeToMillis(node.getAttribute('CX-CACHE-TTL') || "1m");
-                    options.explicitNoCache = node.getAttribute('CX-CACHE-KEY') === "true";
+                    options.explicitNoCache = node.getAttribute('CX-NO-CACHE') === "true";
                 }
 
                 options.statsdKey = 'fragment.' + utils.cacheKeytoStatsd(_fragmentName || '__');
