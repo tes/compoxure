@@ -112,7 +112,8 @@ function transform(config, cxConfig) {
 
                         eventHandler.stats('increment', options.statsdKey + '.error');
                         var elapsed = (new Date() - req.timerStart), timing = (new Date() - start);
-                        eventHandler.logger('error','%s FAILED in %s, elapsed %s.', options.url, timing, elapsed, {tracer:req.tracer});
+                        errorMsg = _.template('<%= url %> FAILED in <%= timing%>, elapsed <%= elapsed %>.');
+                        eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
                     }
                 }
