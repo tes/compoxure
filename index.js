@@ -79,7 +79,15 @@ module.exports = function(config, eventHandler) {
 
     }
 
-     function selectBackend(req, res, next) {
+    function dropFavicon(req, res, next) {
+         if (req.url === '/favicon.ico') {
+            res.writeHead(200, {'Content-Type': 'image/x-icon'} );
+            return next({level: 'info', message:'Dropped favicon request'})
+          }
+          next();
+    }
+
+    function selectBackend(req, res, next) {
         if(config.backend) {
             req.backend = _.find(config.backend, function(server) {
                 return new RegExp(server.pattern).test(req.url);
@@ -88,16 +96,15 @@ module.exports = function(config, eventHandler) {
 
         if(!req.backend) {
             res.writeHead(HttpStatus.NOT_FOUND);
-            res.end();
+            return next({message: 'Backend not found'});
         } else {
-            next();
+            return next();
         }
     }
 
     function ignoreNotHtml(req, res, next) {
-
         if (!req.headers || !req.headers.accept) {
-            return next();
+            return next({message: 'No accept headers'});
         }
 
         var accept = req.headers.accept.toLowerCase();
@@ -105,9 +112,8 @@ module.exports = function(config, eventHandler) {
             return next();
         }
 
-        eventHandler.logger('warn', 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url);
         res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        res.end();
+        next({message: 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url});
     }
 
     function interrogateRequest(req, res, next) {
@@ -118,7 +124,22 @@ module.exports = function(config, eventHandler) {
     }
 
     function allMiddleware(req, res, next) {
-        async.applyEachSeries([ignoreNotHtml, selectBackend, interrogateRequest, backendProxyMiddleware], req, res, next)
+
+        async.series([
+            function(callback) { dropFavicon(req, res, callback) },
+            function(callback) { ignoreNotHtml(req, res, callback) },
+            function(callback) { selectBackend(req, res, callback) },
+            function(callback) { interrogateRequest(req, res, callback) },
+            function(callback) { backendProxyMiddleware(req, res, callback) }
+        ], function(err) {
+            if(err) {
+                res.end();
+                eventHandler.logger(err.level ? err.level : 'error', err.message);
+            } else {
+                next();
+            }
+        });
+
     }
 
     return allMiddleware;
