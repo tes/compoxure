@@ -11,7 +11,6 @@ var cxEventHandler = createEventHandler();
 var compoxureMiddleware = cx(config, cxEventHandler);
 
 var server = connect();
-
 server.use(cookieParser());
 server.use(morgan('combined'));
 server.use(compoxureMiddleware);

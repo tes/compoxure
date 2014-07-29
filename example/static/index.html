@@ -1,30 +1,10 @@
-<style>
-	.block {
-		display: block;
-		margin-bottom: 30px;
-		border: solid 1px silver;
-		padding: 5px;
-	}
-</style>
-
 <h1>Simple Example</h1>
-
-<h3>Include of content</h3>
-<div cx-url='{{server:local}}/include.html' cx-cache-key='shakespeare' cx-cache-ttl='10s' class='block'>
-    This will be replaced with some shakespeare.
+<div style='float: left; width: 48%'>
+<h2>Original Source Template</h2>
+<iframe src="http://localhost:5001/backend.html" width="100%" height="600" border="0"></iframe>
+</div>
+<div style='float: left; width: 48%'>
+<h2>Proxied Result via Compoxure</h2>
+<iframe src="/backend.html" width="100%" height="600" border="0"></iframe>
 </div>
 
-<h3>Dynamic content cached for 10s</h3>
-<div cx-url='{{server:local}}/dynamic' cx-cache-key='dynamic' cx-cache-ttl='10s' class='block'>
-    This will be replaced with some dynamic content that is cached if a cache is configured.
-</div>
-
-<h3>Service that fails</h3>
-<div cx-url='{{server:local}}/500' cx-cache-key='error' cx-cache-ttl='10s' class='block'>
-    This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
-</div>
-
-<h3>Service that is slow</h3>
-<div cx-url='{{server:local}}/slow' cx-cache-key='error' cx-cache-ttl='10s' cx-timeout="50" class='block'>
-    This is a call to a service that is slower than the timeout.
-</div>
