@@ -1,0 +1,44 @@
+<style>
+	.block {
+		display: block;
+		margin-top: 10px;
+		margin-bottom: 30px;
+		border: solid 1px silver;
+		padding: 5px;
+	}
+	code {
+		background: silver;
+		border: solid 1px #444444;
+	}
+</style>
+<h3>Include of content</h3>
+<code>
+	&lt;div cx-url=&#039;{{server:local}}/include.html&#039; cx-cache-key=&#039;shakespeare&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+</code>
+<div cx-url='{{server:local}}/include.html' cx-cache-key='shakespeare' cx-cache-ttl='10s' class='block'>
+    This will be replaced with some simple content that is cached if a cache is configured.
+</div>
+
+<h3>Dynamic content cached for 10s</h3>
+<code>
+	&lt;div cx-url=&#039;{{server:local}}/dynamic&#039; cx-cache-key=&#039;dynamic&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+</code>
+<div cx-url='{{server:local}}/dynamic' cx-cache-key='dynamic' cx-cache-ttl='10s' class='block'>
+    This will be replaced with some dynamic content that is cached if a cache is configured.
+</div>
+
+<h3>Service that fails</h3>
+<code>
+	&lt;div cx-url=&#039;{{server:local}}/500&#039; cx-cache-key=&#039;500&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+</code>
+<div cx-url='{{server:local}}/500' cx-cache-key='500' cx-cache-ttl='10s' class='block'>
+    This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
+</div>
+
+<h3>Service that is slow</h3>
+<code>
+	&lt;div cx-url=&#039;{{server:local}}/slow&#039; cx-cache-key=&#039;error&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+</code>
+<div cx-url='{{server:local}}/slow' cx-cache-key='error' cx-cache-ttl='10s' cx-timeout="10" class='block'>
+    This is a call to a service that is slower than the timeout.
+</div>
