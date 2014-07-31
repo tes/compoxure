@@ -186,6 +186,15 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should remove the element if cx-replace-outer is set', function(done) {
+        request.get(getPageComposerUrl(), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#replace-outer-content').length).to.be.equal(0);
+            expect($('#replace-outer').text()).to.be.equal('wrapping Replaced content');
+            done();
+        });
+    });
+
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('#invalidurl', function(text) {
             expect(text).to.be.equal('Error: Invalid CX url: invalid');

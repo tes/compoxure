@@ -20,8 +20,9 @@ function transform(config, cxConfig) {
 		func: function(req, res, cache, eventHandler) {
 
 			return function(node) {
+                var replaceOuter = node.getAttribute('CX-REPLACE-OUTER') ? node.getAttribute('CX-REPLACE-OUTER') === 'true' : req.backend.replaceOuter;
 
-                var throughStream = node.createStream({outer:req.backend.replaceOuter ? true : false});
+                var throughStream = node.createStream({outer: replaceOuter ? true : false});
 
                 var originalContent, originalContentBuffer = "";
                 throughStream.on('data', function(data) { originalContentBuffer += data;}).on('end', function() { originalContent = originalContentBuffer});
