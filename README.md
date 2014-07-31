@@ -23,10 +23,10 @@ Compoxure is a composition proxy - you put it in front of a back end service tha
 
 ## Examples of usage
 
- - Branding: Imagine that you need to share common branding (masthead, navigation, footer) across a range of applications.  You can put this in front of the application and it can then include these elements in the page from a common set of microservices responsible for each.  
- 
+ - Branding: Imagine that you need to share common branding (masthead, navigation, footer) across a range of applications.  You can put this in front of the application and it can then include these elements in the page from a common set of microservices responsible for each.
+
  - Expose an app within a CMS: Instead of building your apps in your CMS (arrgh) instead include them in CMS managed pages with a simple declaration.  The apps won't need to know about the site branding, the CMS takes care of all of that.  Also makes it easy to have those apps expose small amounts of functionality across your site (e.g. small Top 10 lists etc.).
- 
+
  - Complex application decomposition:  Image you have to deliver a page that has some product data, as well as a range of content that depends on the user.  Compoxure will let you serve these fragments of the page at different TTLs, and if you add middleware that parses your user cookie it can actually pass back user information to these services so they dont have to - making those easier to test and reason about.
 
 ## How it works
@@ -69,7 +69,7 @@ There are pros and cons to both approaches, with the declarative approach being 
 
 ### Configuration
 
-The full configuration options can be found in /examples/example.json, but it is expected that you will store this configuration within your own application and pass it through into the middleware.  
+The full configuration options can be found in /examples/example.json, but it is expected that you will store this configuration within your own application and pass it through into the middleware.
 
 The configuration object looks as follows:
 
@@ -148,7 +148,7 @@ You can define multiple backends, by adding as many declarations for backends as
         "host":"www.tes.co.uk",
         "ttl":"10s",
         "replaceOuter":false,
-        "quietFailure":true 
+        "quietFailure":true
     },
     {
         "pattern": ".*",
@@ -156,7 +156,7 @@ You can define multiple backends, by adding as many declarations for backends as
         "host":"localhost",
         "ttl":"10s",
         "replaceOuter": false,
-        "quietFailure": true 
+        "quietFailure": true
     }]
 ```
 
@@ -183,7 +183,7 @@ engine|The engine to use (currently only 'redis' is valid).
 url|If Redis, set a url for the redis server - e.g. localhost:6379?db=0
 host|If Redis, set the host explicitly (this and params below are an alternative to using url)
 port|If Redis, set the port explicitly
-db|If Redis, set the db explicitly 
+db|If Redis, set the db explicitly
 
 #### Transformations
 
@@ -225,7 +225,7 @@ cx-cache-ttl|The time to cache the response (set to zero for no cache - defaults
 cx-statsd-key|The key to use to report stats to statsd, defaults to cache-key if not set.
 cx-timeout|The timeout to wait for the service to respond.
 cx-no-cache|Explicit instruction to not cache when value="true", overrides all other cache instruction.
-
+cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 
 ```html
 <div cx-url='{{server:local}}/application/widget' cx-cache-ttl='10s' cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">
@@ -276,7 +276,7 @@ e.g. 1s = 1000, 1m = 60*1000 etc.  The valid values are 1s, 1m, 1h, 1d.  If you 
 
 We built compoxure because it solved a set of problems that alternative solutions didn't quite reach.
 
-### Ajax 
+### Ajax
 
 In single page apps you can easily use client side javascript to build a single application based on top of multiple underlying microservices.  However, this doesn't work when you need to deliver a typical content heavy website where SEO is important - e.g. you have a mixture of content and app.  We need to deliver a page, and then progressively enhance it via javascript.  We use Ajax, just not for the initial hit.
 
