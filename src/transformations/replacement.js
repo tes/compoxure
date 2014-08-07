@@ -20,8 +20,8 @@ function transform(config, cxConfig) {
 		func: function(req, res, cache, eventHandler) {
 
 			return function(node) {
-                var replaceOuter = node.getAttribute('CX-REPLACE-OUTER') ? node.getAttribute('CX-REPLACE-OUTER') === 'true' : req.backend.replaceOuter;
 
+                var replaceOuter = node.getAttribute('CX-REPLACE-OUTER') ? node.getAttribute('CX-REPLACE-OUTER') === 'true' : req.backend.replaceOuter;
                 var throughStream = node.createStream({outer: replaceOuter ? true : false});
 
                 var originalContent, originalContentBuffer = "";
@@ -83,6 +83,8 @@ function transform(config, cxConfig) {
 
                 options.tracer = req.tracer;
                 if (config.cdn) options.headers['x-cdn-host'] = config.cdn.host;
+
+                if (!replaceOuter) node.setAttribute('cx-processed', 'yes');
 
                 getThenCache(options, cache, eventHandler, throughStream, onError);
 
