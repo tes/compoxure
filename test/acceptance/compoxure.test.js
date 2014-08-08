@@ -29,111 +29,16 @@ describe("Page Composer", function(){
     }
 
     function getPageComposerUrl(path) {
-        return require('url').format({
+
+        var url = require('url').format({
             protocol: 'http',
             hostname: 'localhost',
             port: 5000,
             pathname: path
         });
+
+        return url;
     }
-
-    it('should not replace unspecified sections', function(done) {
-        getSection('#keepme', function(text) {
-            expect(text).to.be.equal('Keep me');
-            done();
-        });
-    });
-
-    it('should replace specified sections', function(done) {
-        getSection('#replacement1', function(text) {
-            expect(text).to.be.equal('Replaced');
-            done();
-        });
-    });
-
-    it('should replace specified sections with nested selectors', function(done) {
-        getSection('#replacement6 > h2', function(text) {
-            expect(text).to.be.equal('Replaced');
-            done();
-        });
-    });
-
-    it('should remove specified sections', function(done) {
-        getSection('#removal1', function(text) {
-            expect(text).to.be.equal('');
-            done();
-        });
-    });
-
-    it('should remove specified sections with nested selectors', function(done) {
-        getSection('.removal2 > h2', function(text) {
-            expect(text).to.be.equal('');
-            done();
-        });
-    });
-
-    it('should not cache by default', function(done) {
-        getSection('#replacement2', function(originalText) {
-            expect(originalText).not.to.be.equal('Replaced');
-            getSection('#replacement2', function(newText) {
-                expect(originalText).not.to.be.equal(newText);
-                done();
-            });
-        });
-    });
-
-    it('should cache when configured', function(done) {
-        getSection('#replacement3', function(originalText) {
-            expect(originalText).not.to.be.equal('Replaced');
-            getSection('#replacement3', function(newText) {
-                expect(originalText).to.be.equal(newText);
-                done();
-            });
-        });
-    });
-
-    it('should cache when authenticated if auth not part of cache key', function(done) {
-        getSection('#replacement4', function(originalText) {
-            expect(originalText).not.to.be.equal('Replaced');
-            getSectionAuth('#replacement4', 'user1', function(newText) {
-                expect(originalText).to.be.equal(newText);
-                done();
-            });
-        });
-    });
-
-    it('should cache per user when authenticated if same user and user part of cache key', function(done) {
-        getSectionAuth('#replacement5', 'user1', function(originalText) {
-            expect(originalText).not.to.be.equal('Replaced');
-            getSectionAuth('#replacement5', 'user2', function(newText) {
-                expect(originalText).not.to.be.equal(newText);
-                done();
-            });
-        });
-    });
-
-    it('should remove specified sections defined in the backend specific transformations', function(done) {
-        getSection('#backendreplacement', function(text) {
-            expect(text).to.be.equal('Replaced');
-            done();
-        });
-    });
-
-    it('should replace specified declarative sections', function(done) {
-        getSection('#declarative', function(text) {
-            expect(text).to.be.equal('Replaced');
-            done();
-        });
-    });
-
-    it('should replace specified declarative section with stale content if the request fails', function(done) {
-        var requestUrl = getPageComposerUrl('quiet');
-        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
-            var $ = cheerio.load(content);
-            expect($('#declarativeStale').text()).to.be.equal('Replaced');
-            done();
-        });
-    });
 
     it('should ignore requests for anything other than html', function(done) {
         request.get(getPageComposerUrl(),{headers: {'accept': 'text/plain'}}, function(err, response) {
@@ -197,7 +102,7 @@ describe("Page Composer", function(){
 
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('#invalidurl', function(text) {
-            expect(text).to.be.equal('Error: Invalid CX url: invalid');
+            expect(text).to.be.equal('Error: Service invalid FAILED due to Invalid URL invalid');
             done();
         });
     });
@@ -217,7 +122,8 @@ describe("Page Composer", function(){
     });
 
     function getSection(query, next) {
-        request.get(getPageComposerUrl(),{headers: {'accept': 'text/html'}}, function(err, response, content) {
+        var url = getPageComposerUrl();
+        request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {
             expect(err).to.be(null);
             var $ = cheerio.load(content);
             next($(query).text());

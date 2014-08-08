@@ -2,6 +2,7 @@
 
 var request = require('request');
 var sf = require('sf');
+var url = require('url');
 
 module.exports = getThenCache;
 
@@ -31,7 +32,7 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
 
             pipeAndCacheContent(function(err, content) {
                 if (err) return onError(err, oldContent);
-                if (!options.pipe) stream.end(content);
+                stream.end(content);
                 cache.set(options.cacheKey, content, options.cacheTTL, function(err) {
                     eventHandler.logger('debug', 'Cache SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
                 });
@@ -51,6 +52,8 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
 
         var content = "", start = new Date(), inErrorState = false;
 
+        if(!url.parse(options.url).protocol) return handleError({message:'Invalid URL ' + options.url});
+
         var r = request({url: options.url, agent: false, timeout: options.timeout, headers: options.headers})
             .on('error', handleError)
             .on('data', function(data) {
@@ -68,8 +71,6 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
                 eventHandler.logger('info', 'URL ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('timing', options.statsdKey + '.responseTime', timing);
             });
-
-        if (options.pipe) r.pipe(stream);
 
         function handleError(err, statusCode) {
             if (!inErrorState) {

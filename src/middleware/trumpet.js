@@ -63,7 +63,7 @@ TrumpetProxy.prototype.middleware = function(req, res, next) {
 			tr.selectAll(transformation.query, transformation.func(req, res, self.cache, self.eventHandler));
 		});
 
-		res.trumpet = tr;
+		res.transformer = tr;
 
 		var bufferedResponse = "";
 

@@ -12,7 +12,7 @@ var compoxureMiddleware = cx(config, cxEventHandler);
 
 var server = connect();
 server.use(cookieParser());
-server.use(morgan('combined'));
+//server.use(morgan('combined'));
 server.use(compoxureMiddleware);
 
 server.listen(5000, 'localhost', function(err) {

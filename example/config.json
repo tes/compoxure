@@ -14,16 +14,21 @@
             "host":"localhost",
             "ttl":"10s",
             "replaceOuter": false,
-            "quietFailure": false
+            "quietFailure": false,
+            "leaveContentOnFail": false
         }
     ],
     "cache": {
-        "engine": "memorycache"
+        "engine": "redis"
     },
     "transformations":{
         "declarativeReplacements": {
             "type":"replacement",
             "query": "[cx-url]"
+        },
+        "removeJSFallback": {
+            "type":"removal",
+            "query":"[cx-fallback-remove]"
         }
     }
 }

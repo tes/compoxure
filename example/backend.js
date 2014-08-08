@@ -9,7 +9,7 @@ var HttpStatus = require('http-status-codes');
 var server = connect();
 
 server.use(cookieParser());
-server.use(morgan('combined'));
+//server.use(morgan('combined'));
 server.use(serveStatic('example/static', {'index': ['index.html', 'index.htm']}));
 server.use(function(req, res) {
 	if(req.url == '/dynamic') {

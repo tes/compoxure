@@ -35,75 +35,10 @@
             "pattern":".*",
             "target":"http://localhost:5001",
             "host": "localhost",
-            "replaceOuter": false,
-            "transformations":{
-                "BackendLocalReplacement": {
-                    "type": "replacement",
-                    "query": "#backendreplacement",
-                    "url": "http://localhost:5001/replaced",
-                    "cacheKey": "replaced:backend",
-                    "timeout": 1000
-                }
-            }
+            "replaceOuter": false
         }
     ],
     "cache": {
-        "engine": "memorycache"
-    },
-     "transformations": {
-        "FixedReplacement": {
-            "type": "replacement",
-            "query": "#replacement1",
-            "url": "http://localhost:5001/replaced",
-            "cacheKey": "replaced:r1",
-            "timeout": 1000
-        },
-        "NestedSelectorReplacement": {
-            "type": "replacement",
-            "query": "#replacement6 > h2",
-            "url": "http://localhost:5001/replaced",
-            "cacheKey": "replaced:r2",
-            "timeout": 1000
-        },
-        "Removal": {
-            "type": "removal",
-            "query": "#removal1"
-        },
-        "NestedRemoval": {
-            "type": "removal",
-            "query": "#removal2 > h2"
-        },
-        "NoCache": {
-            "type": "replacement",
-            "query": "#replacement2",
-            "url": "http://localhost:5001/uuid",
-            "cacheTTL": "0",
-            "timeout": 1000
-        },
-        "RedisCache": {
-            "type": "replacement",
-            "query": "#replacement3",
-            "url": "http://localhost:5001/uuid",
-            "cacheKey": "uuid:r4",
-            "timeout": 1000
-        },
-        "AuthenticatedBypassCache": {
-            "type": "replacement",
-            "query": "#replacement4",
-            "url": "http://localhost:5001/uuid",
-            "timeout": 1000,
-            "cacheKey": "uuid:r5"
-        },
-        "AuthenticatedForceCache": {
-            "type": "replacement",
-            "query": "#replacement5",
-            "url": "http://localhost:5001/uuid",
-            "cacheKey": "uuid:r5:{{cookie:TSLCookie}}",
-            "timeout": 1000
-        },
-        "DeclarativeReplacement": {
-            "type":"replacement",
-            "query": "[cx-url]"
-        }
+        "engine": "redis"
     }
 }

@@ -1,6 +1,7 @@
 
 var utils = require('./src/utils');
 var TrumpetProxy = require('./src/middleware/trumpet');
+var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
 var cacheFactory = require('./src/cache/cacheFactory');
 var getThenCache = require('./src/getThenCache');
@@ -23,11 +24,12 @@ module.exports = function(config, eventHandler) {
 
     var interrogator = new RequestInterrogator(config.parameters, eventHandler);
     var cache = cacheFactory.getCache(config.cache);
-    var trumpetProxy = new TrumpetProxy(config, cache, eventHandler);
+    var trumpetProxy = TrumpetProxy(config, cache, eventHandler);
+    var htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
     function backendProxyMiddleware(req, res, next) {
 
-        trumpetProxy.middleware(req, res, function() {
+        htmlParserProxy.middleware(req, res, function() {
 
             var DEFAULT_LOW_TIMEOUT = 500;
 
@@ -60,13 +62,12 @@ module.exports = function(config, eventHandler) {
                 headers: backendHeaders,
                 tracer: req.tracer,
                 type: 'backend',
-                pipe: true,
                 statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
             };
 
-            getThenCache(options, cache, eventHandler, res.trumpet, function(err, oldContent) {
+            getThenCache(options, cache, eventHandler, res.transformer, function(err, oldContent) {
                 if(req.backend.quietFailure && oldContent) {
-                    res.trumpet.end(oldContent);
+                    res.transformer.end(oldContent);
                     eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {tracer:req.tracer});
                 } else {
                     res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);

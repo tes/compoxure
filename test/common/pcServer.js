@@ -10,7 +10,7 @@ var HttpStatus = require('http-status-codes');
 
 function initPcServer(port, hostname) {
 
-    var compoxureMiddleware = cx(config);
+    var compoxureMiddleware = cx(config, createEventHandler());
 
     var server = connect();
 
@@ -23,6 +23,15 @@ function initPcServer(port, hostname) {
 
 }
 
+
+function createEventHandler() {
+	return {
+		logger: function(level, message, data) {
+		},
+		stats: function(type, key, value) {
+		}
+	}
+}
 
 module.exports = {
     init: initPcServer
