@@ -20,7 +20,7 @@ server.use(function(req, res) {
 	} else if (req.url == '/slow') {
 		setTimeout(function() {
 			res.end("This is a slow service");
-		},20);
+		},300);
 	}
 })
 

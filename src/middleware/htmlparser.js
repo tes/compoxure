@@ -39,11 +39,12 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
         req.timerStart = new Date();
 
         function createTag(tagname, attribs) {
-            var attribArray = [];
+            var attribArray = [], attribLength = attribs.length, attribCounter = 0;
             _.forIn(attribs, function(value, key) {
-                attribArray.push(key + "=\"" + value + "\" ");
+                attribCounter++;
+                attribArray.push(" " + key + "=\"" + value + "\"");
             });
-            return ["<",tagname," "].concat(attribArray).concat([">"]).join("");
+            return ["<",tagname,(attribLength > 0 ? " " : "")].concat(attribArray).concat([">"]).join("");
         }
 
         res.transformer = {
