@@ -1,6 +1,5 @@
 
 var utils = require('./src/utils');
-var TrumpetProxy = require('./src/middleware/trumpet');
 var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
 var cacheFactory = require('./src/cache/cacheFactory');
@@ -24,7 +23,6 @@ module.exports = function(config, eventHandler) {
 
     var interrogator = new RequestInterrogator(config.parameters, eventHandler);
     var cache = cacheFactory.getCache(config.cache);
-    var trumpetProxy = TrumpetProxy(config, cache, eventHandler);
     var htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
     function backendProxyMiddleware(req, res, next) {
