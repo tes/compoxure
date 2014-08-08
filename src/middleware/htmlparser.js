@@ -25,6 +25,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
         var self = this,
             eventHandler = self.eventHandler,
             cache = self.cache,
+            config = self.config,
             start = new Date(),
             output = {},
             outputIndex = 0,
@@ -131,6 +132,15 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.cacheKey = subs.text(cxOutput[index]['cx-cache-key'] || cxOutput[index]['cx-url'], templateVars);
             options.cacheTTL = utils.timeToMillis(cxOutput[index]['cx-cache-ttl'] || "1m");
             options.explicitNoCache = cxOutput[index]['cx-no-cache'] === "true";
+            options.type = 'fragment';
+            options.cache = (options.cacheTTL > 0);
+            options.headers = {
+                'cx-page-url': templateVars['param:pageUrl']
+            };
+            options.headers.cookie = req.headers.cookie;
+            options.tracer = req.tracer;
+
+            if (config.cdn) options.headers['x-cdn-host'] = config.cdn.host;
 
             var responseStream = {
                 end: function(data) {
