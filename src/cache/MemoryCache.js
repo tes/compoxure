@@ -1,20 +1,26 @@
 'use strict';
 
+var cache = {};
+
 module.exports = function() {
 
     this.engine = 'memorycache';
 
     var oneMinute = 60 * 1000;
-    var cache = {};
 
     this.get = function(key, next) {
         var data = cache[key];
+
         if(!data) return next(null, null);
         var expires = (new Date()).getTime();
         if(expires - data.expires > 0) {
-            next(null, null, data.content);
+            setTimeout(function() {
+                next(null, null, data.content);
+            },5);
         } else {
-            next(null, data.content);
+            setTimeout(function() {
+                next(null, data.content);
+            },5);
         }
     };
 
