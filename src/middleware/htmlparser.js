@@ -49,6 +49,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     }
                     outputIndex ++;
 
+                    output[outputIndex] = "_processing_";
                     fragmentOutput[fragmentIndex] = attribs;
                     fragmentOutput[fragmentIndex].outputIndex = outputIndex;
                     fragmentOutput[fragmentIndex].fragmentIndex = fragmentIndex;
@@ -72,8 +73,11 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             },
             ontext:function(data) {
                 if(nextTextDefault) {
+                    // Set Default value - provided it hasn't already been set
+                    // When using memory cache it could actually retrieve a value
+                    // Faster than the ontext event fired from this library
                     nextTextDefault = false;
-                    output[outputIndex-1] = data;
+                    if(output[outputIndex-1] == "_processing_") output[outputIndex-1] = data;
                 } else {
                     output[outputIndex] += data;
                 }
@@ -143,7 +147,6 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.headers.cookie = req.headers.cookie;
             options.tracer = req.tracer;
             if (self.config.cdn) options.headers['x-cdn-host'] = self.config.cdn.host;
-
             var responseStream = {
                 end: function(data) {
                     next(node, data);
