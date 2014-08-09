@@ -3,10 +3,11 @@
 var request = require('request');
 var sf = require('sf');
 var url = require('url');
+var CircuitBreaker = require('./CircuitBreaker');
 
 module.exports = getThenCache;
 
-function getThenCache(options, cache, eventHandler, stream, onError) {
+function getThenCache(options, config, cache, eventHandler, stream, onError) {
 
     var start = new Date();
 
@@ -30,7 +31,7 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
                 }
             }
 
-            pipeAndCacheContent(function(err, content) {
+            CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
                 if (err) return onError(err, oldContent);
                 stream.end(content);
                 cache.set(options.cacheKey, content, options.cacheTTL, function(err) {
@@ -41,7 +42,7 @@ function getThenCache(options, cache, eventHandler, stream, onError) {
 
     } else {
 
-        pipeAndCacheContent(function(err, content) {
+        CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
             if (err) return onError(err);
             stream.end(content);
         });
