@@ -38,7 +38,13 @@
             "replaceOuter": false
         }
     ],
+    "circuitbreaker":{
+        "windowDuration":10000,
+        "numBuckets": 10,
+        "errorThreshold": 100,
+        "volumeThreshold": 20
+    },
     "cache": {
-        "engine": "redis"
+        "engine": "memorycache"
     }
 }

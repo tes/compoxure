@@ -41,6 +41,13 @@ function initStubServer(fileName, port, hostname) {
             },100);
         });
 
+        router.get('/timeout', function(req, res) {
+            setTimeout(function() {
+                res.writeHead(200, {"Content-Type": "text/html"});
+                res.end("Delayed by 6seconds");
+            },6000);
+        });
+
         router.get('/500', function(req, res) {
             res.writeHead(500, {"Content-Type": "text/html"});
             res.end("500");
