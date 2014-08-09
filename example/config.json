@@ -18,17 +18,13 @@
             "leaveContentOnFail": false
         }
     ],
-    "cache": {
-        "engine": "redis"
+    "circuitbreaker":{
+        "windowDuration":10000,
+        "numBuckets": 10,
+        "errorThreshold": 50,
+        "volumeThreshold": 10
     },
-    "transformations":{
-        "declarativeReplacements": {
-            "type":"replacement",
-            "query": "[cx-url]"
-        },
-        "removeJSFallback": {
-            "type":"removal",
-            "query":"[cx-fallback-remove]"
-        }
+    "cache": {
+        "engine": "memorycache"
     }
 }
