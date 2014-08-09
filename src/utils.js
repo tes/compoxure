@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 function timeToMillis(timeString) {
 
 	var matched = new RegExp('(\\d+)(.*)').exec(timeString),
@@ -45,9 +47,18 @@ function urlToCacheKey(url) {
 	return url;
 }
 
+function createTag(tagname, attribs) {
+    var attribArray = [], attribLength = attribs.length, attribCounter = 0;
+    _.forIn(attribs, function(value, key) {
+        attribCounter++;
+        attribArray.push(" " + key + "=\"" + value + "\"");
+    });
+    return ["<",tagname,(attribLength > 0 ? " " : "")].concat(attribArray).concat([">"]).join("");
+}
 
 module.exports = {
 	timeToMillis: timeToMillis,
 	urlToCacheKey: urlToCacheKey,
-	cacheKeytoStatsd: cacheKeytoStatsd
+	cacheKeytoStatsd: cacheKeytoStatsd,
+	createTag: createTag
 };
