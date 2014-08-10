@@ -39,6 +39,15 @@
         This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
     </div>
 
+
+    <h3>Service that is sometimes faulty</h3>
+    <code>
+        &lt;div cx-url=&#039;{{server:local}}/faulty&#039; cx-cache-key=&#039;faulty&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+    </code>
+    <div cx-url='{{server:local}}/faulty' cx-cache-key='faulty' cx-cache-ttl='0' cx-timeout="1s" class='block'>
+        This is a call to a service that is faulty 50% of the time, uncached to demonstrate circuit breaker.
+    </div>
+
     <h3>Service that is slow</h3>
     <code>
         &lt;div cx-url=&#039;{{server:local}}/slow&#039; cx-cache-key=&#039;error&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;

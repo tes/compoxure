@@ -1,3 +1,12 @@
+/*
+ * Simple circuit breaker to wrap third party service calls.
+ * To disable, simply do not configure the 'circuitbreaker' section of the
+ * configuration file.
+ * 
+ * Each circuit breaker is keyed off the hostname and path of the service.
+ * 
+ */
+
 var url = require('url');
 var sf = require('sf');
 var CircuitBreaker = require('circuit-breaker-js');
@@ -6,7 +15,9 @@ var breakers = {};
 module.exports = function(options, config, eventHandler, command, next) {
 
     var parsedUrl = url.parse(options.url);
-    var cbKey = parsedUrl.host + parsedUrl.pathname;
+    var cbKey = parsedUrl.host;
+
+    if(config.circuitbreaker && config.circuitbreaker.includePath) cbKey += parsedUrl.pathname;
 
     setupBreaker(cbKey);
 

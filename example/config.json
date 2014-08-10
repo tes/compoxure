@@ -21,10 +21,13 @@
     "circuitbreaker":{
         "windowDuration":10000,
         "numBuckets": 10,
-        "errorThreshold": 50,
-        "volumeThreshold": 10
+        "errorThreshold": 20,
+        "volumeThreshold": 5,
+        "includePath":true,
+        "publishToRedis":"redis://localhost:6379?db=0"
     },
     "cache": {
-        "engine": "memorycache"
+        "engine": "redis",
+        "url":"redis://localhost:6379?db=0"
     }
 }

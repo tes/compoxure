@@ -4,6 +4,7 @@ var redis = require('redis');
 var Supplant = require('supplant');
 var subs = new Supplant();
 var url = require('url');
+var utils = require('../utils');
 
 module.exports = function(config) {
 
@@ -12,7 +13,7 @@ module.exports = function(config) {
     var cleanupPeriod = 60 * 60 * 24; // 1 day
 
     if(config.url) {
-        redisOptions = parseConnectionString(config.url);
+        redisOptions = utils.parseRedisConnectionString(config.url);
     } else {
         redisOptions = config;
     }
@@ -56,15 +57,3 @@ module.exports = function(config) {
 
     };
 };
-
-/**
- * Allow creation of redis object from string
- */
-function parseConnectionString(connectionString) {
-    var params = url.parse(connectionString, true);
-    return {
-        host: params.hostname,
-        port: params.port && parseInt(params.port) || 6379,
-        db: params.query.db && parseInt(params.query.db) || 0
-    };
-}
