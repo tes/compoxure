@@ -3,7 +3,7 @@
 
 [![NPM](https://nodei.co/npm/compoxure.png?downloads=true)](https://nodei.co/npm/compoxure/)
 
-Composition proxy replacement for ESI or SSI uses [node-trumpet](https://github.com/substack/node-trumpet) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
+Composition proxy replacement for ESI or SSI uses [htmlparser2](https://github.com/fb55/htmlparser2/) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
 
@@ -19,7 +19,7 @@ Visit [http://localhost:5000/](http://localhost:5000/)
 
 ## What is it
 
-Compoxure is a composition proxy - you put it in front of a back end service that acts as a template into which content from microservices is composed.  It is designed to be simple, fast and failure tolerant - e.g. you won't need to build complex patterns across and around all of your micro services to deal with failure scenarios, they just serve out HTML and should just fail fast.
+Compoxure is a composition proxy - you put it in front of a back end service that acts as a template into which content from microservices is composed.  It is designed to be simple, fast and failure tolerant - e.g. you won't need to build complex patterns across and around all of your micro services to deal with failure scenarios, they just serve out HTML and should try to fail fast.
 
 ## Examples of usage
 
@@ -31,7 +31,7 @@ Compoxure is a composition proxy - you put it in front of a back end service tha
 
 ## How it works
 
-You have a back end service (e.g. a CMS) that returns HTML (with or without the declarative markup explained below), compoxure then parses the HTML on the way through and makes any requests to other micro services whose responses are then inserted into the HTML on the way through.
+You have a back end service (e.g. a CMS) that returns HTML containing the declarative markup explained below. Compoxure then responds to requests, calling the backend service that matches the URL, parses the HTML it returns and makes any requests to other micro services whose responses are then inserted into the HTML on the way through.
 
 The various responses (e.g. the backend HTML page, each service fragment response) can all be cached at differing TTLs (or not at all) and using a simple key construction method that covers the scenario that some fragments may differ for not logged in users vs logged in users.
 
@@ -42,30 +42,6 @@ Typically the backend service will be a CMS or a static HTML page containing spe
      This content will be replaced on the way through
 </div>
 ```
-
-Alternatively you can use the configuration based approach, in the configuration file adding a 'transformations' section like
-below:
-
-```html
-<div id='ApplicationWidget'>
-     This content will be replaced on the way through
-</div>
-```
-Configuration based composition then looks as follows:
-```json
-"transformations":{
-   "ApplicationWidget": {
-       "type": "replacement",
-       "query": "#ApplicationWidget",
-       "url": "{{server:local}}//application/widget/{{cookie:userId}}",
-       "cacheKey":"widget:user:{{cookie:userId}}",
-       "cacheTTL":"10s",
-       "timeout": "1s",
-       "statsdKey":"widget_user"
-   }
-}
-```
-There are pros and cons to both approaches, with the declarative approach being simplest to manage if you have full control over the back end CMS and it is easy to change, or the configuration based approach if you want to control everything at the proxy layer (e.g. you are replacing chunks of an existing page that is difficult to change).
 
 ### Configuration
 
@@ -105,20 +81,6 @@ The configuration object looks as follows:
     },
     "cache": {
         "engine": "redis"
-    },
-    "transformations":{
-        "HeaderReplacement": {
-            "type": "replacement",
-            "query": "#ReplaceHeader",
-            "url": "{{server:local}}/delayed",
-            "cacheKey":"delayed1",
-            "cacheTTL":"10s",
-            "timeout": "1s"
-        },
-        "DeclarativeReplacement": {
-            "type":"replacement",
-            "query": "[cx-url]"
-        }
     }
 }
 ```
@@ -185,37 +147,12 @@ host|If Redis, set the host explicitly (this and params below are an alternative
 port|If Redis, set the port explicitly
 db|If Redis, set the db explicitly
 
-#### Transformations
-
-The heart of compoxure is the transformation area.  This is where you can add your own selector based transformations, or simply leave the default declarative transformation:
-
-```json
-     "DeclarativeReplacement": {
-            "type":"replacement",
-            "query": "[cx-url]"
-        }
-     }
-```
-Do not delete this transformation if you want the declarative code to work!  The properties of new transformations are as follows:
-
-|Property|Description|
----------|------------
-type|The type of transformation to apply to the matching selector (currently only 'replacement' is valid).
-query|The selector (see trumpet config) that the replacement will be applied to
-url|The url to call to get the content to put into the section matching the selector (specific to replacement).
-cacheKey|The key to use to cache the response
-cacheTTL|The time to cache the response
-statsdKey|The key to use in reporting stats to statds, if not set will use cacheKey
-timeout|The timeout to wait for the service to respond
-
-Note that compoxure will always try to fail gracefully and serve as much of the page as possible.
-
 ### Declarative Parameters
 
 To use compoxure in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exist.
 
 **Warning:**
-When using compxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}```
+As composure uses a mustache like syntax for variable substition, when using compxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}```
 
 |Property|Description|
 ---------|------------
