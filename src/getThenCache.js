@@ -22,13 +22,14 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
                 stream.end(content);
                 return;
-            } else {
-                eventHandler.logger('debug', 'Cache MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
-                eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
-                if(options.url == 'cache') {
-                    stream.end("");
-                    return;
-                }
+            }
+
+            eventHandler.logger('debug', 'Cache MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
+            eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
+
+            if(options.url == 'cache') {
+                stream.end("");
+                return;
             }
 
             CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
