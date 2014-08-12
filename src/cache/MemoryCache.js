@@ -12,7 +12,7 @@ module.exports = function() {
         var data = cache[key];
 
         if(!data) return next(null, null);
-        var expires = (new Date()).getTime();
+        var expires = Date.now();
         if(expires - data.expires > 0) {
             setTimeout(function() {
                 next(null, null, data.content);
@@ -26,7 +26,7 @@ module.exports = function() {
 
     this.set = function(key, value, _ttl, next) {
     	var ttl = _ttl || oneMinute;
-        var expires = (new Date()).getTime() + ttl*1;
+        var expires = Date.now() + ttl*1;
     	cache[key] = {expires:expires, content:value};
         next && next(null);
     };

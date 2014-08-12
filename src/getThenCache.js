@@ -8,15 +8,13 @@ var CircuitBreaker = require('./CircuitBreaker');
 module.exports = getThenCache;
 
 function getThenCache(options, config, cache, eventHandler, stream, onError) {
-
-    var start = new Date();
-
     if(!options.explicitNoCache && options.cacheTTL > 0) {
+        var start = Date.now();
 
         cache.get(options.cacheKey, function(err, content, oldContent) {
             if (err) return onError(err, oldContent);
             if (content) {
-                var timing = (new Date() - start);
+                var timing = Date.now() - start;
                 eventHandler.logger('info', 'CACHE ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.logger('debug', 'Cache HIT for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
@@ -52,7 +50,7 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
 
     function pipeAndCacheContent(next) {
 
-        var content = "", start = new Date(), inErrorState = false;
+        var content = "", start = Date.now(), inErrorState = false;
 
         if(!url.parse(options.url).protocol) return handleError({message:'Invalid URL ' + options.url});
 
@@ -69,7 +67,7 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
             .on('end', function() {
                 if(inErrorState) return;
                 next(null, content);
-                var timing = (new Date() - start);
+                var timing = Date.now() - start;
                 eventHandler.logger('info', 'URL ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('timing', options.statsdKey + '.responseTime', timing);
             });

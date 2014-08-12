@@ -31,7 +31,7 @@ module.exports = function(config) {
 
             // Check if there is a hit but look at expiry time
             // Allows us to serve stale cached values vs TTL only
-            var expires = (new Date()).getTime();
+            var expires = Date.now();
             if(expires - data.expires > 0) {
                 next(err, null, data.content);
             } else {
@@ -44,7 +44,7 @@ module.exports = function(config) {
         if (arguments.length === 3) return this.set(key, value, _ttl, function() {});
 
         var ttl = _ttl || oneMinute;
-        var expires = (new Date()).getTime() + ttl*1;
+        var expires = Date.now() + ttl*1;
         var multi = redisClient.multi();
 
         multi.hset(key, "content", value);

@@ -30,7 +30,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             skipClosingTag = false;
 
         output[outputIndex] = "";
-        req.timerStart = new Date();
+        req.timerStart = Date.now();
 
         res.transformer = {
             end: function(data) {
@@ -97,7 +97,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 output[outputIndex] += "</" + tagname + ">";
             },
             onend: function(){
-                 var timeoutStart = new Date(), timeout = req.backend.timeout || 5000;
+                 var timeoutStart = Date.now(), timeout = req.backend.timeout || 5000;
                  function checkDone() {
                     var done = true, outputHTML = "";
                     for (var i = 0, len = fragmentOutput.length; i < len; i++) {
@@ -107,13 +107,13 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                         for (var i = 0, len = output.length; i < len; i++) {
                             outputHTML += output[i];
                         }
-                        var responseTime = (new Date() - req.timerStart);
+                        var responseTime = Date.now() - req.timerStart;
                         self.eventHandler.logger('info', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
                         self.eventHandler.stats('timing','responseTime',responseTime);
                         res.end(outputHTML);
                     } else {
 
-                        if((new Date() - timeoutStart) > timeout) {
+                        if((Date.now() - timeoutStart) > timeout) {
                             res.writeHead(500, {"Content-Type": "text/html"});
                             var errorMsg = _.template('Compoxure failed to respond in <%= timeout %>ms');
                             res.end(errorMsg({timeout:timeout}));
@@ -130,7 +130,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
         function getCx(node, next) {
 
             var options = {},
-                start = new Date(),
+                start = Date.now(),
                 templateVars = _.clone(req.templateVars);
 
             options.unparsedUrl = node['cx-url'];
@@ -181,7 +181,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     }
 
                     self.eventHandler.stats('increment', options.statsdKey + '.error');
-                    var elapsed = (new Date() - req.timerStart), timing = (new Date() - start);
+                    var elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
                     errorMsg = _.template('<%= url %> FAILED in <%= timing%>, elapsed <%= elapsed %>.');
                     self.eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
