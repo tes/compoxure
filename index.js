@@ -8,11 +8,8 @@ var async = require('async');
 var _ = require('lodash');
 var HttpStatus = require('http-status-codes');
 
-// Hack for intra ms unique keys for tracer (not sure if this even works - todo)
-var msCounter = 0;
-setInterval(function() {
-    msCounter = 0;
-},1);
+var prevMillis = 0;
+var intraMillis = 0;
 
 module.exports = function(config, eventHandler) {
 
@@ -31,8 +28,15 @@ module.exports = function(config, eventHandler) {
 
             var DEFAULT_LOW_TIMEOUT = 500;
 
-            msCounter++;
-            req.tracer = (new Date()).getTime() + '' + msCounter;
+            var now = Date.now();
+            if (now > prevMillis) {
+                prevMillis = now;
+                intraMillis = 0;
+            } else {
+                intraMillis += 1;
+            }
+
+            req.tracer = (Date.now() * 1000) + intraMillis;
 
             var referer = req.headers.referer || 'direct',
                 userAgent = req.headers['user-agent'] || 'unknown',
