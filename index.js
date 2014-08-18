@@ -4,6 +4,7 @@ var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
 var cacheFactory = require('./src/cache/cacheFactory');
 var getThenCache = require('./src/getThenCache');
+var utils = require('./src/utils');
 var async = require('async');
 var _ = require('lodash');
 var HttpStatus = require('http-status-codes');
@@ -52,15 +53,13 @@ module.exports = function(config, eventHandler) {
                 targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
                 targetCacheTTL = utils.timeToMillis(backend.ttl || "30s");
 
-            backend.timeout = backend.timeout || DEFAULT_LOW_TIMEOUT;
-
             if (config.cdn) backendHeaders['x-cdn-host'] = config.cdn.host;
 
             var options = {
                 url: targetUrl,
                 cacheKey: targetCacheKey,
                 cacheTTL: targetCacheTTL,
-                timeout: backend.timeout,
+                timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
                 headers: backendHeaders,
                 tracer: req.tracer,
                 type: 'backend',
@@ -99,7 +98,7 @@ module.exports = function(config, eventHandler) {
 
         if(!req.backend) {
             res.writeHead(HttpStatus.NOT_FOUND);
-            return next({message: 'Backend not found'});
+            return next({level: 'warn', message: 'Backend not found'});
         } else {
             return next();
         }
@@ -107,7 +106,7 @@ module.exports = function(config, eventHandler) {
 
     function ignoreNotHtml(req, res, next) {
         if (!req.headers || !req.headers.accept) {
-            return next({message: 'No accept headers'});
+            return next({level:'warn', message: 'No accept headers'});
         }
 
         var accept = req.headers.accept.toLowerCase();
@@ -137,7 +136,7 @@ module.exports = function(config, eventHandler) {
         ], function(err) {
             if(err) {
                 res.end();
-                eventHandler.logger(err.level ? err.level : 'error', err.message);
+                eventHandler.logger(err.level ? err.level : 'error', err.message, {url: req.url});
             } else {
                 next();
             }
