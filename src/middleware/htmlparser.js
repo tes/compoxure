@@ -97,7 +97,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 output[outputIndex] += "</" + tagname + ">";
             },
             onend: function(){
-                 var timeoutStart = Date.now(), timeout = req.backend.timeout || 5000;
+                 var timeoutStart = Date.now(), timeout = utils.timeToMillis(req.backend.timeout || "5s");
                  function checkDone() {
                     var done = true, outputHTML = "";
                     for (var i = 0, len = fragmentOutput.length; i < len; i++) {
