@@ -114,7 +114,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     } else {
 
                         if((Date.now() - timeoutStart) > timeout) {
-                            res.writeHead(500, {"Content-Type": "text/html"});                            
+                            res.writeHead(500, {"Content-Type": "text/html"});
                             var errorMsg = 'Compoxure failed to respond in <%= timeout %>ms. Failed to respond: ';
                             for (var i = 0, len = fragmentOutput.length; i < len; i++) {
                                 if(!fragmentOutput[i].done) {
@@ -151,6 +151,8 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             };
             options.headers.cookie = req.headers.cookie;
             options.tracer = req.tracer;
+            options.statsdKey = 'fragment_' + utils.urlToCacheKey(options.url);
+
             if (self.config.cdn) options.headers['x-cdn-host'] = self.config.cdn.host;
             var responseStream = {
                 end: function(data) {
