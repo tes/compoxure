@@ -187,7 +187,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                     self.eventHandler.stats('increment', options.statsdKey + '.error');
                     var elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
-                    errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>.');
+                    errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
                     self.eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
                 }

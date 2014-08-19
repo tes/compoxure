@@ -16,13 +16,13 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
             if (content) {
                 var timing = Date.now() - start;
                 eventHandler.logger('info', 'CACHE ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
-                eventHandler.logger('debug', 'Cache HIT for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
+                eventHandler.logger('debug', 'CACHE HIT for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
                 stream.end(content);
                 return;
             }
 
-            eventHandler.logger('debug', 'Cache MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
+            eventHandler.logger('debug', 'CACHE MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
             eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
 
             if(options.url == 'cache') {
@@ -34,7 +34,7 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
                 if (err) return onError(err, oldContent);
                 stream.end(content);
                 cache.set(options.cacheKey, content, options.cacheTTL, function(err) {
-                    eventHandler.logger('debug', 'Cache SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
+                    eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
                 });
             });
         });
@@ -68,18 +68,14 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
                 if(inErrorState) return;
                 next(null, content);
                 var timing = Date.now() - start;
-                eventHandler.logger('info', 'URL ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
+                eventHandler.logger('info', 'OK ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('timing', options.statsdKey + '.responseTime', timing);
             });
 
         function handleError(err, statusCode) {
             if (!inErrorState) {
                 inErrorState = true;
-                var message = sf('Service {url} FAILED due to {errorMessage}', {
-                    url: options.url,
-                    errorMessage: err.message
-                });
-                next({statusCode: statusCode, message: message});
+                next({statusCode: statusCode, message: err.message});
             }
         }
 
