@@ -114,9 +114,14 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     } else {
 
                         if((Date.now() - timeoutStart) > timeout) {
-                            res.writeHead(500, {"Content-Type": "text/html"});
-                            var errorMsg = _.template('Compoxure failed to respond in <%= timeout %>ms');
-                            res.end(errorMsg({timeout:timeout}));
+                            res.writeHead(500, {"Content-Type": "text/html"});                            
+                            var errorMsg = 'Compoxure failed to respond in <%= timeout %>ms. Failed to respond: ';
+                            for (var i = 0, len = fragmentOutput.length; i < len; i++) {
+                                if(!fragmentOutput[i].done) {
+                                    errorMsg += ' ' + subs.text(fragmentOutput[i]['cx-url'], req.templateVars) + '.';
+                                }
+                            }
+                            res.end(_.template(errorMsg)({timeout:timeout}));
                         } else {
                             setTimeout(checkDone,1);
                         }
@@ -161,7 +166,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                 if (err.statusCode === 404) {
                     res.writeHead(404, {"Content-Type": "text/html"});
-                    errorMsg = _.template('Service <%= url %> cache <%= cacheKey %> returned 404.');
+                    errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     res.end(errorMsg(options));
                 } else {
 
@@ -173,7 +178,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     } else {
                         if(oldContent) {
                             responseStream.end(oldContent);
-                            errorMsg = _.template('Service <%= url %> cache <%= cacheKey %> FAILED but serving STALE content.');
+                            errorMsg = _.template('STALE <%= url %> cache <%= cacheKey %> failed but serving stale content.');
                             self.eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
                         } else {
                             responseStream.end(req.backend.leaveContentOnFail ? output[node.outputIndex] : "" );
@@ -182,7 +187,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                     self.eventHandler.stats('increment', options.statsdKey + '.error');
                     var elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
-                    errorMsg = _.template('<%= url %> FAILED in <%= timing%>, elapsed <%= elapsed %>.');
+                    errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>.');
                     self.eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
                 }
