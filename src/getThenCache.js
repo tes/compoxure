@@ -75,7 +75,11 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
         function handleError(err, statusCode) {
             if (!inErrorState) {
                 inErrorState = true;
-                next({statusCode: statusCode, message: err.message});
+                var message = sf('Service {url} FAILED due to {errorMessage}', {
+                    url: options.url,
+                    errorMessage: err.message
+                });
+                next({statusCode: statusCode, message: message});
             }
         }
 
