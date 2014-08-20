@@ -151,9 +151,10 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             };
             options.headers.cookie = req.headers.cookie;
             options.tracer = req.tracer;
-            options.statsdKey = 'fragment_' + utils.urlToCacheKey(options.url);
+            options.statsdKey = 'fragment_' + (node['cx-statsd-key'] || 'unknown');
 
             if (self.config.cdn) options.headers['x-cdn-host'] = self.config.cdn.host;
+            
             var responseStream = {
                 end: function(data) {
                     next(node, data);
