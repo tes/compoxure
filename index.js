@@ -19,7 +19,7 @@ module.exports = function(config, eventHandler) {
     eventHandler.logger = eventHandler.logger || function() {};
     eventHandler.stats = eventHandler.stats || function() {};
 
-    var interrogator = new RequestInterrogator(config.parameters, eventHandler);
+    var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, config.environment, eventHandler);
     var cache = cacheFactory.getCache(config.cache);
     var htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
@@ -53,7 +53,10 @@ module.exports = function(config, eventHandler) {
                 targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
                 targetCacheTTL = utils.timeToMillis(backend.ttl || "30s");
 
-            if (config.cdn) backendHeaders['x-cdn-host'] = config.cdn.host;
+            if (config.cdn) {
+                if(config.cdn.host) backendHeaders['x-cdn-host'] = config.cdn.host;
+                if(config.cdn.url) backendHeaders['x-cdn-url'] = config.cdn.url;
+            }
 
             var options = {
                 url: targetUrl,

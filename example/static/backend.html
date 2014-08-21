@@ -55,6 +55,12 @@
     <div cx-url='{{server:local}}/slow' cx-cache-key='slowservice' cx-cache-ttl='10s' cx-timeout="10" class='block'>
         This is a call to a service that is slower than the timeout.
     </div>
+    <h3>Logic</h3>
+    <p>Append ?logic=true to the url to show how simple mustache based logic statements can be used to construct URLs as well as query keys</p>
+    <code>
+        &lt;div id=&#039;testlogic&#039; cx-test=&#039;{{#query:logic}}Logic ftw!{{/query:logic}}&#039;&gt;&lt;/div&gt;
+    </code>
+    <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
 </body>
 
 </html>

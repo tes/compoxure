@@ -29,5 +29,8 @@
     "cache": {
         "engine": "redis",
         "url":"redis://localhost:6379?db=0"
+    },
+    "hogan": {
+        "delimiters": "{{ }}"
     }
 }

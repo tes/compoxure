@@ -3,11 +3,14 @@
 var _ = require('lodash');
 var url = require('url');
 
-module.exports = function (config, eventHandler) {
+module.exports = function (config, cdn, environment, eventHandler) {
 
     config = config || { urls: [
         {pattern: '.*', names: []}
     ], servers: {} };
+
+    cdn = cdn || {};
+    environment = environment || {name: process.env.NODE_ENV || 'development'};
 
     this.interrogateRequest = function (req, next) {
         var parsedUrl = url.parse(req.url, true);
@@ -24,6 +27,8 @@ module.exports = function (config, eventHandler) {
             cookie: req.cookies,
             header: req.headers,
             server: config.servers,
+            cdn: cdn,
+            env: environment, 
             user: user
         };
 

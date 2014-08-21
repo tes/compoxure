@@ -78,6 +78,17 @@ The configuration object looks as follows:
                 "colorize": true
             }
         }
+    }, 
+    "cdn": {
+        "host": "server.cloudfront.net",
+        "protocol": "https",
+        "path": "/assets"
+    },
+    "environment":{
+        "name":"development"
+    },
+    "hogan":{
+        "delimiters":"{{ }}"
     },
     "cache": {
         "engine": "redis"
@@ -147,12 +158,47 @@ host|If Redis, set the host explicitly (this and params below are an alternative
 port|If Redis, set the port explicitly
 db|If Redis, set the db explicitly
 
+#### CDN Configuration
+
+Compoxure can pass through CDN configuration through to each of the backend services, this is to allow them to render any links required to images or other static assets.
+
+The configuration here is passed through to the services via two headers:
+
+ - x-cdn-host : maps to cdn host property (deprecated)
+ - x-cdn-url : full url to use as based for CDN
+
+|Property|Description|
+---------|------------
+host|The hostname of the CDN - e.g. cdn.tes.co.uk
+url|Full url - e.g. https://cdn.tes.co.uk/assets/
+
+#### Environment
+
+Environment can be set in config, so it can be used as a parameter.
+
+|Property|Description|
+---------|------------
+name|Environment name, defaults to NODE_ENV or 'development' if NODE_ENV not supplied.
+
+
+#### Hogan
+
+Compoxure uses Hogan to parse string templates.  If you are also using a mustache language as your templating language, and are embedding Compoxure directives in templates, this will conflict.
+
+The best option here is to use a different delimiter for Compoxure, and this can be configured via the hogan configuration option:
+
+
+|Property|Description|
+---------|------------
+delimiters|New delimiter string - e.g. '<% %>'
+
+
 ### Declarative Parameters
 
 To use compoxure in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exist.
 
 **Warning:**
-As composure uses a mustache like syntax for variable substition, when using compxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}```
+As composure uses a mustache syntax for variable substition, when using compoxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}``` or change the delimiter in the hogan configuration.
 
 |Property|Description|
 ---------|------------
@@ -163,6 +209,7 @@ cx-statsd-key|The key to use to report stats to statsd, defaults to cache-key if
 cx-timeout|The timeout to wait for the service to respond.
 cx-no-cache|Explicit instruction to not cache when value="true", overrides all other cache instruction.
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
+cx-test|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 
 ```html
 <div cx-url='{{server:local}}/application/widget' cx-cache-ttl='10s' cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">
@@ -182,6 +229,9 @@ url|Any elements of the incoming url (search, query, pathname, path, href)|/sear
 cookie|Any cookie value|/user/{{cookie:TSL_UserID}}
 header|Any incoming header value|/user/feature/{{header:x-feature-enabled}}
 server|A server short name from the configuration in the parameters section of config|{{server:feature}}/feature
+env|Environment, property available is name e.g. {{env:name}}
+cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
+user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}} 
 
 Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}})
 

@@ -28,13 +28,14 @@ describe("Page Composer", function(){
         pcServer.init(5000, 'localhost')(next);
     }
 
-    function getPageComposerUrl(path) {
+    function getPageComposerUrl(path, search) {
 
         var url = require('url').format({
             protocol: 'http',
             hostname: 'localhost',
             port: 5000,
-            pathname: path
+            pathname: path,
+            search: search
         });
 
         return url;
@@ -101,28 +102,42 @@ describe("Page Composer", function(){
     });
 
     it('should ignore a cx-url that is invalid', function(done) {
-        getSection('#invalidurl', function(text) {
+        getSection('', '', '#invalidurl', function(text) {
             expect(text).to.be.equal('Error: Service invalid FAILED due to Invalid URL invalid');
             done();
         });
     });
 
     it('should ignore a cx-url that is invalid unless it is cache', function(done) {
-        getSection('#cacheurl1', function(text) {
+        getSection('', '', '#cacheurl1', function(text) {
             expect(text).to.be.equal('');
             done();
         });
     });
 
     it('should ignore a cx-url that is invalid unless it is cache, and get the content if cache is primed', function(done) {
-        getSection('#cacheurl2', function(text) {
+        getSection('', '', '#cacheurl2', function(text) {
             expect(text).to.be.equal('Replaced');
             done();
         });
     });
 
-    function getSection(query, next) {
-        var url = getPageComposerUrl();
+     it('should allow simple mustache logic', function(done) {
+        getSection('', '?logic=yes', '#testlogic', function(text) {
+            expect(text).to.be.equal('Logic ftw!');
+            done();
+        });
+    });
+
+     it('should have access to current environment, defaulting to development', function(done) {
+        getSection('', '', '#environment', function(text) {
+            expect(text).to.be.equal('development');
+            done();
+        });
+    });
+
+    function getSection(path, search, query, next) {
+        var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {
             expect(err).to.be(null);
             var $ = cheerio.load(content);

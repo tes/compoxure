@@ -1,8 +1,7 @@
 var htmlparser = require("htmlparser2");
 var fs = require('fs');
 var _ = require('lodash');
-var Supplant = require('supplant');
-var subs = new Supplant();
+var Hogan = require('hogan.js');
 var utils = require('../utils');
 var Stream = require('stream').Stream;
 var through = require('through');
@@ -16,8 +15,17 @@ function HtmlParserProxy(config, cache, eventHandler) {
     this.config = config;
     this.cache = cache;
     this.eventHandler = eventHandler;
+    this.hoganCache = {};
     return this;
 };
+
+HtmlParserProxy.prototype.render = function(text, data) {
+    var self = this;
+    if(!this.hoganCache[text]) {
+        this.hoganCache[text] = Hogan.compile(text);
+    }
+    return this.hoganCache[text].render(data);
+}
 
 HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
@@ -64,6 +72,9 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     fragmentIndex ++;
                     output[outputIndex] = "";
 
+                } else if(attribs && attribs['cx-test']) {                    
+                    output[outputIndex] += utils.createTag(tagname, attribs);
+                    output[outputIndex] += self.render(attribs['cx-test'], req.templateVars);
                 } else {
                     output[outputIndex] += utils.createTag(tagname, attribs);
                 }
@@ -118,7 +129,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                             var errorMsg = 'Compoxure failed to respond in <%= timeout %>ms. Failed to respond: ';
                             for (var i = 0, len = fragmentOutput.length; i < len; i++) {
                                 if(!fragmentOutput[i].done) {
-                                    errorMsg += ' ' + subs.text(fragmentOutput[i]['cx-url'], req.templateVars) + '.';
+                                    errorMsg += ' ' + self.render(fragmentOutput[i]['cx-url'], req.templateVars) + '.';
                                 }
                             }
                             res.end(_.template(errorMsg)({timeout:timeout}));
@@ -139,9 +150,9 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 templateVars = _.clone(req.templateVars);
 
             options.unparsedUrl = node['cx-url'];
-            options.url = subs.text(node['cx-url'], templateVars);
+            options.url = self.render(node['cx-url'], templateVars);
             options.timeout = utils.timeToMillis(node['cx-timeout'] || "1s");
-            options.cacheKey = subs.text(node['cx-cache-key'] || node['cx-url'], templateVars);
+            options.cacheKey = self.render(node['cx-cache-key'] || node['cx-url'], templateVars);
             options.cacheTTL = utils.timeToMillis(node['cx-cache-ttl'] || "1m");
             options.explicitNoCache = node['cx-no-cache'] === "true";
             options.type = 'fragment';
@@ -153,7 +164,10 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.tracer = req.tracer;
             options.statsdKey = 'fragment_' + (node['cx-statsd-key'] || 'unknown');
 
-            if (self.config.cdn) options.headers['x-cdn-host'] = self.config.cdn.host;
+            if (self.config.cdn) {
+                if(self.config.cdn.host) options.headers['x-cdn-host'] = self.config.cdn.host;
+                if(self.config.cdn.url) options.headers['x-cdn-url'] = self.config.cdn.url;
+            }
             
             var responseStream = {
                 end: function(data) {
