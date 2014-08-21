@@ -209,7 +209,9 @@ cx-statsd-key|The key to use to report stats to statsd, defaults to cache-key if
 cx-timeout|The timeout to wait for the service to respond.
 cx-no-cache|Explicit instruction to not cache when value="true", overrides all other cache instruction.
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
-cx-test|Whether to completely replace the outer HTML element. Overrides configuration in backend.
+cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
+cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page.
+
 
 ```html
 <div cx-url='{{server:local}}/application/widget' cx-cache-ttl='10s' cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">

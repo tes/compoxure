@@ -65,6 +65,15 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should not return a 404 if of the fragments return a 404', function(done) {
+        var requestUrl = getPageComposerUrl('ignore404backend');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
+
     it('should fail quietly if the backend is configured to do so', function(done) {
         var requestUrl = getPageComposerUrl('quiet');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {

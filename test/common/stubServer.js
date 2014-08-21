@@ -95,6 +95,13 @@ function initStubServer(fileName, port, hostname) {
             var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
             res.end(backendHtml);
         });
+        
+        router.get('/ignore404backend', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
     }));
 
     return function(next) {

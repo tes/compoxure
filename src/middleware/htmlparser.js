@@ -155,6 +155,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.cacheKey = self.render(node['cx-cache-key'] || node['cx-url'], templateVars);
             options.cacheTTL = utils.timeToMillis(node['cx-cache-ttl'] || "1m");
             options.explicitNoCache = node['cx-no-cache'] === "true";
+            options.ignore404 = node['cx-ignore-404'] === "true";
             options.type = 'fragment';
             options.cache = (options.cacheTTL > 0);
             options.headers = {
@@ -181,7 +182,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                 var errorMsg;
 
-                if (err.statusCode === 404) {
+                if (err.statusCode === 404 && !options.ignore404) {
                     res.writeHead(404, {"Content-Type": "text/html"});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     res.end(errorMsg(options));
