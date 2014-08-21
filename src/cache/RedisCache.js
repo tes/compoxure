@@ -1,8 +1,6 @@
 'use strict';
 
 var redis = require('redis');
-var Supplant = require('supplant');
-var subs = new Supplant();
 var url = require('url');
 var utils = require('../utils');
 
