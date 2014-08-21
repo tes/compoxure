@@ -253,7 +253,7 @@ To do: build an API for the cache that enables jobs to do this without directly 
 
 ## 404 Responses from Microservices
 
-If any of the requests to a backend service via cx-url return a 404, then compoxure itself will render a 404 back to the client.  At TES we have nginx capture the 404 and return a static 404 page.  Todo:  Make this behaviour configurable?
+If any of the requests to a backend service via cx-url return a 404, then compoxure itself will render a 404 back to the client.  At TES we have nginx capture the 404 and return a static 404 page.   This can be turned off on an include by include basis by adding the 'cx-ignore-404' attribute.
 
 ## Settings Time Intervals
 
