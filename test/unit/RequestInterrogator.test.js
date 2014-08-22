@@ -31,6 +31,9 @@ describe('RequestInterrogator', function() {
     it('should extract parameters from the path', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
         });
         req.connection = {};
@@ -49,6 +52,9 @@ describe('RequestInterrogator', function() {
     it('should extract parameters from the path if multiple paths match', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
         });
         req.connection = {};
@@ -68,6 +74,9 @@ describe('RequestInterrogator', function() {
     it('should extract parameters, if multiple overlap it takes the last one', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
         });
         req.connection = {};
@@ -88,6 +97,9 @@ describe('RequestInterrogator', function() {
     it('should extract query parameters', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420?foo=bar'
         });
         req.connection = {};
@@ -105,7 +117,8 @@ describe('RequestInterrogator', function() {
             method: 'GET',
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420',
             headers: {
-                'foo': 'bar'
+                'foo': 'bar',
+                host: 'localhost:5000'
             }
         });
         req.connection = {};
@@ -121,6 +134,9 @@ describe('RequestInterrogator', function() {
     it('should extract cookies', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420',
             cookies: {
                 'foo': 'bar'
@@ -139,6 +155,9 @@ describe('RequestInterrogator', function() {
     it('should default user:userId if not logged in', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
         });
         req.connection = {};
@@ -155,6 +174,9 @@ describe('RequestInterrogator', function() {
 
         var req  = httpMocks.createRequest({
             method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
             url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
         });
         req.connection = {};

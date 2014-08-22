@@ -14,7 +14,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
 
     this.interrogateRequest = function (req, next) {
         
-        var parsedUrl = url.parse(req.url, false);
+        var parsedUrl = url.parse(req.url, true);
         var params = interrogatePath(parsedUrl.path);
         params.pageUrl = getPageUrl(req, parsedUrl);
         var user = req.user || {userId: '_'};
@@ -65,7 +65,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
     function getPageUrl(req, parsedUrl) {
 
         var components = {
-            host: req.headers.host,
+            host: req.headers.http_host || req.headers.host,
             port: getPort(req),
             protocol: req.isSpdy ? 'https' : (req.connection.pair ? 'https' : 'http'),
             search: parsedUrl.search,
@@ -76,7 +76,8 @@ module.exports = function (config, cdn, environment, eventHandler) {
     }
 
     function getPort(req) {
-        var res = req.headers.host ? req.headers.host.match(/:(\d+)/) : "";
+        var host = req.headers.http_host || req.headers.host;
+        var res = host ? host.match(/:(\d+)/) : "";
         return res ? res[1] : req.connection.pair ? '443' : '80';
     }
 
