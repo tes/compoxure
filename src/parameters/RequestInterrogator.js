@@ -13,16 +13,17 @@ module.exports = function (config, cdn, environment, eventHandler) {
     environment = environment || {name: process.env.NODE_ENV || 'development'};
 
     this.interrogateRequest = function (req, next) {
-        var parsedUrl = url.parse(req.url, true);
+        
+        var parsedUrl = url.parse(req.url, false);
         var params = interrogatePath(parsedUrl.path);
-        params.pageUrl = getPageUrl(req);
+        params.pageUrl = getPageUrl(req, parsedUrl);
         var user = req.user || {userId: '_'};
 
         var requestVariables = {};
 
         var requestConfig = {
             param: params,
-            url: parsedUrl,
+            url: url.parse(params.pageUrl, false),
             query: parsedUrl.query,
             cookie: req.cookies,
             header: req.headers,
@@ -61,14 +62,16 @@ module.exports = function (config, cdn, environment, eventHandler) {
         return parameters;
     }
 
-    function getPageUrl(req) {
+    function getPageUrl(req, parsedUrl) {
+
         var components = {
             host: req.headers.host,
             port: getPort(req),
             protocol: req.isSpdy ? 'https' : (req.connection.pair ? 'https' : 'http'),
-            query: req.query,
-            pathname: req.url
+            search: parsedUrl.search,
+            pathname: parsedUrl.pathname
         };
+
         return url.format(components);
     }
 
