@@ -16,14 +16,14 @@ module.exports = function (config, cdn, environment, eventHandler) {
         
         var parsedUrl = url.parse(req.url, true);
         var params = interrogatePath(parsedUrl.path);
-        params.pageUrl = getPageUrl(req, parsedUrl);
+        var pageUrl = getPageUrl(req, parsedUrl);
         var user = req.user || {userId: '_'};
 
         var requestVariables = {};
 
         var requestConfig = {
             param: params,
-            url: url.parse(params.pageUrl, false),
+            url: pageUrl,
             query: parsedUrl.query,
             cookie: req.cookies,
             header: req.headers,
@@ -72,7 +72,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
             pathname: parsedUrl.pathname
         };
 
-        return url.format(components);
+        return url.parse(url.format(components),false);
     }
 
     function getPort(req) {

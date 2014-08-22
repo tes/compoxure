@@ -235,7 +235,36 @@ env|Environment, property available is name e.g. {{env:name}}
 cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
 user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}} 
 
-Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}})
+Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}}).  An example set is shown below.  Note that they will vary depending on your request, parameter configuration, cookies etc.
+
+```
+{ 'param:resourceId': '123456',
+  'url:protocol': 'http:',
+  'url:slashes': true,
+  'url:auth': null,
+  'url:host': 'localhost:5000',
+  'url:port': '5000',
+  'url:hostname': 'localhost',
+  'url:hash': null,
+  'url:search': '?param=true',
+  'url:query': 'param=true',
+  'url:pathname': '/resource/123456',
+  'url:path': '/resource/123456?param=true',
+  'url:href': 'http://localhost:5000/resource/123456?param=true',
+  'cookie:example': '12345',
+  'header:host': 'localhost:5000',
+  'header:connection': 'keep-alive',
+  'header:accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  'header:user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36',
+  'header:referer': 'http://localhost:5000/',
+  'header:accept-encoding': 'gzip,deflate,sdch',
+  'header:accept-language': 'en-GB,en-US;q=0.8,en;q=0.6',
+  'header:cookie': 'example=12345',
+  'server:local': 'http://localhost:5001',
+  'env:name': 'development',
+  'user:userId': '_'
+  }
+  ```
 
 ## From Cache Only
 

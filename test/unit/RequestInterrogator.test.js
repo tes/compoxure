@@ -7,7 +7,7 @@ var RequestInterrogator = require('../../src/parameters/RequestInterrogator');
 
 describe('RequestInterrogator', function() {
 
-    it('should generate the pageUrl', function(done) {
+    it('should generate the url object', function(done) {
         var req  = httpMocks.createRequest({
             headers: {
                 host: 'localhost:5000'
@@ -21,9 +21,8 @@ describe('RequestInterrogator', function() {
 
         interrogator.interrogateRequest(req, function(params) {
             var expectedPageUrl = 'http://localhost:5000/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420';
-
-            expect(params).to.have.property('param:pageUrl', expectedPageUrl);
-            expect(params).to.have.property('param:pageUrl:encoded', encodeURIComponent(expectedPageUrl));
+            expect(params).to.have.property('url:href', expectedPageUrl);
+            expect(params).to.have.property('url:href:encoded', encodeURIComponent(expectedPageUrl));
             done();
         });
     });
