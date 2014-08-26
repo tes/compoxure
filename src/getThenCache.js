@@ -54,6 +54,9 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
 
         if(!url.parse(options.url).protocol) return handleError({message:'Invalid URL ' + options.url});
 
+        options.headers['accept'] = 'text/html,application/xhtml+xml,application/xml,application/json';
+        options.headers['user-agent'] = 'Compoxure-Request-Agent';
+
         var r = request({url: options.url, agent: false, timeout: options.timeout, headers: options.headers})
             .on('error', handleError)
             .on('data', function(data) {
