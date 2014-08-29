@@ -37,7 +37,7 @@ module.exports = function(config, eventHandler) {
                 intraMillis += 1;
             }
 
-            req.tracer = (Date.now() * 1000) + intraMillis;
+            req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
 
             var referer = req.headers.referer || 'direct',
                 userAgent = req.headers['user-agent'] || 'unknown',
