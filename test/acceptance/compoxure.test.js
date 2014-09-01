@@ -145,8 +145,7 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should pass through non GET requests directly to the backend service', function(done) {
-        
+    it('should pass through non GET requests directly to the backend service', function(done) {        
         var j = request.jar();
         var cookie = request.cookie('PostCookie=Hello');
         j.setCookie(cookie, getPageComposerUrl());

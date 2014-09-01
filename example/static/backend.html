@@ -39,7 +39,6 @@
         This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
     </div>
 
-
     <h3>Service that is sometimes faulty</h3>
     <code>
         &lt;div cx-url=&#039;{{server:local}}/faulty&#039; cx-cache-key=&#039;faulty&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
@@ -55,16 +54,25 @@
     <div cx-url='{{server:local}}/slow' cx-cache-key='slowservice' cx-cache-ttl='10s' cx-timeout="20" class='block'>
         This is a call to a service that is slower than the timeout.
     </div>
+
     <h3>Logic</h3>
     <p>Append ?logic=true to the url to show how simple mustache based logic statements can be used to construct URLs as well as query keys</p>
     <code>
         &lt;div id=&#039;testlogic&#039; cx-test=&#039;{{#query:logic}}Logic ftw!{{/query:logic}}&#039;&gt;&lt;/div&gt;
     </code>
-    <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
+    <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}' class='block'></div>
 
-    <h3>POST and Put etc.</h3>
+    <h3>Dynamic No Cache</h3>
+    <p>It may be that you want to disable the cache for a fragment programmatically - e.g. if a user has a specific role.</p>
+    <code>
+        &lt;div id=&#039;testnocache&#039; cx-url=&#039;{{server:local}}/dynamic&#039; cx-cache-key=&#039;dynamic&#039; cx-cache-ttl=&#039;10s&#039; cx-no-cache=&#039;{{#query:nocache}}true{{/query:nocache}}&#039;&gt;&lt;/div&gt;
+    </code>
+    <div id='testnocache' cx-url='{{server:local}}/dynamic' cx-cache-key='dynamicnocache' cx-cache-ttl='10s' cx-no-cache='{{#query:nocache}}true{{/query:nocache}}' class='block'></div>
+
+
+    <h3>POST etc.</h3>
     <p>Compoxure will directly pass straight through any non GET request to the appropriate backend.</p>
-    <div id='testpost'>
+    <div id='testpost' class='block'>
         <form action="/post?hello=world" method="POST">
             Post: <input name="test"></input>
             <button name="submit" type="submit">Submit</button>
