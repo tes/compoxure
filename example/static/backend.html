@@ -61,6 +61,14 @@
         &lt;div id=&#039;testlogic&#039; cx-test=&#039;{{#query:logic}}Logic ftw!{{/query:logic}}&#039;&gt;&lt;/div&gt;
     </code>
     <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
+
+    <h3>POST and Put etc.</h3>
+    <p>Compoxure will directly pass straight through any non GET request to the appropriate backend.</p>
+    <div id='testpost'>
+        <form action="/post?hello=world" method="POST">
+            Post: <input name="test"></input>
+            <button name="submit" type="submit">Submit</button>
+        </form> 
 </body>
 
 </html>

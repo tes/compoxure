@@ -2,6 +2,7 @@
 
 var connect = require('connect');
 var connectRoute = require('connect-route');
+var cookieParser = require('cookie-parser');
 var http = require('http');
 var fs = require('fs');
 var uuid = require('node-uuid');
@@ -11,6 +12,8 @@ var stubServer = {};
 function initStubServer(fileName, port, hostname) {
 
     var app = connect();
+
+    app.use(cookieParser());
 
     app.use(connectRoute(function (router) {
         router.get('/replaced', function(req, res) {
@@ -100,6 +103,11 @@ function initStubServer(fileName, port, hostname) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
             res.end(backendHtml);
+        });
+
+        router.post('/post', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});                    
+            res.end("POST " + req.cookies['PostCookie']);
         });
 
     }));

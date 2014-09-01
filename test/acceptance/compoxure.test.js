@@ -145,6 +145,17 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass through non GET requests directly to the backend service', function(done) {
+        
+        var j = request.jar();
+        var cookie = request.cookie('PostCookie=Hello');
+        j.setCookie(cookie, getPageComposerUrl());
+        request.post(getPageComposerUrl('post'), { jar: j, headers: {'accept': 'text/html'} }, function(err, response, content) {
+            expect(content).to.be("POST Hello");
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

@@ -7,6 +7,8 @@ var getThenCache = require('./src/getThenCache');
 var utils = require('./src/utils');
 var async = require('async');
 var _ = require('lodash');
+var request = require('request');
+var url = require('url');
 var HttpStatus = require('http-status-codes');
 
 var prevMillis = 0;
@@ -121,6 +123,35 @@ module.exports = function(config, eventHandler) {
         next({message: 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url});
     }
 
+    function passThrough(req, res, next) {
+
+        if(req.method !== 'GET') {  
+
+            var targetUrl = url.parse(req.backend.target);
+            var reqUrl = url.parse(req.url);
+            
+            // Create forward url
+            var forwardUrl = url.format({
+                pathname: reqUrl.pathname,
+                search: reqUrl.search,
+                host: targetUrl.host,
+                protocol: targetUrl.protocol,
+            });
+
+            var requestConfig = {
+                url: forwardUrl                
+            }
+
+            req.pipe(request(requestConfig)).pipe(res);            
+
+        } else {
+
+            next();
+            
+        }
+
+    }
+
     function interrogateRequest(req, res, next) {
         interrogator.interrogateRequest(req, function(templateVars) {
             req.templateVars = templateVars;
@@ -134,6 +165,7 @@ module.exports = function(config, eventHandler) {
             function(callback) { dropFavicon(req, res, callback) },
             function(callback) { ignoreNotHtml(req, res, callback) },
             function(callback) { selectBackend(req, res, callback) },
+            function(callback) { passThrough(req, res, callback) },
             function(callback) { interrogateRequest(req, res, callback) },
             function(callback) { backendProxyMiddleware(req, res, callback) }
         ], function(err) {
