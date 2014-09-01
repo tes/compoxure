@@ -12,7 +12,7 @@ var compoxureMiddleware = cx(config, cxEventHandler);
 
 var server = connect();
 server.use(cookieParser());
-server.use(morgan('combined'));
+if(process.env.logging !== 'false') server.use(morgan('combined'));
 server.use(compoxureMiddleware);
 
 server.listen(5000, 'localhost', function(err) {
@@ -22,10 +22,10 @@ server.listen(5000, 'localhost', function(err) {
 function createEventHandler() {
 	return {
 		logger: function(level, message, data) {
-			console.log('LOG ' + level + ': ' + message);
+			if(process.env.logging !== 'false') console.log('LOG ' + level + ': ' + message);
 		},
 		stats: function(type, key, value) {
-			console.log('STAT ' + type + ' for ' + key + ' | ' + value);
+			if(process.env.logging !== 'false') console.log('STAT ' + type + ' for ' + key + ' | ' + value);
 		}
 	}
 }
