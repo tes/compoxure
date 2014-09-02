@@ -5,8 +5,11 @@ var cacheFactory = require('../../src/cache/cacheFactory');
 var cache = cacheFactory.getCache({engine:'memorycache'});
 
 describe("Memory Cache Engine", function(){
-
-	it('should set and get values from cache', function(done) {
+    
+    this.timeout(5000);
+    this.slow(3000);
+	
+    it('should set and get values from cache', function(done) {
         cache.set('bar:123', 'content', 1000, function(err) {
             expect(err).to.be(null);
             assertCachedValue(cache, 'bar:123', 'content', done);

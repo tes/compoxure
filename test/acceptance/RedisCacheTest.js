@@ -6,6 +6,9 @@ var cache = cacheFactory.getCache({engine:'redis'});
 
 describe("Redis Cache Engine", function() {
 
+    this.timeout(5000);
+    this.slow(3000);
+
 	it('should set and get values from cache', function(done) {
         cache.set('bar:123', 'content', 1000, function(err) {
             expect(err).to.be(null);

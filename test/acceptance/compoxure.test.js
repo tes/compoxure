@@ -13,6 +13,9 @@ describe("Page Composer", function(){
 
     var pageComposer;
 
+    this.timeout(5000);
+    this.slow(3000);
+
     before(function(done){
         async.series([
             initStubServer,
