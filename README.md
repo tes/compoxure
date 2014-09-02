@@ -103,6 +103,7 @@ These properties configure the backend server that the initial request goes to g
 |Property|Description|
 ---------|------------
 |pattern|The regexp used to select this backend based on the incoming request to compoxure.  First match wins.|
+|fn|Name of a selector function of type: function(req, variables) { return true; } to allow more dynamic selection of backend (instead of pattern).  Function must be passed in on the config.functions object, and is referenced by name.|
 |target|The base URL to the backend service that will serve HTML.  URLs are passed directly through, so /blah will be passed through to the backend as http://backend/blah|
 |host|The name to be passed through in the request (given the hostname of compoxure is likely to be different to that of the backend server.  The host is used as the key for all the statds stats.|
 |ttl|The amount of time to cache the backend response (TODO : make it honor cache headers)|
@@ -116,7 +117,7 @@ You can define multiple backends, by adding as many declarations for backends as
 
 ```json
  "backend": [{
-        "pattern": "/teaching-resource/.*",
+        "fn": "selectResource",
         "target":"http://www.tes.co.uk",
         "host":"www.tes.co.uk",
         "ttl":"10s",
@@ -131,6 +132,16 @@ You can define multiple backends, by adding as many declarations for backends as
         "replaceOuter": false,
         "quietFailure": true
     }]
+```
+
+In this example, the selectResource function is passed in with the configuration when configuring the middleware:
+
+```json
+config.functions = {
+  'selectResource': function(req, variables) {    
+    if(variables['param:resourceId']) return true;
+  }
+}
 ```
 
 #### Parameters
