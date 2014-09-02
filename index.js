@@ -164,9 +164,9 @@ module.exports = function(config, eventHandler) {
         async.series([
             function(callback) { dropFavicon(req, res, callback) },
             function(callback) { ignoreNotHtml(req, res, callback) },
+            function(callback) { interrogateRequest(req, res, callback) },
             function(callback) { selectBackend(req, res, callback) },
             function(callback) { passThrough(req, res, callback) },
-            function(callback) { interrogateRequest(req, res, callback) },
             function(callback) { backendProxyMiddleware(req, res, callback) }
         ], function(err) {
             if(err) {
