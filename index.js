@@ -95,9 +95,15 @@ module.exports = function(config, eventHandler) {
     }
 
     function selectBackend(req, res, next) {
+        
         if(config.backend) {
             req.backend = _.find(config.backend, function(server) {
-                return new RegExp(server.pattern).test(req.url);
+                if(server.pattern) return new RegExp(server.pattern).test(req.url);
+                if(server.fn) {                    
+                    if(typeof config.functions[server.fn] == 'function') {                        
+                        return config.functions[server.fn](req, req.templateVars);
+                    }
+                }
             });
         }
 

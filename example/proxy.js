@@ -8,6 +8,13 @@ var morgan = require('morgan');
 var HttpStatus = require('http-status-codes');
 
 var cxEventHandler = createEventHandler();
+
+config.functions = {
+	'selectGoogle': function(req, variables) {		
+		if(variables['query:google']) return true;
+	}
+}
+
 var compoxureMiddleware = cx(config, cxEventHandler);
 
 var server = connect();

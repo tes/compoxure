@@ -8,6 +8,11 @@
         }
     },
     "backend": [
+        { 
+            "fn": "selectGoogle",
+            "target":"http://www.google.com",
+            "host":"google.com"            
+        },
         {
             "pattern": ".*",
             "target":"http://localhost:5001",
