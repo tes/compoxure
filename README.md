@@ -136,7 +136,7 @@ You can define multiple backends, by adding as many declarations for backends as
 
 In this example, the selectResource function is passed in with the configuration when configuring the middleware:
 
-```json
+```js
 config.functions = {
   'selectResource': function(req, variables) {    
     if(variables['param:resourceId']) return true;
