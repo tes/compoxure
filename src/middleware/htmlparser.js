@@ -185,6 +185,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 if (err.statusCode === 404 && !options.ignore404) {
                     res.writeHead(404, {"Content-Type": "text/html"});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
+                    self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     res.end(errorMsg(options));
                 } else {
 
