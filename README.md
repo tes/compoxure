@@ -69,16 +69,6 @@ The configuration object looks as follows:
             "local": "http://localhost:5001"
         }
     },
-    "logging": {
-        "transports": {
-            "console": {
-                "transport": "Console",
-                "level": "debug",
-                "timestamp": true,
-                "colorize": true
-            }
-        }
-    }, 
     "cdn": {
         "host": "server.cloudfront.net",
         "protocol": "https",
