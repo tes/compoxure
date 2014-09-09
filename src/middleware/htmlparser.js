@@ -72,7 +72,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     fragmentIndex ++;
                     output[outputIndex] = "";
 
-                } else if(attribs && attribs['cx-test']) {                    
+                } else if(attribs && attribs['cx-test']) {
                     output[outputIndex] += utils.createTag(tagname, attribs);
                     output[outputIndex] += self.render(attribs['cx-test'], req.templateVars);
                 } else {
@@ -158,10 +158,15 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.ignore404 = node['cx-ignore-404'] === "true";
             options.type = 'fragment';
             options.cache = (options.cacheTTL > 0);
+
             options.headers = {
-                'cx-page-url': templateVars['param:pageUrl']
+                'cx-page-url': templateVars['url:href']
             };
-            options.headers.cookie = req.headers.cookie;
+            
+            if (typeof req.headers.cookie !== 'undefined') {
+                options.headers.cookie = req.headers.cookie;
+            }
+
             options.tracer = req.tracer;
             options.statsdKey = 'fragment_' + (node['cx-statsd-key'] || 'unknown');
 
@@ -169,7 +174,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 if(self.config.cdn.host) options.headers['x-cdn-host'] = self.config.cdn.host;
                 if(self.config.cdn.url) options.headers['x-cdn-url'] = self.config.cdn.url;
             }
-            
+
             var responseStream = {
                 end: function(data) {
                     next(node, data);
