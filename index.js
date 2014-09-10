@@ -10,6 +10,7 @@ var _ = require('lodash');
 var request = require('request');
 var url = require('url');
 var HttpStatus = require('http-status-codes');
+var Accepts = require('accepts');
 
 var prevMillis = 0;
 var intraMillis = 0;
@@ -89,18 +90,17 @@ module.exports = function(config, eventHandler) {
     function dropFavicon(req, res, next) {
          if (req.url === '/favicon.ico') {
             res.writeHead(200, {'Content-Type': 'image/x-icon'} );
-            return next({level: 'info', message:'Dropped favicon request'})
+            return next({level: 'info', message:'Dropped favicon request'});
           }
           next();
     }
 
     function selectBackend(req, res, next) {
-        
         if(config.backend) {
             req.backend = _.find(config.backend, function(server) {
                 if(server.pattern) return new RegExp(server.pattern).test(req.url);
-                if(server.fn) {                    
-                    if(typeof config.functions[server.fn] == 'function') {                        
+                if(server.fn) {
+                    if(typeof config.functions[server.fn] == 'function') {
                         return config.functions[server.fn](req, req.templateVars);
                     }
                 }
@@ -115,27 +115,38 @@ module.exports = function(config, eventHandler) {
         }
     }
 
-    function ignoreNotHtml(req, res, next) {
-        if (!req.headers || !req.headers.accept) {
-            return next({level:'warn', message: 'No accept headers'});
+    function rejectUnsupportedMediaType(req, res, next) {
+        var accept = new Accepts(req);
+        var backendTypes = req.backend.contentTypes || ['html'];
+
+        var contentType = accept.types(backendTypes);
+        if (contentType === false) {
+            res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            var message = 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url;
+            next({message: message, url: req.url, supportedTypes: backendTypes, requestedTypes: req.headers.accept});
+            return;
         }
 
-        var accept = req.headers.accept.toLowerCase();
-        if (accept.indexOf("*/*") >= 0 || accept.indexOf("text/html") >= 0 ) {
-            return next();
-        }
+        req.contentType = contentType;
+        next();
+    }
 
-        res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        next({message: 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url});
+    function isPassThrough(req) {
+        if (req.method !== 'GET') return true;
+
+        if (req.contentType === 'text/html') return false;
+        if (req.contentType === 'html') return false;
+        if (req.contentType === '*/*') return false;
+
+        return true;
     }
 
     function passThrough(req, res, next) {
-
-        if(req.method !== 'GET') {  
+        if(isPassThrough(req)) {
 
             var targetUrl = url.parse(req.backend.target);
             var reqUrl = url.parse(req.url);
-            
+
             // Create forward url
             var forwardUrl = url.format({
                 pathname: reqUrl.pathname,
@@ -145,15 +156,15 @@ module.exports = function(config, eventHandler) {
             });
 
             var requestConfig = {
-                url: forwardUrl                
-            }
+                url: forwardUrl
+            };
 
-            req.pipe(request(requestConfig)).pipe(res);            
+            req.pipe(request(requestConfig)).pipe(res);
 
         } else {
 
             next();
-            
+
         }
 
     }
@@ -168,12 +179,12 @@ module.exports = function(config, eventHandler) {
     function allMiddleware(req, res, next) {
 
         async.series([
-            function(callback) { dropFavicon(req, res, callback) },
-            function(callback) { ignoreNotHtml(req, res, callback) },
-            function(callback) { interrogateRequest(req, res, callback) },
-            function(callback) { selectBackend(req, res, callback) },
-            function(callback) { passThrough(req, res, callback) },
-            function(callback) { backendProxyMiddleware(req, res, callback) }
+            function(callback) { dropFavicon(req, res, callback); },
+            function(callback) { interrogateRequest(req, res, callback); },
+            function(callback) { selectBackend(req, res, callback); },
+            function(callback) { rejectUnsupportedMediaType(req, res, callback); },
+            function(callback) { passThrough(req, res, callback); },
+            function(callback) { backendProxyMiddleware(req, res, callback); }
         ], function(err) {
             if(err) {
                 res.end();
@@ -187,4 +198,4 @@ module.exports = function(config, eventHandler) {
 
     return allMiddleware;
 
-}
+};

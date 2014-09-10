@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/TSLEducation/compoxure",
   "dependencies": {
+    "accepts": "^1.1.0",
     "async": "^0.9.0",
     "blanket": "^1.1.6",
     "body-parser": "^1.6.7",
