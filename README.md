@@ -59,7 +59,8 @@ The configuration object looks as follows:
         "replaceOuter":false,
         "quietFailure":false,
         "leaveContentOnFail":false,
-        "dontPassUrl":false
+        "dontPassUrl":false,
+        "contentTypes":["html"]
     }],
     "parameters": {
         "urls": [
@@ -90,18 +91,19 @@ The configuration object looks as follows:
 
 These properties configure the backend server that the initial request goes to grab the HTML that is then processed.
 
-|Property|Description|
----------|------------
-|pattern|The regexp used to select this backend based on the incoming request to compoxure.  First match wins.|
-|fn|Name of a selector function of type: function(req, variables) { return true; } to allow more dynamic selection of backend (instead of pattern).  Function must be passed in on the config.functions object, and is referenced by name.|
-|target|The base URL to the backend service that will serve HTML.  URLs are passed directly through, so /blah will be passed through to the backend as http://backend/blah|
-|host|The name to be passed through in the request (given the hostname of compoxure is likely to be different to that of the backend server.  The host is used as the key for all the statds stats.|
-|ttl|The amount of time to cache the backend response (TODO : make it honor cache headers)|
-|timeout|Time to wait for backend to respond - should set low|
-|quietFailure|Used to determine if compoxure will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
-|replaceOuter|Used to configure if compoxure will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
-|dontPassUrl|Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
-|leaveContentOnFail|Setting this to true will leave the content that was originally in the markup in the node (e.g. so you can put a safe default inside the element and it will leave it there if it fails)|
+| Property           | Description |
+|--------------------|-------------|
+| pattern            | The regexp used to select this backend based on the incoming request to compoxure.  First match wins.|
+| fn                 | Name of a selector function of type: function(req, variables) { return true; } to allow more dynamic selection of backend (instead of pattern).  Function must be passed in on the config.functions object, and is referenced by name.|
+| target             | The base URL to the backend service that will serve HTML.  URLs are passed directly through, so /blah will be passed through to the backend as http://backend/blah|
+| host               | The name to be passed through in the request (given the hostname of compoxure is likely to be different to that of the backend server.  The host is used as the key for all the statds stats.|
+| ttl                | The amount of time to cache the backend response (TODO : make it honor cache headers)|
+| timeout            | Time to wait for backend to respond - should set low|
+| quietFailure       | Used to determine if compoxure will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
+| replaceOuter       | Used to configure if compoxure will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
+| dontPassUrl        | Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
+| leaveContentOnFail | Setting this to true will leave the content that was originally in the markup in the node (e.g. so you can put a safe default inside the element and it will leave it there if it fails)|
+| contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
 
 You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
 
@@ -128,7 +130,7 @@ In this example, the selectResource function is passed in with the configuration
 
 ```js
 config.functions = {
-  'selectResource': function(req, variables) {    
+  'selectResource': function(req, variables) {
     if(variables['param:resourceId']) return true;
   }
 }
@@ -234,7 +236,7 @@ header|Any incoming header value|/user/feature/{{header:x-feature-enabled}}
 server|A server short name from the configuration in the parameters section of config|{{server:feature}}/feature
 env|Environment, property available is name e.g. {{env:name}}
 cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
-user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}} 
+user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}
 
 Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}}).  An example set is shown below.  Note that they will vary depending on your request, parameter configuration, cookies etc.
 
@@ -314,9 +316,3 @@ See: http://blog.lavoie.sl/2013/08/varnish-esi-and-cookies.html
 ### 'Front End' server
 
 The final option is to simply build a service that's purpose in life is aggregating backend services together into pages programmatically.  e.g. a controller that calls out to a number of services and passes their combined responses into a view layer in a traditional web app.  The problem with this approach is this server now becomes a single monolithic impediment to fast release cycles, and each of the service wrappers in the front end app will now need to implement circuit breaker and other patterns to ensure this app doesn't die, taking down all of the pages and services it fronts, when any of the underlying servics die.
-
-
-
-
-
-
