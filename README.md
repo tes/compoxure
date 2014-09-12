@@ -301,6 +301,10 @@ We built compoxure because it solved a set of problems that alternative solution
 
 In single page apps you can easily use client side javascript to build a single application based on top of multiple underlying microservices.  However, this doesn't work when you need to deliver a typical content heavy website where SEO is important - e.g. you have a mixture of content and app.  We need to deliver a page, and then progressively enhance it via javascript.  We use Ajax, just not for the initial hit.
 
+### iFrames
+
+You can use iFrames to compose applications together, even across multiple domains.  However this does introduce a latency in the page rendering for the user, and also makes it challenging to have the components interact with each other (it is possible if you invest in postMessage etc).  iFrames do not work in the case of SEO heavy pages.   (Credit to [Dejan Glozic](http://dejanglozic.com/) for reminding me of this option).
+ 
 ### Server Side Includes
 
 Server side includes (e.g. in nginx) can pull together outputs from services into a single response, and it also can enable some level of caching of both the response and each fragment.  However, it can be quite challenging to setup and the final solution doesn't allow programmatic interaction with the cache or fine grained control over the cache keys (e.g. based on cookie, url params, query params or header values).
