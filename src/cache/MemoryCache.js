@@ -1,8 +1,12 @@
 'use strict';
 
+var EventEmitter = require('events').EventEmitter;
+
 var cache = {};
 
-module.exports = function() {
+module.exports = MemoryCache;
+
+function MemoryCache() {
 
     this.engine = 'memorycache';
 
@@ -30,4 +34,9 @@ module.exports = function() {
     	cache[key] = {expires:expires, content:value};
         next && next(null);
     };
+
+    this.emit('ready');
+
 };
+
+require('util').inherits(MemoryCache, EventEmitter);

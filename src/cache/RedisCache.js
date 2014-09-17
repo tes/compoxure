@@ -3,25 +3,48 @@
 var redis = require('redis');
 var url = require('url');
 var utils = require('../utils');
+var EventEmitter = require('events').EventEmitter;
 
-module.exports = function(config) {
+module.exports = RedisCache;
 
-    var redisOptions;
+function RedisCache(config) {
+
+    var redisConfig;
     var oneMinute = 60 * 1000;
+    var tenSeconds = 10 * 1000;
     var cleanupPeriod = 60 * 60 * 24; // 1 day
+    var self = this;
 
     if(config.url) {
-        redisOptions = utils.parseRedisConnectionString(config.url);
+        redisConfig = utils.parseRedisConnectionString(config.url);
     } else {
-        redisOptions = config;
+        redisConfig = config;
     }
+    redisConfig.options = redisConfig.options || {};
 
-    var redisClient = redis.createClient(redisOptions.port, redisOptions.host);
-    redisClient.select(redisOptions.db || 0);
+    // Default redis client behaviour is to back off exponentially forever. Not very useful.
+    redisConfig.options.retry_max_delay = redisConfig.options.retry_max_delay || tenSeconds;
+
+    var redisClient = redis.createClient(redisConfig.port, redisConfig.host, redisConfig.options);
+
+    // Prevent error events bubbling up to v8 and taking the worker down if redis is unavailable
+    // By listening for the error event, the redis client will automatically attempt to
+    // re-establish the connection
+    redisClient.on('error', function(err) {
+        console.log('Error connecting to %s:%s - %s', redisConfig.host, redisConfig.port, err.message);
+    });
+
+    redisClient.on('ready', function() {
+        self.emit('ready');
+    });
+
+    redisClient.select(redisConfig.db || 0);
 
     this.engine = 'redis';
 
     this.get = function(key, next) {
+
+        if (!redisClient.connected) return next();
 
         redisClient.hgetall(key, function(err, data) {
 
@@ -39,6 +62,9 @@ module.exports = function(config) {
     };
 
     this.set = function(key, value, _ttl, next) {
+
+        if (!redisClient.connected) return next();
+
         if (arguments.length === 3) return this.set(key, value, _ttl, function() {});
 
         var ttl = _ttl || oneMinute;
@@ -55,3 +81,5 @@ module.exports = function(config) {
 
     };
 };
+
+require('util').inherits(RedisCache, EventEmitter);
