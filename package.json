@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "coveralls": "NODE_ENV=test mocha --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "mocha -R spec test/unit/* test/acceptance/*"
+    "test": "istanbul cover _mocha -- -R spec test/unit/* test/acceptance/* && istanbul check-coverage --statements 80"
   },
   "repository": {
     "type": "git",
@@ -49,11 +49,16 @@
     "jshint": "^2.5.1",
     "mocha": "~1.18.2",
     "node-mocks-http": "^1.0.4",
-    "node-uuid": "^1.4.1"
+    "node-uuid": "^1.4.1",
+    "istanbul": "^0.3.2",
+    "pre-commit": "0.0.9"
   },
   "config": {
     "blanket": {
       "pattern": "src"
     }
-  }
+  },
+  "pre-commit": [
+    "test"
+  ]
 }
