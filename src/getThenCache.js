@@ -15,8 +15,7 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
             if (err) return onError(err, oldContent);
             if (content) {
                 var timing = Date.now() - start;
-                eventHandler.logger('info', 'CACHE ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
-                eventHandler.logger('debug', 'CACHE HIT for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
+                eventHandler.logger('debug', 'CACHE HIT for key: ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
                 stream.end(content);
                 return;

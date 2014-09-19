@@ -4,7 +4,6 @@ var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
 var cacheFactory = require('./src/cache/cacheFactory');
 var getThenCache = require('./src/getThenCache');
-var utils = require('./src/utils');
 var async = require('async');
 var _ = require('lodash');
 var request = require('request');

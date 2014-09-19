@@ -1,10 +1,7 @@
 var htmlparser = require("htmlparser2");
-var fs = require('fs');
 var _ = require('lodash');
 var Hogan = require('hogan.js');
 var utils = require('../utils');
-var Stream = require('stream').Stream;
-var through = require('through');
 var getThenCache = require('../getThenCache');
 var errorTemplate = "<div style='color: red; font-weight: bold; font-family: monospace;'>Error: <%= err %></div>";
 
@@ -17,7 +14,7 @@ function HtmlParserProxy(config, cache, eventHandler) {
     this.eventHandler = eventHandler;
     this.hoganCache = {};
     return this;
-};
+}
 
 HtmlParserProxy.prototype.render = function(text, data) {
     var self = this;
@@ -25,7 +22,7 @@ HtmlParserProxy.prototype.render = function(text, data) {
         this.hoganCache[text] = Hogan.compile(text);
     }
     return this.hoganCache[text].render(data);
-}
+};
 
 HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
@@ -218,4 +215,4 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
         next();
 
-}
+};
