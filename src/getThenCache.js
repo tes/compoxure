@@ -70,7 +70,7 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
                 if(inErrorState) return;
                 next(null, content);
                 var timing = Date.now() - start;
-                eventHandler.logger('info', 'OK ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
+                eventHandler.logger('debug', 'OK ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('timing', options.statsdKey + '.responseTime', timing);
             });
 

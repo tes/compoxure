@@ -116,7 +116,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                             outputHTML += output[i];
                         }
                         var responseTime = Date.now() - req.timerStart;
-                        self.eventHandler.logger('info', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
+                        self.eventHandler.logger('debug', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
                         self.eventHandler.stats('timing','responseTime',responseTime);
                         res.end(outputHTML);
                     } else {
