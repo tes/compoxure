@@ -1,6 +1,10 @@
 'use strict';
 
-module.exports = function() {
+var EventEmitter = require('events').EventEmitter;
+
+module.exports = NoCache;
+
+function NoCache() {
 
     this.engine = 'nocache';
 
@@ -11,4 +15,8 @@ module.exports = function() {
     this.set = function(key, value, ttl, next) {
         next && next(null, null);
     };
+
+    this.emit('ready');
 };
+
+require('util').inherits(NoCache, EventEmitter);

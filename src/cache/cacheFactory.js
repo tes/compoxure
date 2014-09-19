@@ -20,3 +20,7 @@ module.exports.getCache = function(_config) {
     var config = _.defaults(_config || {}, { engine: 'nocache' });
     return obtainCacheInstance(config);
 };
+
+module.exports.clearCacheInstances = function() {
+    cacheInstance = {};
+};
