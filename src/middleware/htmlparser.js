@@ -2,6 +2,7 @@ var htmlparser = require("htmlparser2");
 var _ = require('lodash');
 var Hogan = require('hogan.js');
 var utils = require('../utils');
+var DebugMode = require('../DebugMode');
 var getThenCache = require('../getThenCache');
 var errorTemplate = "<div style='color: red; font-weight: bold; font-family: monospace;'>Error: <%= err %></div>";
 
@@ -32,7 +33,8 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             fragmentIndex = 0,
             fragmentOutput = [],
             nextTextDefault = false,
-            skipClosingTag = false;
+            skipClosingTag = false,
+            debugMode = new DebugMode;
 
         output[outputIndex] = "";
         req.timerStart = Date.now();
@@ -112,11 +114,12 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                         done = done && fragmentOutput[i].done;
                     }
                     if(done) {
+                        var responseTime = Date.now() - req.timerStart;
                         for (var i = 0, len = output.length; i < len; i++) {
                             outputHTML += output[i];
                         }
-                        var responseTime = Date.now() - req.timerStart;
-                        self.eventHandler.logger('debug', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
+                        if(req.templateVars['query:cx-debug']) outputHTML += debugMode.render();
+                        self.eventHandler.logger('info', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
                         self.eventHandler.stats('timing','responseTime',responseTime);
                         res.end(outputHTML);
                     } else {
@@ -158,7 +161,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.headers = {
                 'cx-page-url': templateVars['url:href'],
                 'x-tracer': req.tracer
-            };        
+            };
             if (req.headers.cookie) options.headers.cookie = req.headers.cookie;
             options.tracer = req.tracer;
             options.statsdKey = 'fragment_' + (node['cx-statsd-key'] || 'unknown');
@@ -174,7 +177,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 }
             };
 
-            getThenCache(options, self.config, self.cache, self.eventHandler, responseStream, onErrorHandler);
+            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, onErrorHandler);
 
             function onErrorHandler(err, oldContent) {
 
@@ -183,6 +186,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 if (err.statusCode === 404 && !options.ignore404) {
                     res.writeHead(404, {"Content-Type": "text/html"});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
+                    debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     res.end(errorMsg(options));
                 } else {
@@ -190,14 +194,17 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     if(!req.backend.quietFailure) {
 
                         var msg = _.template(errorTemplate);
+                        debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, timing: timing });
                         responseStream.end(msg({ 'err': err.message }));
 
                     } else {
                         if(oldContent) {
                             responseStream.end(oldContent);
+                            debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
                             errorMsg = _.template('STALE <%= url %> cache <%= cacheKey %> failed but serving stale content.');
                             self.eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
                         } else {
+                            debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
                             responseStream.end(req.backend.leaveContentOnFail ? output[node.outputIndex] : "" );
                         }
                     }

@@ -3,13 +3,18 @@
 var request = require('request');
 var sf = require('sf');
 var url = require('url');
+var _ = require('lodash');
 var CircuitBreaker = require('./CircuitBreaker');
 
 module.exports = getThenCache;
 
-function getThenCache(options, config, cache, eventHandler, stream, onError) {
+function getThenCache(options, debugMode, config, cache, eventHandler, stream, onError) {
+
+    debugMode.add(options.unparsedUrl, {options: _.cloneDeep(options)});
+
+    var start = Date.now();
+
     if(!options.explicitNoCache && options.cacheTTL > 0) {
-        var start = Date.now();
 
         cache.get(options.cacheKey, function(err, content, oldContent) {
             if (err) return onError(err, oldContent);
@@ -17,10 +22,12 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
                 var timing = Date.now() - start;
                 eventHandler.logger('debug', 'CACHE HIT for key: ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
+                debugMode.add(options.unparsedUrl, {status: 'OK', cache: 'HIT', timing: timing});
                 stream.end(content);
                 return;
             }
 
+            debugMode.add(options.unparsedUrl, {cache: 'MISS'});
             eventHandler.logger('debug', 'CACHE MISS for key: ' + options.cacheKey,{tracer:options.tracer,pcType:options.type});
             eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
 
@@ -31,6 +38,8 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
 
             CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
                 if (err) return onError(err, oldContent);
+                var timing = Date.now() - start;
+                debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
                 stream.end(content);
                 cache.set(options.cacheKey, content, options.cacheTTL, function(err) {
                     eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
@@ -42,6 +51,8 @@ function getThenCache(options, config, cache, eventHandler, stream, onError) {
 
         CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
             if (err) return onError(err);
+            var timing = Date.now() - start;
+            debugMode.add(options.unparsedUrl, {status: 'OK', cache: 'DISABLED', timing: timing});
             stream.end(content);
         });
 
