@@ -34,7 +34,10 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             fragmentOutput = [],
             nextTextDefault = false,
             skipClosingTag = false,
-            debugMode = new DebugMode;
+            debugMode = {add: function() {}};
+
+        // Only load the debug handler if in debug mode
+        if(req.templateVars['query:cx-debug']) debugMode = new DebugMode;
 
         output[outputIndex] = "";
         req.timerStart = Date.now();

@@ -5,6 +5,7 @@
 var _ = require('lodash');
 var fs = require('fs');
 var Hogan = require('hogan.js');
+var crypto = require('crypto');
 
 module.exports = DebugMode;
 
@@ -16,7 +17,9 @@ function DebugMode() {
 DebugMode.prototype.add = function(fragmentUrl, data) {
 	var self = this;
 	var data = _.clone(data);
-    self.data[fragmentUrl] = _.merge(data, self.data[fragmentUrl] || {});
+	var hash = crypto.createHash('md5').update(fragmentUrl).digest('hex');
+	data.hash = hash;
+    self.data[hash] = _.merge(data, self.data[hash] || {});
 };
 
 DebugMode.prototype.render = function() {
@@ -28,10 +31,9 @@ DebugMode.prototype.render = function() {
 	var htmlTemplate = Hogan.compile(fs.readFileSync(__dirname + '/client/cx-template.html').toString());
 
 	// Run each fragment through the template;
-	var html = {};
+	var output = ["<style>",css,"</style>","<script>","var cxStats = " + JSON.stringify(self.data, null, 4),jsLib,js,"</script>"].join("\n");
 	for(key in self.data) {
-		html[key] = htmlTemplate.render(self.data[key])
+		output += htmlTemplate.render(self.data[key]) + "\n";
 	}
-	var output = ["<style>",css,"</style>","<script>","var cxStats = " + JSON.stringify(self.data, null, 4), "var cxHtml = " + JSON.stringify(html, null, 4),jsLib,js,"</script>"].join("\n");
 	return output;
 };
