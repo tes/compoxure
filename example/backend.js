@@ -18,10 +18,10 @@ server.use(serveStatic('example/static', {'index': ['index.html', 'index.htm']})
 server.use(bodyParser.urlencoded({ extended: false }))
 
 server.use(connectRoute(function (router) {
-    
+
     router.get('/dynamic', function(req, res) {
-		res.writeHead(200, {"Content-Type": "text/html"});        
-    	res.end("This is some dynamic comment: " + (new Date()));       
+		res.writeHead(200, {"Content-Type": "text/html"});
+    	res.end("This is some dynamic comment: " + (new Date()));
     });
 
     router.get('/500', function(req, res) {
@@ -47,13 +47,13 @@ server.use(connectRoute(function (router) {
 		},200);
     });
 
-    router.post('/post', function(req, res) {   
-    	res.writeHead(200, {"Content-Type": "text/html"});             	
+    router.post('/post', function(req, res) {
+    	res.writeHead(200, {"Content-Type": "text/html"});
     	res.end("POST Data: " + req.body.test + "<br/><pre>" + JSON.stringify(req.headers) + "</pre>");
     });
 
-    router.put('/put', function(req, res) {   
-    	res.writeHead(200, {"Content-Type": "text/html"});             	
+    router.put('/put', function(req, res) {
+    	res.writeHead(200, {"Content-Type": "text/html"});
     	res.end("PUT Data: " + req.body.test + "<br/><pre>" + JSON.stringify(req.headers) + "</pre>");
     });
 }));

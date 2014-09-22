@@ -16,6 +16,7 @@
 </head>
 <body>
     <h3>Include of content</h3>
+    <p>To see this in debug mode, append ?cx-debug=true: <a href="?cx-debug=true">Debug Mode</a></p>
     <code>
         &lt;div cx-url=&#039;{{server:local}}/include.html&#039; cx-cache-key=&#039;shakespeare&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
     </code>
@@ -39,11 +40,19 @@
         This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
     </div>
 
-    <h3>Service that is sometimes faulty</h3>
+     <h3>Service that is sometimes faulty with cache</h3>
     <code>
-        &lt;div cx-url=&#039;{{server:local}}/faulty&#039; cx-cache-key=&#039;faulty&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+        &lt;div cx-url=&#039;{{server:local}}/faulty&#039; cx-cache-key=&#039;faulty-cache&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
     </code>
-    <div cx-url='{{server:local}}/faulty' cx-cache-key='faulty' cx-cache-ttl='0' cx-timeout="1s" class='block'>
+    <div cx-url='{{server:local}}/faulty' cx-cache-key='faulty-cache' cx-cache-ttl='10s' cx-timeout="1s" class='block'>
+        This is a call to a service that is faulty 50% of the time, uncached to demonstrate circuit breaker.
+    </div>
+
+    <h3>Service that is sometimes faulty with no cache</h3>
+    <code>
+        &lt;div cx-url=&#039;{{server:local}}/faulty&#039; cx-cache-key=&#039;faulty-nocache&#039; cx-cache-ttl=&#039;0&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+    </code>
+    <div cx-url='{{server:local}}/faulty' cx-cache-key='faulty-nocache' cx-cache-ttl='0' cx-timeout="1s" class='block'>
         This is a call to a service that is faulty 50% of the time, uncached to demonstrate circuit breaker.
     </div>
 
@@ -76,7 +85,7 @@
         <form action="/post?hello=world" method="POST">
             Post: <input name="test"></input>
             <button name="submit" type="submit">Submit</button>
-        </form> 
+        </form>
 </body>
 
 </html>
