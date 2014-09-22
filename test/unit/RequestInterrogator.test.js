@@ -27,6 +27,26 @@ describe('RequestInterrogator', function() {
         });
     });
 
+    it('should extract parameters from the query', function(done) {
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
+            url: '/teaching-resource?storyCode=2206421'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator({
+            query:[{key: 'storyCode', mapTo: 'resourceId' }]
+        });
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('param:resourceId', '2206421');
+            done();
+        });
+    });
+
     it('should extract parameters from the path', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',

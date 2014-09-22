@@ -15,14 +15,15 @@ module.exports = function (config, cdn, environment, eventHandler) {
     this.interrogateRequest = function (req, next) {
         
         var parsedUrl = url.parse(req.url, true);
-        var params = interrogatePath(parsedUrl.path);
+        var templateParams = interrogatePath(parsedUrl.path);
+        var queryParams = interrogateParams(parsedUrl.query);
         var pageUrl = getPageUrl(req, parsedUrl);
         var user = req.user || {userId: '_'};
 
         var requestVariables = {};
 
         var requestConfig = {
-            param: params,
+            param: _.extend(queryParams, templateParams),
             url: pageUrl,
             query: parsedUrl.query,
             cookie: req.cookies,
@@ -59,6 +60,15 @@ module.exports = function (config, cdn, environment, eventHandler) {
             });
         });
 
+        return parameters;
+    }
+
+    function interrogateParams(params) {
+
+        var parameters = {};
+        _.forEach(config.query, function(query) {
+            parameters[query.mapTo] = params[query.key];
+        });
         return parameters;
     }
 

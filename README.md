@@ -143,6 +143,7 @@ The parameters section provides configuration that allows compoxure to use data 
 |Property|Description|
 ---------|------------
 urls|This is an array of objects containing pattern / names values.  Pattern is a regex used to parse the request hitting page composer, names are the names to assign to the matches from the regex. All of the patterns are executed against the incoming URL, and any matches added to the parameters that can then be used in the microservice requests.  The full list of these are found below.
+query|This is an array of objects containing key / mapTo values. Key is the query parameter name, mapTo is the name to assign the value. The values are added to the parameters that can then be used in the microservice requests.  The full list of these are found below.
 servers|A list of server name to server URL configurations that can be used to avoid repetition of server names in your fragments
 
 #### Cache Engine
