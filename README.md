@@ -1,5 +1,5 @@
 # Compoxure Composition Middleware
-[![Build Status](https://travis-ci.org/TSLEducation/compoxure.svg?branch=master)](https://travis-ci.org/TSLEducation/compoxure) [![Dependencies](https://david-dm.org/tsleducation/compoxure.svg)](https://david-dm.org/tsleducation/compoxure) [![Coverage Status](https://img.shields.io/coveralls/TSLEducation/compoxure.svg)](https://coveralls.io/r/TSLEducation/compoxure?branch=master)
+[![Build Status](https://travis-ci.org/tes/compoxure.svg?branch=master)](https://travis-ci.org/tes/compoxure) [![Dependencies](https://david-dm.org/tes/compoxure.svg)](https://david-dm.org/tes/compoxure) [![Coverage Status](https://img.shields.io/coveralls/tes/compoxure.svg)](https://coveralls.io/r/tes/compoxure?branch=master)
 
 [![NPM](https://nodei.co/npm/compoxure.png?downloads=true)](https://nodei.co/npm/compoxure/)
 
@@ -10,7 +10,7 @@ For rationale (e.g. why the heck would anyone build this), please see the ration
 ## Running Example App
 
 ```bash
-git clone git@github.com:TSLEducation/compoxure.git
+git clone git@github.com:tes/compoxure.git
 cd compoxure
 npm install
 node example
@@ -305,7 +305,7 @@ In single page apps you can easily use client side javascript to build a single 
 ### iFrames
 
 You can use iFrames to compose applications together, even across multiple domains.  However this does introduce a latency in the page rendering for the user, and also makes it challenging to have the components interact with each other (it is possible if you invest in postMessage etc).  iFrames do not work in the case of SEO heavy pages.   (Credit to [Dejan Glozic](http://dejanglozic.com/) for reminding me of this option).
- 
+
 ### Server Side Includes
 
 Server side includes (e.g. in nginx) can pull together outputs from services into a single response, and it also can enable some level of caching of both the response and each fragment.  However, it can be quite challenging to setup and the final solution doesn't allow programmatic interaction with the cache or fine grained control over the cache keys (e.g. based on cookie, url params, query params or header values).

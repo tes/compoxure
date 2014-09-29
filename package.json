@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:TSLEducation/compoxure.git"
+    "url": "git@github.com:tes/compoxure.git"
   },
   "keywords": [
     "composition",
@@ -18,9 +18,9 @@
   "author": "TES Global",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TSLEducation/compoxure/issues"
+    "url": "https://github.com/tes/compoxure/issues"
   },
-  "homepage": "https://github.com/TSLEducation/compoxure",
+  "homepage": "https://github.com/tes/compoxure",
   "dependencies": {
     "accepts": "^1.1.0",
     "async": "^0.9.0",
