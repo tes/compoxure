@@ -5,6 +5,7 @@ var utils = require('../utils');
 var DebugMode = require('../DebugMode');
 var getThenCache = require('../getThenCache');
 var errorTemplate = "<div style='color: red; font-weight: bold; font-family: monospace;'>Error: <%= err %></div>";
+var htmlEntities = new (require('html-entities').AllHtmlEntities);
 
 module.exports = HtmlParserProxy;
 
@@ -152,13 +153,13 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 start = Date.now(),
                 templateVars = _.clone(req.templateVars);
 
-            options.unparsedUrl = node['cx-url'];
-            options.url = self.render(node['cx-url'], templateVars);
-            options.timeout = utils.timeToMillis(node['cx-timeout'] || "1s");
-            options.cacheKey = self.render(node['cx-cache-key'] || node['cx-url'], templateVars);
-            options.cacheTTL = utils.timeToMillis(node['cx-cache-ttl'] || "1m");
-            options.explicitNoCache = node['cx-no-cache'] ? self.render(node['cx-no-cache'], templateVars) === "true" : false;
-            options.ignore404 = node['cx-ignore-404'] === "true";
+            options.unparsedUrl = getCxAttr(node, 'cx-url');
+            options.url = self.render(getCxAttr(node, 'cx-url'), templateVars);
+            options.timeout = utils.timeToMillis(getCxAttr(node, 'cx-timeout') || "1s");
+            options.cacheKey = self.render(getCxAttr(node, 'cx-cache-key') || getCxAttr(node, 'cx-url'), templateVars);
+            options.cacheTTL = utils.timeToMillis(getCxAttr(node, 'cx-cache-ttl') || "1m");
+            options.explicitNoCache = getCxAttr(node, 'cx-no-cache') ? self.render(getCxAttr(node, 'cx-no-cache'), templateVars) === "true" : false;
+            options.ignore404 = getCxAttr(node, 'cx-ignore-404') === "true";
             options.type = 'fragment';
             options.cache = (options.cacheTTL > 0);
             options.headers = {
@@ -167,7 +168,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             };
             if (req.headers.cookie) options.headers.cookie = req.headers.cookie;
             options.tracer = req.tracer;
-            options.statsdKey = 'fragment_' + (node['cx-statsd-key'] || 'unknown');
+            options.statsdKey = 'fragment_' + (getCxAttr(node, 'cx-statsd-key') || 'unknown');
 
             if (self.config.cdn) {
                 if(self.config.cdn.host) options.headers['x-cdn-host'] = self.config.cdn.host;
@@ -226,3 +227,9 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
         next();
 
 };
+
+function getCxAttr(node, name) {
+  var value = node[name] || node['data-' + name];
+
+  return value && htmlEntities.decode(value);
+}
