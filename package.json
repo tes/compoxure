@@ -54,7 +54,7 @@
     "mocha-lcov-reporter": "0.0.1",
     "node-mocks-http": "^1.0.4",
     "node-uuid": "^1.4.1",
-    "pre-commit": "0.0.9"
+    "precommit-hook": "^1.0.7"
   },
   "config": {
     "blanket": {
