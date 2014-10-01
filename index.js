@@ -25,7 +25,7 @@ module.exports = function(config, eventHandler) {
     var cache = cacheFactory.getCache(config.cache);
     var htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
-    function backendProxyMiddleware(req, res, next) {
+    function backendProxyMiddleware(req, res) {
 
         htmlParserProxy.middleware(req, res, function() {
 
@@ -53,7 +53,7 @@ module.exports = function(config, eventHandler) {
                 backendHeaders = {  'x-forwarded-host' : req.headers.host,
                                     host: backend.host },
                 targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
-                targetCacheTTL = utils.timeToMillis(backend.ttl || "30s");
+                targetCacheTTL = utils.timeToMillis(backend.ttl || '30s');
 
             if (config.cdn) {
                 if(config.cdn.host) backendHeaders['x-cdn-host'] = config.cdn.host;
