@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "jshint .",
+    "jscs": "jscs index.js --preset=google",
     "coveralls": "NODE_ENV=test mocha --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
     "test": "istanbul cover _mocha -- -R spec test/unit/* test/acceptance/* && istanbul check-coverage --statements 80"
   },
@@ -47,6 +48,7 @@
     "coveralls": "^2.11.1",
     "expect.js": "~0.3.1",
     "istanbul": "^0.3.2",
+    "jscs": "^1.6.2",
     "jshint": "^2.5.6",
     "mocha": "~1.18.2",
     "mocha-lcov-reporter": "0.0.1",

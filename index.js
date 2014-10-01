@@ -1,4 +1,3 @@
-
 var utils = require('./src/utils');
 var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
@@ -16,187 +15,231 @@ var intraMillis = 0;
 
 module.exports = function(config, eventHandler) {
 
-    // Ensure event handler has sensible defaults
-    eventHandler = eventHandler || {logger:function() {}, stats: function() {}};
-    eventHandler.logger = eventHandler.logger || function() {};
-    eventHandler.stats = eventHandler.stats || function() {};
+  // Ensure event handler has sensible defaults
+  eventHandler = eventHandler || {
+    logger: function() {},
+    stats: function() {}
+  };
+  eventHandler.logger = eventHandler.logger || function() {};
+  eventHandler.stats = eventHandler.stats || function() {};
 
-    var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, config.environment, eventHandler);
-    var cache = cacheFactory.getCache(config.cache);
-    var htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
+  var interrogator = new RequestInterrogator(config.parameters,
+    config.cdn || {},
+    config.environment,
+    eventHandler),
+    cache = cacheFactory.getCache(config.cache),
+    htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
-    function backendProxyMiddleware(req, res) {
+  function backendProxyMiddleware(req, res) {
 
-        htmlParserProxy.middleware(req, res, function() {
+    htmlParserProxy.middleware(req, res, function() {
 
-            var DEFAULT_LOW_TIMEOUT = 500;
+      req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
 
-            var now = Date.now();
-            if (now > prevMillis) {
-                prevMillis = now;
-                intraMillis = 0;
-            } else {
-                intraMillis += 1;
-            }
+      var DEFAULT_LOW_TIMEOUT = 500,
+          now = Date.now(),
+          referer = req.headers.referer || 'direct',
+          userAgent = req.headers['user-agent'] || 'unknown',
+          remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress,
+          remoteIp = req.headers['x-forwarded-for'] || remoteAddress,
+          backend = req.backend,
+          targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
+          backendHeaders = {
+            'x-forwarded-host': req.headers.host,
+            host: backend.host
+          },
+          targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
+          targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
+          debugMode = {
+            add: function() {}
+          },
+          options;
 
-            req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
+      if (now > prevMillis) {
+        prevMillis = now;
+        intraMillis = 0;
+      } else {
+        intraMillis += 1;
+      }
 
-            var referer = req.headers.referer || 'direct',
-                userAgent = req.headers['user-agent'] || 'unknown',
-                remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress,
-                remoteIp = req.headers['x-forwarded-for'] || remoteAddress;
+      eventHandler.logger('info', 'GET ' + req.url, {
+        tracer: req.tracer,
+        referer: referer,
+        remoteIp: remoteIp,
+        userAgent: userAgent
+      });
 
-            eventHandler.logger('info', 'GET ' + req.url, {tracer:req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
+      if (config.cdn) {
+        if (config.cdn.host) { backendHeaders['x-cdn-host'] = config.cdn.host; }
+        if (config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
+      }
 
-            var backend = req.backend,
-                targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
-                backendHeaders = {  'x-forwarded-host' : req.headers.host,
-                                    host: backend.host },
-                targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
-                targetCacheTTL = utils.timeToMillis(backend.ttl || '30s');
+      options = {
+        url: targetUrl,
+        cacheKey: targetCacheKey,
+        cacheTTL: targetCacheTTL,
+        timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
+        headers: backendHeaders,
+        tracer: req.tracer,
+        type: 'backend',
+        statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
+      };
 
-            if (config.cdn) {
-                if(config.cdn.host) backendHeaders['x-cdn-host'] = config.cdn.host;
-                if(config.cdn.url) backendHeaders['x-cdn-url'] = config.cdn.url;
-            }
+      getThenCache(options, debugMode, config, cache, eventHandler, res.transformer, function(err, oldContent) {
+        if (req.backend.quietFailure && oldContent) {
+          res.transformer.end(oldContent);
+          eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
+            tracer: req.tracer
+          });
+        } else {
+          res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
+          res.end(err.message);
+          eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {
+            tracer: req.tracer
+          });
+        }
+      });
 
-            var options = {
-                url: targetUrl,
-                cacheKey: targetCacheKey,
-                cacheTTL: targetCacheTTL,
-                timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
-                headers: backendHeaders,
-                tracer: req.tracer,
-                type: 'backend',
-                statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
-            };
+    });
 
-            var debugMode = {add: function() {}};
+  }
 
-            getThenCache(options, debugMode, config, cache, eventHandler, res.transformer, function(err, oldContent) {
-                if(req.backend.quietFailure && oldContent) {
-                    res.transformer.end(oldContent);
-                    eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {tracer:req.tracer});
-                } else {
-                    res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
-                    res.end(err.message);
-                    eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {tracer:req.tracer});
-                }
-            });
-
-        });
-
+  function dropFavicon(req, res, next) {
+    if (req.url === '/favicon.ico') {
+      res.writeHead(200, {
+        'Content-Type': 'image/x-icon'
+      });
+      return next({
+        level: 'info',
+        message: 'Dropped favicon request'
+      });
     }
+    next();
+  }
 
-    function dropFavicon(req, res, next) {
-         if (req.url === '/favicon.ico') {
-            res.writeHead(200, {'Content-Type': 'image/x-icon'} );
-            return next({level: 'info', message:'Dropped favicon request'});
+  function selectBackend(req, res, next) {
+    if (config.backend) {
+      req.backend = _.find(config.backend, function(server) {
+          if (server.pattern) { return new RegExp(server.pattern).test(req.url); }
+          if (server.fn) {
+            if (typeof config.functions[server.fn] == 'function') {
+              return config.functions[server.fn](req, req.templateVars);
+            }
           }
-          next();
+      });
     }
 
-    function selectBackend(req, res, next) {
-        if(config.backend) {
-            req.backend = _.find(config.backend, function(server) {
-                if(server.pattern) return new RegExp(server.pattern).test(req.url);
-                if(server.fn) {
-                    if(typeof config.functions[server.fn] == 'function') {
-                        return config.functions[server.fn](req, req.templateVars);
-                    }
-                }
-            });
-        }
+    if (!req.backend) {
+      res.writeHead(HttpStatus.NOT_FOUND);
+      return next({
+        level: 'warn',
+        message: 'Backend not found'
+      });
+    } else {
+      return next();
+    }
+  }
 
-        if(!req.backend) {
-            res.writeHead(HttpStatus.NOT_FOUND);
-            return next({level: 'warn', message: 'Backend not found'});
-        } else {
-            return next();
-        }
+  function rejectUnsupportedMediaType(req, res, next) {
+    var accept = new Accepts(req);
+    var backendTypes = req.backend.contentTypes || ['html'];
+
+    var contentType = accept.types(backendTypes);
+    if (contentType === false) {
+      res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      var message = 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url;
+      next({
+        message: message,
+        url: req.url,
+        supportedTypes: backendTypes,
+        requestedTypes: req.headers.accept
+      });
+      return;
     }
 
-    function rejectUnsupportedMediaType(req, res, next) {
-        var accept = new Accepts(req);
-        var backendTypes = req.backend.contentTypes || ['html'];
+    req.contentType = contentType;
+    next();
+  }
 
-        var contentType = accept.types(backendTypes);
-        if (contentType === false) {
-            res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-            var message = 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url;
-            next({message: message, url: req.url, supportedTypes: backendTypes, requestedTypes: req.headers.accept});
-            return;
-        }
+  function isPassThrough(req) {
+    if (req.method !== 'GET') { return true; }
+    if (req.contentType === 'text/html') { return false; }
+    if (req.contentType === 'html') { return false; }
+    if (req.contentType === '*/*') { return false; }
 
-        req.contentType = contentType;
+    return true;
+  }
+
+  function passThrough(req, res, next) {
+    if (isPassThrough(req)) {
+
+      var targetUrl = url.parse(req.backend.target);
+      var reqUrl = url.parse(req.url);
+
+      // Create forward url
+      var forwardUrl = url.format({
+        pathname: reqUrl.pathname,
+        search: reqUrl.search,
+        host: targetUrl.host,
+        protocol: targetUrl.protocol,
+      });
+
+      var requestConfig = {
+        url: forwardUrl
+      };
+
+      req.pipe(request(requestConfig)).pipe(res);
+
+    } else {
+
+      next();
+
+    }
+
+  }
+
+  function interrogateRequest(req, res, next) {
+    interrogator.interrogateRequest(req, function(templateVars) {
+      req.templateVars = templateVars;
+      next();
+    });
+  }
+
+  function allMiddleware(req, res, next) {
+
+    async.series([
+
+      function(callback) {
+        dropFavicon(req, res, callback);
+      },
+      function(callback) {
+        interrogateRequest(req, res, callback);
+      },
+      function(callback) {
+        selectBackend(req, res, callback);
+      },
+      function(callback) {
+        rejectUnsupportedMediaType(req, res, callback);
+      },
+      function(callback) {
+        passThrough(req, res, callback);
+      },
+      function(callback) {
+        backendProxyMiddleware(req, res, callback);
+      }
+    ], function(err) {
+      if (err) {
+        res.end();
+        eventHandler.logger(err.level ? err.level : 'error', err.message, {
+          url: req.url
+        });
+      } else {
         next();
-    }
+      }
+    });
 
-    function isPassThrough(req) {
-        if (req.method !== 'GET') return true;
+  }
 
-        if (req.contentType === 'text/html') return false;
-        if (req.contentType === 'html') return false;
-        if (req.contentType === '*/*') return false;
-
-        return true;
-    }
-
-    function passThrough(req, res, next) {
-        if(isPassThrough(req)) {
-
-            var targetUrl = url.parse(req.backend.target);
-            var reqUrl = url.parse(req.url);
-
-            // Create forward url
-            var forwardUrl = url.format({
-                pathname: reqUrl.pathname,
-                search: reqUrl.search,
-                host: targetUrl.host,
-                protocol: targetUrl.protocol,
-            });
-
-            var requestConfig = {
-                url: forwardUrl
-            };
-
-            req.pipe(request(requestConfig)).pipe(res);
-
-        } else {
-
-            next();
-
-        }
-
-    }
-
-    function interrogateRequest(req, res, next) {
-        interrogator.interrogateRequest(req, function(templateVars) {
-            req.templateVars = templateVars;
-            next();
-        });
-    }
-
-    function allMiddleware(req, res, next) {
-
-        async.series([
-            function(callback) { dropFavicon(req, res, callback); },
-            function(callback) { interrogateRequest(req, res, callback); },
-            function(callback) { selectBackend(req, res, callback); },
-            function(callback) { rejectUnsupportedMediaType(req, res, callback); },
-            function(callback) { passThrough(req, res, callback); },
-            function(callback) { backendProxyMiddleware(req, res, callback); }
-        ], function(err) {
-            if(err) {
-                res.end();
-                eventHandler.logger(err.level ? err.level : 'error', err.message, {url: req.url});
-            } else {
-                next();
-            }
-        });
-
-    }
-
-    return allMiddleware;
+  return allMiddleware;
 
 };
