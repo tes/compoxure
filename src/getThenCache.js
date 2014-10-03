@@ -36,12 +36,13 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
                 return;
             }
 
-            CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
+            CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, res) {
                 if (err) return onError(err, oldContent);
                 var timing = Date.now() - start;
                 debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
-                stream.end(content);
-                cache.set(options.cacheKey, content, options.cacheTTL, function(err) {
+                stream.end(res.content);
+                if ((res.headers['cache-control'] || '').indexOf('no-store') !== -1) return;
+                cache.set(options.cacheKey, res.content, options.cacheTTL, function(err) {
                     eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
                 });
             });
@@ -49,18 +50,18 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
 
     } else {
 
-        CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, content) {
+        CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, res) {
             if (err) return onError(err);
             var timing = Date.now() - start;
             debugMode.add(options.unparsedUrl, {status: 'OK', cache: 'DISABLED', timing: timing});
-            stream.end(content);
+            stream.end(res.content);
         });
 
     }
 
     function pipeAndCacheContent(next) {
 
-        var content = "", start = Date.now(), inErrorState = false;
+        var content = "", start = Date.now(), inErrorState = false, res;
 
         if(!url.parse(options.url).protocol) return handleError({message:'Invalid URL ' + options.url});
 
@@ -73,13 +74,15 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
                 content += data.toString();
             })
             .on('response', function(response) {
+                res = response;
                 if(response.statusCode != 200) {
-                    handleError({message:'status code ' + response.statusCode},response.statusCode)
+                    handleError({message:'status code ' + response.statusCode}, response.statusCode);
                 }
             })
             .on('end', function() {
                 if(inErrorState) return;
-                next(null, content);
+                res.content = content;
+                next(null, res);
                 var timing = Date.now() - start;
                 eventHandler.logger('debug', 'OK ' + options.url,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('timing', options.statsdKey + '.responseTime', timing);

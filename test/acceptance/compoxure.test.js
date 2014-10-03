@@ -76,7 +76,6 @@ describe("Page Composer", function(){
         });
     });
 
-
     it('should fail quietly if the backend is configured to do so', function(done) {
         var requestUrl = getPageComposerUrl('quiet');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
@@ -147,6 +146,19 @@ describe("Page Composer", function(){
             done();
         });
     });
+
+    it('should not cache segments that return no-store in Cache-control header', function(done) {
+        getSection('', '', '#no-store', function(text) {
+            var before = text;
+            setTimeout(function() {
+                getSection('', '', '#no-store', function(text) {
+                    expect(text).not.to.be.equal(before);
+                    done();
+                });
+            }, 1);
+        });
+    });
+
 
     it('should pass through non GET requests directly to the backend service along with headers and cookies', function(done) {
         var j = request.jar();

@@ -65,6 +65,11 @@ function initStubServer(fileName, port, hostname) {
             res.end("");
         });
 
+        router.get('/millis', function(req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'no-store'});
+            res.end('Millis since epoch:' + Date.now());
+        });
+
         router.get('/faulty', function(req, res) {
              setTimeout(function() {
                 if(Math.random() > 0.5) {
@@ -98,7 +103,7 @@ function initStubServer(fileName, port, hostname) {
             var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
             res.end(backendHtml);
         });
-        
+
         router.get('/ignore404backend', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
@@ -106,7 +111,7 @@ function initStubServer(fileName, port, hostname) {
         });
 
         router.post('/post', function(req, res) {
-            res.writeHead(200, {"Content-Type": "text/html"});                    
+            res.writeHead(200, {"Content-Type": "text/html"});
             res.end("POST " + req.cookies['PostCookie']);
         });
 
