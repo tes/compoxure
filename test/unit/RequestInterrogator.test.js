@@ -4,6 +4,7 @@ var _ = require('lodash');
 var expect = require('expect.js');
 var httpMocks = require('node-mocks-http');
 var RequestInterrogator = require('../../src/parameters/RequestInterrogator');
+var config = require('../common/testConfig.json');
 
 describe('RequestInterrogator', function() {
 
@@ -17,7 +18,7 @@ describe('RequestInterrogator', function() {
         });
         req.connection = {};
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             var expectedPageUrl = 'http://localhost:5000/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420';
@@ -39,7 +40,7 @@ describe('RequestInterrogator', function() {
 
         var interrogator = new RequestInterrogator({
             query:[{key: 'storyCode', mapTo: 'resourceId' }]
-        });
+        }, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('param:resourceId', '2206421');
@@ -59,7 +60,7 @@ describe('RequestInterrogator', function() {
 
         var interrogator = new RequestInterrogator({
             urls:[{pattern: '/teaching-resource/(.*)-(\\d+)', names: [ 'blurb', 'resourceId' ]}]
-        });
+        }, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('param:resourceId', '6206420');
@@ -81,7 +82,7 @@ describe('RequestInterrogator', function() {
         var interrogator = new RequestInterrogator({
             urls:[{pattern: '/teaching-resource/.*-(\\d+)', names: ['resourceId' ]},
                   {pattern: '/teaching-resource/(.*)-\\d+', names: [ 'blurb' ]}]
-        });
+        }, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('param:resourceId', '6206420');
@@ -104,7 +105,7 @@ describe('RequestInterrogator', function() {
             urls:[{pattern: '/teaching-resource/.*-(\\d+)', names: ['resourceId' ]},
                   {pattern: '/teaching-resource/(.*)', names: [ 'blurb' ]},
                   {pattern: '/teaching-resource/(.*)-\\d+', names: [ 'blurb' ]}]
-        });
+        }, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('param:resourceId', '6206420');
@@ -123,7 +124,7 @@ describe('RequestInterrogator', function() {
         });
         req.connection = {};
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('query:foo', 'bar');
@@ -142,7 +143,7 @@ describe('RequestInterrogator', function() {
         });
         req.connection = {};
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('header:foo', 'bar');
@@ -163,7 +164,7 @@ describe('RequestInterrogator', function() {
         });
         req.connection = {};
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name: 'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('cookie:foo', 'bar');
@@ -181,7 +182,7 @@ describe('RequestInterrogator', function() {
         });
         req.connection = {};
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             expect(params).to.have.property('user:userId', '_');
@@ -204,12 +205,31 @@ describe('RequestInterrogator', function() {
             displayName: 'will.i.am'
         };
 
-        var interrogator = new RequestInterrogator();
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
 
         interrogator.interrogateRequest(req, function(params) {
             _.forOwn(req.user, function(value, key) {
                 expect(params).to.have.property('user:' + key, value);
             });
+            done();
+        });
+    });
+
+    it('should parse cdn url configuration using template variables', function(done) {
+
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
+            url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('cdn:url', 'http://my.cloudfront.net/test/');
             done();
         });
     });

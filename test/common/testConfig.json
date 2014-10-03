@@ -1,4 +1,7 @@
 {
+    "cdn":{
+        "url":"http://my.cloudfront.net/{{env:name}}/"
+    },
     "parameters": {
         "urls": [
             {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
