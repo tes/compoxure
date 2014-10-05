@@ -160,6 +160,22 @@ describe("Page Composer", function(){
     });
 
 
+    it('should honor max-age when sent through in fragments', function(done) {
+        getSection('', '', '#max-age', function(text) {
+            setTimeout(function() {
+                getSection('', '', '#max-age', function(text2) {
+                    expect(text2).to.be.equal(text);
+                    setTimeout(function() {
+                        getSection('', '', '#max-age', function(text3) {
+                            expect(text3).not.to.be.equal(text);
+                            done();
+                        });
+                    }, 200);
+                });
+            }, 50);
+        });
+    });
+
     it('should pass through non GET requests directly to the backend service along with headers and cookies', function(done) {
         var j = request.jar();
         var cookie = request.cookie('PostCookie=Hello');

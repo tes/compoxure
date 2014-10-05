@@ -70,6 +70,11 @@ function initStubServer(fileName, port, hostname) {
             res.end('Millis since epoch:' + Date.now());
         });
 
+        router.get('/millis-maxage', function(req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'max-age=100'});
+            res.end('Millis since epoch:' + Date.now());
+        });
+
         router.get('/faulty', function(req, res) {
              setTimeout(function() {
                 if(Math.random() > 0.5) {

@@ -17,6 +17,7 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
     if(!options.explicitNoCache && options.cacheTTL > 0) {
 
         cache.get(options.cacheKey, function(err, content, oldContent) {
+
             if (err) return onError(err, oldContent);
             if (content) {
                 var timing = Date.now() - start;
@@ -37,14 +38,23 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
             }
 
             CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, res) {
+
                 if (err) return onError(err, oldContent);
                 var timing = Date.now() - start;
                 debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
                 stream.end(res.content);
+
+                // Honor fragment cache control headers in a simplistic way
+                if ((res.headers['cache-control'] || '').indexOf('no-cache') !== -1) return;
                 if ((res.headers['cache-control'] || '').indexOf('no-store') !== -1) return;
+                if ((res.headers['cache-control'] || '').indexOf('max-age') !== -1) {
+                    options.cacheTTL = res.headers['cache-control'].split("=")[1];
+                };
+
                 cache.set(options.cacheKey, res.content, options.cacheTTL, function(err) {
                     eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
                 });
+
             });
         });
 
