@@ -11,19 +11,19 @@ function timeToMillis(timeString) {
 		value = 0;
 
 	switch(period) {
-		case "ms":
+		case 'ms':
 			value = parseInt(num);
 			break;
-		case "s":
+		case 's':
 			value = parseInt(num)*1000;
 			break;
-		case "m":
+		case 'm':
 			value = parseInt(num)*1000*60;
 			break;
-		case "h":
+		case 'h':
 			value = parseInt(num)*1000*60*60;
 			break;
-		case "d":
+		case 'd':
 			value = parseInt(num)*1000*60*60*24;
 			break;
 		default:
@@ -52,9 +52,9 @@ function createTag(tagname, attribs) {
     var attribArray = [], attribLength = attribs.length, attribCounter = 0;
     _.forIn(attribs, function(value, key) {
         attribCounter++;
-        attribArray.push(" " + key + "=\"" + value + "\"");
+        attribArray.push(' ' + key + '=\'' + value + '\'');
     });
-    return ["<",tagname,(attribLength > 0 ? " " : "")].concat(attribArray).concat([">"]).join("");
+    return ['<',tagname,(attribLength > 0 ? ' ' : '')].concat(attribArray).concat(['>']).join('');
 }
 
 function parseRedisConnectionString(connectionString) {

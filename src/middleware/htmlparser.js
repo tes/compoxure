@@ -1,16 +1,19 @@
-var htmlparser = require("htmlparser2");
+var htmlparser = require('htmlparser2');
 var _ = require('lodash');
 var Hogan = require('hogan.js');
 var utils = require('../utils');
 var DebugMode = require('../DebugMode');
 var getThenCache = require('../getThenCache');
-var errorTemplate = "<div style='color: red; font-weight: bold; font-family: monospace;'>Error: <%= err %></div>";
-var htmlEntities = new (require('html-entities').AllHtmlEntities);
+var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
+var htmlEntities = new (require('html-entities').AllHtmlEntities)();
 
-module.exports = HtmlParserProxy;
+function getCxAttr(node, name) {
+  var value = node[name] || node['data-' + name];
+  return value && htmlEntities.decode(value);
+}
 
 function HtmlParserProxy(config, cache, eventHandler) {
-    if (!(this instanceof HtmlParserProxy)) return new HtmlParserProxy(config, cache, eventHandler);
+    if (!(this instanceof HtmlParserProxy)) { return new HtmlParserProxy(config, cache, eventHandler); }
     this.config = config;
     this.cache = cache;
     this.eventHandler = eventHandler;
@@ -18,8 +21,9 @@ function HtmlParserProxy(config, cache, eventHandler) {
     return this;
 }
 
+module.exports = HtmlParserProxy;
+
 HtmlParserProxy.prototype.render = function(text, data) {
-    var self = this;
     if(!this.hoganCache[text]) {
         this.hoganCache[text] = Hogan.compile(text);
     }
@@ -38,9 +42,9 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             debugMode = {add: function() {}};
 
         // Only load the debug handler if in debug mode
-        if(req.templateVars['query:cx-debug']) debugMode = new DebugMode;
+        if(req.templateVars['query:cx-debug']) { debugMode = new DebugMode(); }
 
-        output[outputIndex] = "";
+        output[outputIndex] = '';
         req.timerStart = Date.now();
 
         res.transformer = {
@@ -60,7 +64,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     }
                     outputIndex ++;
 
-                    output[outputIndex] = "_processing_";
+                    output[outputIndex] = '_processing_';
                     fragmentOutput[fragmentIndex] = attribs;
                     fragmentOutput[fragmentIndex].outputIndex = outputIndex;
                     fragmentOutput[fragmentIndex].fragmentIndex = fragmentIndex;
@@ -73,7 +77,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                     outputIndex ++;
                     fragmentIndex ++;
-                    output[outputIndex] = "";
+                    output[outputIndex] = '';
 
                 } else if(attribs && attribs['cx-test']) {
                     output[outputIndex] += utils.createTag(tagname, attribs);
@@ -83,7 +87,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 }
             },
             onprocessinginstruction: function(name, data) {
-                output[outputIndex] += "<" + data + ">";
+                output[outputIndex] += '<' + data + '>';
             },
             ontext:function(data) {
                 if(nextTextDefault) {
@@ -91,47 +95,47 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     // When using memory cache it could actually retrieve a value
                     // Faster than the ontext event fired from this library
                     nextTextDefault = false;
-                    if(output[outputIndex-1] == "_processing_") output[outputIndex-1] = data;
+                    if(output[outputIndex-1] == '_processing_') { output[outputIndex-1] = data; }
                 } else {
                     output[outputIndex] += data;
                 }
             },
             oncomment: function(data) {
-                output[outputIndex] += "<!-- " + data
+                output[outputIndex] += '<!-- ' + data
             },
             oncommentend: function() {
-                output[outputIndex] += " -->"
+                output[outputIndex] += ' -->'
             },
             onclosetag: function(tagname){
-                if(nextTextDefault) nextTextDefault = false;
+                if(nextTextDefault) { nextTextDefault = false; }
                 if(skipClosingTag) {
                     skipClosingTag = false;
                     return;
                 }
-                output[outputIndex] += "</" + tagname + ">";
+                output[outputIndex] += '</' + tagname + '>';
             },
             onend: function(){
-                 var timeoutStart = Date.now(), timeout = utils.timeToMillis(req.backend.timeout || "5s");
+                 var timeoutStart = Date.now(), timeout = utils.timeToMillis(req.backend.timeout || '5s');
                  function checkDone() {
-                    var done = true, outputHTML = "";
-                    for (var i = 0, len = fragmentOutput.length; i < len; i++) {
+                    var done = true, outputHTML = '', i, len;
+                    for (i = 0, len = fragmentOutput.length; i < len; i++) {
                         done = done && fragmentOutput[i].done;
                     }
                     if(done) {
                         var responseTime = Date.now() - req.timerStart;
-                        for (var i = 0, len = output.length; i < len; i++) {
+                        for (i = 0, len = output.length; i < len; i++) {
                             outputHTML += output[i];
                         }
-                        if(req.templateVars['query:cx-debug']) outputHTML += debugMode.render();
-                        self.eventHandler.logger('info', "Page composer response completed", {tracer: req.tracer,responseTime: responseTime});
+                        if(req.templateVars['query:cx-debug']) { outputHTML += debugMode.render(); }
+                        self.eventHandler.logger('info', 'Page composer response completed', {tracer: req.tracer,responseTime: responseTime});
                         self.eventHandler.stats('timing','responseTime',responseTime);
                         res.end(outputHTML);
                     } else {
 
                         if((Date.now() - timeoutStart) > timeout) {
-                            res.writeHead(500, {"Content-Type": "text/html"});
+                            res.writeHead(500, {'Content-Type': 'text/html'});
                             var errorMsg = 'Compoxure failed to respond in <%= timeout %>ms. Failed to respond: ';
-                            for (var i = 0, len = fragmentOutput.length; i < len; i++) {
+                            for (i = 0, len = fragmentOutput.length; i < len; i++) {
                                 if(!fragmentOutput[i].done) {
                                     errorMsg += ' ' + self.render(fragmentOutput[i]['cx-url'], req.templateVars) + '.';
                                 }
@@ -155,24 +159,24 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
             options.unparsedUrl = getCxAttr(node, 'cx-url');
             options.url = self.render(getCxAttr(node, 'cx-url'), templateVars);
-            options.timeout = utils.timeToMillis(getCxAttr(node, 'cx-timeout') || "1s");
+            options.timeout = utils.timeToMillis(getCxAttr(node, 'cx-timeout') || '1s');
             options.cacheKey = self.render(getCxAttr(node, 'cx-cache-key') || getCxAttr(node, 'cx-url'), templateVars);
-            options.cacheTTL = utils.timeToMillis(getCxAttr(node, 'cx-cache-ttl') || "1m");
-            options.explicitNoCache = getCxAttr(node, 'cx-no-cache') ? self.render(getCxAttr(node, 'cx-no-cache'), templateVars) === "true" : false;
-            options.ignore404 = getCxAttr(node, 'cx-ignore-404') === "true";
+            options.cacheTTL = utils.timeToMillis(getCxAttr(node, 'cx-cache-ttl') || '1m');
+            options.explicitNoCache = getCxAttr(node, 'cx-no-cache') ? self.render(getCxAttr(node, 'cx-no-cache'), templateVars) === 'true' : false;
+            options.ignore404 = getCxAttr(node, 'cx-ignore-404') === 'true';
             options.type = 'fragment';
             options.cache = (options.cacheTTL > 0);
             options.headers = {
                 'cx-page-url': templateVars['url:href'],
                 'x-tracer': req.tracer
             };
-            if (req.headers.cookie) options.headers.cookie = req.headers.cookie;
+            if (req.headers.cookie) { options.headers.cookie = req.headers.cookie; }
             options.tracer = req.tracer;
             options.statsdKey = 'fragment_' + (getCxAttr(node, 'cx-statsd-key') || 'unknown');
 
             if (self.config.cdn) {
-                if(self.config.cdn.host) options.headers['x-cdn-host'] = self.config.cdn.host;
-                if(self.config.cdn.url) options.headers['x-cdn-url'] = self.config.cdn.url;
+                if(self.config.cdn.host) { options.headers['x-cdn-host'] = self.config.cdn.host; }
+                if(self.config.cdn.url) { options.headers['x-cdn-url'] = self.config.cdn.url; }
             }
 
             var responseStream = {
@@ -181,14 +185,12 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 }
             };
 
-            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, onErrorHandler);
-
             function onErrorHandler(err, oldContent) {
 
-                var errorMsg;
+                var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
 
                 if (err.statusCode === 404 && !options.ignore404) {
-                    res.writeHead(404, {"Content-Type": "text/html"});
+                    res.writeHead(404, {'Content-Type': 'text/html'});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
@@ -209,12 +211,11 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                             self.eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
                         } else {
                             debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
-                            responseStream.end(req.backend.leaveContentOnFail ? output[node.outputIndex] : "" );
+                            responseStream.end(req.backend.leaveContentOnFail ? output[node.outputIndex] : '' );
                         }
                     }
 
                     self.eventHandler.stats('increment', options.statsdKey + '.error');
-                    var elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
                     errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
                     self.eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
@@ -222,14 +223,11 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
             }
 
+            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, onErrorHandler);
+
+
         }
 
         next();
 
 };
-
-function getCxAttr(node, name) {
-  var value = node[name] || node['data-' + name];
-
-  return value && htmlEntities.decode(value);
-}

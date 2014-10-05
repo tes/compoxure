@@ -4,8 +4,6 @@ var EventEmitter = require('events').EventEmitter;
 
 var cache = {};
 
-module.exports = MemoryCache;
-
 function MemoryCache() {
 
     this.engine = 'memorycache';
@@ -15,7 +13,7 @@ function MemoryCache() {
     this.get = function(key, next) {
         var data = cache[key];
 
-        if(!data) return next(null, null);
+        if(!data) { return next(null, null); }
         var expires = Date.now();
         if(expires - data.expires > 0) {
             setTimeout(function() {
@@ -32,11 +30,13 @@ function MemoryCache() {
     	var ttl = _ttl || oneMinute;
         var expires = Date.now() + ttl*1;
     	cache[key] = {expires:expires, content:value};
-        next && next(null);
+        if(next) { next(null); }
     };
 
     this.emit('ready');
 
-};
+}
+
+module.exports = MemoryCache;
 
 require('util').inherits(MemoryCache, EventEmitter);

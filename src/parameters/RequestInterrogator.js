@@ -4,7 +4,7 @@ var _ = require('lodash');
 var url = require('url');
 var Hogan = require('hogan.js');
 
-module.exports = function (config, cdn, environment, eventHandler) {
+module.exports = function (config, cdn, environment) {
 
     config = config || { urls: [
         {pattern: '.*', names: []}
@@ -49,8 +49,8 @@ module.exports = function (config, cdn, environment, eventHandler) {
     };
 
     function flatten(variables, type, key, value) {
-        variables[type + ":" + key] = value;
-        variables[type + ":" + key + ":encoded"] = encodeURIComponent(value);
+        variables[type + ':' + key] = value;
+        variables[type + ':' + key + ':encoded'] = encodeURIComponent(value);
     }
 
     function interrogatePath(path) {
@@ -58,7 +58,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
         var matches = _.map(config.urls, function (url) {
             var regexp = new RegExp(url.pattern);
             var match = regexp.exec(path);
-            if (!match) return {};
+            if (!match) { return {}; }
             return _.object(url.names, _.rest(match, 1));
         });
 
@@ -96,7 +96,6 @@ module.exports = function (config, cdn, environment, eventHandler) {
     }
 
     function render(text, data) {
-        var self = this;
         if(!hoganCache[text]) {
             hoganCache[text] = Hogan.compile(text);
         }
@@ -105,7 +104,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
 
     function getPort(req) {
         var host = req.headers.http_host || req.headers.host;
-        var res = host ? host.match(/:(\d+)/) : "";
+        var res = host ? host.match(/:(\d+)/) : '';
         return res ? res[1] : req.connection.pair ? '443' : '80';
     }
 

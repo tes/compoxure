@@ -2,7 +2,6 @@
 
 var EventEmitter = require('events').EventEmitter;
 
-module.exports = NoCache;
 
 function NoCache() {
 
@@ -13,10 +12,12 @@ function NoCache() {
     };
 
     this.set = function(key, value, ttl, next) {
-        next && next(null, null);
+        if(next) { next(null, null); }
     };
 
     this.emit('ready');
-};
+}
+
+module.exports = NoCache;
 
 require('util').inherits(NoCache, EventEmitter);

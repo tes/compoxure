@@ -2,9 +2,9 @@
  * Simple circuit breaker to wrap third party service calls.
  * To disable, simply do not configure the 'circuitbreaker' section of the
  * configuration file.
- * 
+ *
  * Each circuit breaker is keyed off the hostname and path of the service.
- * 
+ *
  */
 
 var url = require('url');
@@ -17,13 +17,11 @@ module.exports = function(options, config, eventHandler, command, next) {
     var parsedUrl = url.parse(options.url);
     var cbKey = parsedUrl.host;
 
-    if(config.circuitbreaker && config.circuitbreaker.includePath) cbKey += parsedUrl.pathname;
-
-    setupBreaker(cbKey);
+    if(config.circuitbreaker && config.circuitbreaker.includePath) { cbKey += parsedUrl.pathname; }
 
     var cbCommand = function(success, failed) {
       command(function(err, arg1, arg2, arg3) {
-        if(!err) { success() } else { failed() };
+        if(!err) { success() } else { failed() }
         next(err,  arg1, arg2, arg3);
       });
     };
@@ -35,13 +33,11 @@ module.exports = function(options, config, eventHandler, command, next) {
       next({statusCode: 500, message:message});
     };
 
-    breakers[cbKey].run(cbCommand, fallback);
-
     function setupBreaker() {
 
         if(!config.circuitbreaker) {
             breakers[cbKey] = {
-                run: function(command, fallback) {
+                run: function(command) {
                     command(function() {}, function() {});
                 }
             }
@@ -78,5 +74,10 @@ module.exports = function(options, config, eventHandler, command, next) {
             circuitErrorCount: metrics.errorCount,
             circuitErrorPercentage:metrics.errorPercentage});
     }
+
+    setupBreaker(cbKey);
+
+    breakers[cbKey].run(cbCommand, fallback);
+
 
 }
