@@ -10,7 +10,6 @@ module.exports = function (config, cdn, environment, eventHandler) {
         {pattern: '.*', names: []}
     ], servers: {} };
 
-    cdn = cdn || {};
     environment = environment || {name: process.env.NODE_ENV || 'development'};
 
     var hoganCache = {};
@@ -42,7 +41,7 @@ module.exports = function (config, cdn, environment, eventHandler) {
             });
         });
 
-        if(cdn) {
+        if(cdn && cdn.url) {
             flatten(requestVariables, 'cdn', 'url', render(cdn.url, requestVariables));
         }
 
