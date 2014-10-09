@@ -159,6 +159,13 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass no-store in Cache-control header from fragment response to client response', function(done) {
+        request.get(getPageComposerUrl(), function(err, response) {
+            expect(response.headers['cache-control']).to.be.equal('no-store');
+            done();
+        });
+    });
+
 
     it('should honor max-age when sent through in fragments', function(done) {
         setTimeout(function() {
