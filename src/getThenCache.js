@@ -6,7 +6,12 @@ var url = require('url');
 var _ = require('lodash');
 var CircuitBreaker = require('./CircuitBreaker');
 
-function getThenCache(options, debugMode, config, cache, eventHandler, stream, onError) {
+function hasCacheControl(res, value) {
+    if (typeof value === 'undefined') { return res.headers['cache-control']; }
+    return (res.headers['cache-control'] || '').indexOf(value) !== -1;
+}
+
+function getThenCache(options, debugMode, config, cache, eventHandler, stream, mainResponse, onError) {
 
     debugMode.add(options.unparsedUrl, {options: _.cloneDeep(options)});
 
@@ -85,10 +90,12 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
                 stream.end(res.content);
 
                 // Honor fragment cache control headers in a simplistic way
-                if ((res.headers['cache-control'] || '').indexOf('no-cache') !== -1) { return; }
-                if ((res.headers['cache-control'] || '').indexOf('no-store') !== -1) { return; }
-                if ((res.headers['cache-control'] || '').indexOf('max-age') !== -1) {
-                    options.cacheTTL = res.headers['cache-control'].split('=')[1];
+                if (hasCacheControl(res, 'no-cache') || hasCacheControl(res, 'no-store')) {
+                    mainResponse.setHeader('cache-control', 'no-store');
+                    return;
+                }
+                if (hasCacheControl(res, 'max-age')) {
+                    options.cacheTTL = res.headers['cache-control'].split('=')[1] * 1000;
                 }
 
                 cache.set(options.cacheKey, res.content, options.cacheTTL, function() {
@@ -108,7 +115,6 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, o
         });
 
     }
-
 }
 
 module.exports = getThenCache;

@@ -223,7 +223,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
             }
 
-            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, onErrorHandler);
+            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, res, onErrorHandler);
 
 
         }
