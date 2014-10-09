@@ -171,11 +171,11 @@ describe("Page Composer", function(){
                                 expect(text3).not.to.be.equal(text);
                                 done();
                             });
-                        }, 200);
+                        }, 1000);
                     });
                 }, 50);
             });
-        }, 200); // Allow previous test cache to clear
+        }, 1000); // Allow previous test cache to clear
     });
 
     it('should pass through non GET requests directly to the backend service along with headers and cookies', function(done) {

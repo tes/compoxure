@@ -85,7 +85,7 @@ module.exports = function(config, eventHandler) {
         statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
       };
 
-      getThenCache(options, debugMode, config, cache, eventHandler, res.transformer, function(err, oldContent) {
+      getThenCache(options, debugMode, config, cache, eventHandler, res.transformer, res, function(err, oldContent) {
         if (req.backend.quietFailure && oldContent) {
           res.transformer.end(oldContent);
           eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {

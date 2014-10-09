@@ -71,7 +71,7 @@ function initStubServer(fileName, port, hostname) {
         });
 
         router.get('/millis-maxage', function(req, res) {
-            res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'max-age=100'});
+            res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'max-age=1'});
             res.end('Millis since epoch:' + Date.now());
         });
 
