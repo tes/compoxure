@@ -288,6 +288,12 @@ To do: build an API for the cache that enables jobs to do this without directly 
 
 If any of the requests to a backend service via cx-url return a 404, then compoxure itself will render a 404 back to the client.  At TES we have nginx capture the 404 and return a static 404 page.   This can be turned off on an include by include basis by adding the 'cx-ignore-404' attribute.
 
+## Cache-Control header on Responses from Microservices
+
+If a request to a backend service via cx-url returns a response with Cache-Control header set to no-store, this directive takes priority over any otherwise configured caching and response doesn't get cached. Compoxure also copies this header onto the response to the client. This is in efect a form of cache busting from microservice.
+
+If a microservice responds with Cache-Control header with a max-age value, then this value takes priority over other caching config and response is cached for max-age time. Header is not copied to client response in this case
+
 ## Settings Time Intervals
 
 Compoxure uses a number of time intervals for timeouts and TTLS. To make this simpler, there is a simple library that can convert basic string based intervals into ms.
