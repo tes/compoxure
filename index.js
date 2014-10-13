@@ -3,12 +3,12 @@ var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
 var cacheFactory = require('./src/cache/cacheFactory');
 var getThenCache = require('./src/getThenCache');
-var async = require('async');
 var _ = require('lodash');
 var request = require('request');
 var url = require('url');
 var HttpStatus = require('http-status-codes');
 var Accepts = require('accepts');
+var ware = require('ware');
 
 var prevMillis = 0;
 var intraMillis = 0;
@@ -166,7 +166,6 @@ module.exports = function(config, eventHandler) {
     if (req.contentType === 'text/html') { return false; }
     if (req.contentType === 'html') { return false; }
     if (req.contentType === '*/*') { return false; }
-
     return true;
   }
 
@@ -205,41 +204,21 @@ module.exports = function(config, eventHandler) {
     });
   }
 
-  function allMiddleware(req, res, next) {
+  var middleware = ware()
+                    .use(dropFavicon)
+                    .use(interrogateRequest)
+                    .use(selectBackend)
+                    .use(rejectUnsupportedMediaType)
+                    .use(passThrough)
+                    .use(backendProxyMiddleware);
 
-    async.series([
-
-      function(callback) {
-        dropFavicon(req, res, callback);
-      },
-      function(callback) {
-        interrogateRequest(req, res, callback);
-      },
-      function(callback) {
-        selectBackend(req, res, callback);
-      },
-      function(callback) {
-        rejectUnsupportedMediaType(req, res, callback);
-      },
-      function(callback) {
-        passThrough(req, res, callback);
-      },
-      function(callback) {
-        backendProxyMiddleware(req, res, callback);
-      }
-    ], function(err) {
-      if (err) {
-        res.end();
-        eventHandler.logger(err.level ? err.level : 'error', err.message, {
-          url: req.url
-        });
-      } else {
-        next();
-      }
+  return function(req, res) {
+    middleware.run(req, res, function(err) {
+        if(err) {
+            // Just end fast - headers sent above if needed.
+            res.end('');
+        }
     });
-
   }
-
-  return allMiddleware;
 
 };

@@ -28,6 +28,11 @@ server.use(connectRoute(function (router) {
 		res.end('This is an error.');
     });
 
+    router.get('/403', function(req, res) {
+        res.writeHead(403);
+        res.end('Unauthorised error.');
+    });
+
     router.get('/faulty', function(req, res) {
     	setTimeout(function() {
             if(Math.random() > 0.5) {

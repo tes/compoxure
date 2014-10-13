@@ -196,6 +196,21 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should select the correct backend if a selectorFn is invoked', function(done) {
+        request.get(getPageComposerUrl() + '?selectFn=true', {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#select').text()).to.be.equal("This is the backend selected by a selector fn");
+            done();
+        });
+    });
+
+    it('should use the handler functions to respond to a 403 status code', function(done) {
+        request.get(getPageComposerUrl('403backend'), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be.equal(403);
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

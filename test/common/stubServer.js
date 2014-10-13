@@ -61,6 +61,11 @@ function initStubServer(fileName, port, hostname) {
             res.end("404");
         });
 
+        router.get('/403', function(req, res) {
+            res.writeHead(403, {"Content-Type": "text/html"});
+            res.end("403");
+        });
+
         router.get('/favicon.ico', function(req, res) {
             res.end("");
         });
@@ -103,6 +108,12 @@ function initStubServer(fileName, port, hostname) {
             }
         });
 
+        router.get('/403backend', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/test403.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
         router.get('/404backend', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
@@ -112,6 +123,12 @@ function initStubServer(fileName, port, hostname) {
         router.get('/ignore404backend', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
+        router.get('/selectFnBackend', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/selectFnBackend.html', { encoding: 'utf8' });
             res.end(backendHtml);
         });
 

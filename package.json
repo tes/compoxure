@@ -42,7 +42,8 @@
     "request": "^2.39.0",
     "serve-static": "^1.4.1",
     "sf": "^0.1.7",
-    "through": "^2.3.4"
+    "through": "^2.3.4",
+    "ware": "^1.2.0"
   },
   "devDependencies": {
     "cheerio": "^0.17.0",

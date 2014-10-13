@@ -1,0 +1,11 @@
+<html>
+<body>
+    <h3>Include of content that returns a 403</h3>
+
+    <div cx-url='{{server:local}}/403' cx-cache-key='test-403' cx-cache-ttl='10s' class='block'>
+        This fragment will never be displayed, as it will respond with a 403.
+    </div>
+
+</body>
+
+</html>

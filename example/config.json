@@ -8,10 +8,10 @@
         }
     },
     "backend": [
-        { 
+        {
             "fn": "selectGoogle",
             "target":"http://www.google.com",
-            "host":"google.com"            
+            "host":"google.com"
         },
         {
             "pattern": ".*",
@@ -23,6 +23,14 @@
             "leaveContentOnFail": false
         }
     ],
+    "statusCodeHandlers":{
+        "403":{
+            "fn":"handle403",
+            "data":{
+                "redirect":"http://www.google.com"
+            }
+        }
+    },
     "circuitbreaker":{
         "windowDuration":10000,
         "numBuckets": 10,

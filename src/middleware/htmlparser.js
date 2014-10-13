@@ -142,7 +142,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                             }
                             res.end(_.template(errorMsg)({timeout:timeout}));
                         } else {
-                            setTimeout(checkDone,1);
+                            setImmediate(checkDone);
                         }
                     }
                  }
@@ -189,12 +189,23 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                 var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
 
+                // Check to see if we have any statusCode handlers defined
+                if(err.statusCode && self.config.statusCodeHandlers && self.config.statusCodeHandlers[err.statusCode]) {
+                    var handlerDefn = self.config.statusCodeHandlers[err.statusCode];
+                    var handlerFn = self.config.functions && self.config.functions[handlerDefn.fn];
+                    if(handlerFn) {
+                        return handlerFn(req, res, req.templateVars, handlerDefn.data);
+                    }
+                }
+
                 if (err.statusCode === 404 && !options.ignore404) {
+
                     res.writeHead(404, {'Content-Type': 'text/html'});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     res.end(errorMsg(options));
+
                 } else {
 
                     if(!req.backend.quietFailure) {
@@ -204,6 +215,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                         responseStream.end(msg({ 'err': err.message }));
 
                     } else {
+
                         if(oldContent) {
                             responseStream.end(oldContent);
                             debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
