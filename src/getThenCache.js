@@ -87,7 +87,7 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
                 if (err) { return onError(err, oldContent); }
                 var timing = Date.now() - start;
                 debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
-                if (res.headersSent) { return; } // ignore late joiners
+                if (mainResponse.headersSent) { return; } // ignore late joiners
 
                 // Honor fragment cache control headers in a simplistic way
                 if (hasCacheControl(res, 'no-cache') || hasCacheControl(res, 'no-store')) {
