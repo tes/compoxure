@@ -132,6 +132,12 @@ function initStubServer(fileName, port, hostname) {
             res.end(backendHtml);
         });
 
+        router.get('/noCacheBackend', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/noCacheBackend.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
         router.post('/post', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end("POST " + req.cookies['PostCookie']);
