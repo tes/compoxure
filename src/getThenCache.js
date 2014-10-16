@@ -109,6 +109,8 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
         });
 
     } else {
+        if (mainResponse.headersSent) { return; }
+        mainResponse.setHeader('cache-control', 'no-store');
 
         new CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, res) {
             if (err) { return onError(err); }
