@@ -87,16 +87,19 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
                 if (err) { return onError(err, oldContent); }
                 var timing = Date.now() - start;
                 debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
-                stream.end(res.content);
+                if (res.headersSent) { return; } // ignore late joiners
 
                 // Honor fragment cache control headers in a simplistic way
                 if (hasCacheControl(res, 'no-cache') || hasCacheControl(res, 'no-store')) {
                     mainResponse.setHeader('cache-control', 'no-store');
+                    stream.end(res.content);
                     return;
                 }
                 if (hasCacheControl(res, 'max-age')) {
                     options.cacheTTL = res.headers['cache-control'].split('=')[1] * 1000;
                 }
+
+                stream.end(res.content);
 
                 cache.set(options.cacheKey, res.content, options.cacheTTL, function() {
                     eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
