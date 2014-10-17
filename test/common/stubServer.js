@@ -143,6 +143,10 @@ function initStubServer(fileName, port, hostname) {
             res.end("POST " + req.cookies['PostCookie']);
         });
 
+        router.get('/tracer', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/plain"});
+            res.end(req.headers['x-tracer']);
+        });
     }));
 
     return function(next) {

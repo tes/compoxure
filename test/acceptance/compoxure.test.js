@@ -219,6 +219,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass x-tracer to downstreams', function(done) {
+        var requestUrl = getPageComposerUrl('tracer');
+        request.get(requestUrl,{headers: {'accept': 'text/html', 'x-tracer': 'willie wonka'}}, function(err, response) {
+            expect(response.body).to.be('willie wonka');
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

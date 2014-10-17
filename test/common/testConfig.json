@@ -23,7 +23,7 @@
             "host": "localhost",
             "dontPassUrl": true
         },
-         {
+        {
             "pattern":"/quiet.*",
             "target":"http://localhost:5001",
             "host": "localhost",
@@ -45,6 +45,12 @@
             "target":"http://localhost:5001",
             "host": "localhost",
             "replaceOuter": false
+        },
+        {
+            "pattern":"/tracer",
+            "target":"http://localhost:5001/tracer",
+            "host": "localhost",
+            "dontPassUrl": true
         }
     ],
     "circuitbreaker":{

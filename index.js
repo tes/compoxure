@@ -46,7 +46,8 @@ module.exports = function(config, eventHandler) {
           targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
           backendHeaders = {
             'x-forwarded-host': req.headers.host,
-            host: backend.host
+            host: backend.host,
+            'x-tracer': req.tracer
           },
           targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
           targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
