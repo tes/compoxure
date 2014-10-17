@@ -92,8 +92,10 @@ module.exports = function(config, eventHandler) {
             tracer: req.tracer
           });
         } else {
-          res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
-          res.end(err.message);
+          if (!res.headersSent) {
+            res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
+            res.end(err.message);
+          }
           eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {
             tracer: req.tracer
           });
@@ -106,9 +108,11 @@ module.exports = function(config, eventHandler) {
 
   function dropFavicon(req, res, next) {
     if (req.url === '/favicon.ico') {
-      res.writeHead(200, {
-        'Content-Type': 'image/x-icon'
-      });
+      if (!res.headersSent) {
+        res.writeHead(200, {
+          'Content-Type': 'image/x-icon'
+        });
+      }
       return next({
         level: 'info',
         message: 'Dropped favicon request'
@@ -130,7 +134,9 @@ module.exports = function(config, eventHandler) {
     }
 
     if (!req.backend) {
-      res.writeHead(HttpStatus.NOT_FOUND);
+      if (!res.headersSent) {
+        res.writeHead(HttpStatus.NOT_FOUND);
+      }
       return next({
         level: 'warn',
         message: 'Backend not found'
@@ -146,7 +152,10 @@ module.exports = function(config, eventHandler) {
 
     var contentType = accept.types(backendTypes);
     if (contentType === false) {
-      res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      if (!res.headersSent) {
+        res.writeHead(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      }
+
       var message = 'Unsupported content type: [' + req.headers.accept + '], url was ' + req.url;
       next({
         message: message,
