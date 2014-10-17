@@ -133,6 +133,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                     } else {
 
                         if((Date.now() - timeoutStart) > timeout) {
+                            if (res.headersSent) { return; }
                             res.writeHead(500, {'Content-Type': 'text/html'});
                             var errorMsg = 'Compoxure failed to respond in <%= timeout %>ms. Failed to respond: ';
                             for (i = 0, len = fragmentOutput.length; i < len; i++) {
@@ -199,13 +200,13 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 }
 
                 if (err.statusCode === 404 && !options.ignore404) {
-
-                    res.writeHead(404, {'Content-Type': 'text/html'});
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
-                    res.end(errorMsg(options));
-
+                    if (!res.headersSent) {
+                        res.writeHead(404, {'Content-Type': 'text/html'});
+                        res.end(errorMsg(options));
+                    }
                 } else {
 
                     if(!req.backend.quietFailure) {
