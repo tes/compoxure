@@ -76,6 +76,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should add no-store cache-control header if any fragments use cx-no-cache', function(done) {
+        var requestUrl = getPageComposerUrl('noCacheBackend');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.headers['cache-control']).to.be.equal('no-store');
+            done();
+        });
+    });
+
     it('should fail quietly if the backend is configured to do so', function(done) {
         var requestUrl = getPageComposerUrl('quiet');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
