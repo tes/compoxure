@@ -41,6 +41,13 @@
             "leaveContentOnFail":true
         },
         {
+            "pattern":"/post.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "passThrough": true
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "host": "localhost",

@@ -172,6 +172,7 @@ module.exports = function(config, eventHandler) {
   }
 
   function isPassThrough(req) {
+    if (!req.backend.passThrough) { return false }
     if (req.method !== 'GET') { return true; }
     if (req.contentType === 'text/html') { return false; }
     if (req.contentType === 'html') { return false; }
@@ -194,7 +195,8 @@ module.exports = function(config, eventHandler) {
       });
 
       var requestConfig = {
-        url: forwardUrl
+        url: forwardUrl,
+        timeout: utils.timeToMillis(req.backend.timeout || '30s')
       };
 
       req.pipe(request(requestConfig)).pipe(res);
