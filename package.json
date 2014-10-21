@@ -4,6 +4,7 @@
   "description": "Composition proxy middleware for Express, allows for composition of microservices using declarations and caching.",
   "main": "index.js",
   "scripts": {
+    "start": "node example/index.js",
     "lint": "jshint .",
     "jscs": "jscs index.js --preset=google",
     "coveralls": "NODE_ENV=test mocha --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
