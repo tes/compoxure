@@ -176,6 +176,32 @@ The configuration here is passed through to the services via two headers:
 host|The hostname of the CDN - e.g. cdn.tes.co.uk
 url|Full url - e.g. https://cdn.tes.co.uk/assets/
 
+#### Status Code Handlers
+
+You can specify a function to be executed if any of your backend services return with a specific HTTP Status Code. This  allows you to do things like redirect a user request to a login page if a request returns 401 or 403.
+
+|Property|Description|
+---------|-----------
+*statusCode*:fn|The name of the function to be executed when this statusCode is encountered. This function has to be available as a property on the config.functions and will receive the arguments *req, res, variables, data*
+*statusCode*:data|An object that will be passed to the function when called. An example of using this function would be to add the redirect link when a 401 of 403 code is encountered.
+
+```json
+ "statusCodeHandlers": {
+   "403": {
+     "fn":"handleUnauthorised",
+       "data": {
+         "redirect":"https://account.tes.co.uk/LogOn?rtn=<%= url%>"
+       }
+   },{
+    "401": {
+      "fn":"handleUnauthorised",
+       "data": {
+         "redirect":"https://account.tes.co.uk/LogOn?rtn=<%= url%>"
+       }
+    }
+ }
+```
+
 #### Environment
 
 Environment can be set in config, so it can be used as a parameter.
