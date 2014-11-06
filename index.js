@@ -50,7 +50,7 @@ module.exports = function(config, eventHandler) {
             host: backend.host,
             'x-tracer': req.tracer
           },
-          targetCacheKey = 'backend_' + utils.urlToCacheKey(targetUrl),
+          targetCacheKey = utils.urlToCacheKey(targetUrl),
           targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
           debugMode = {
             add: function() {}

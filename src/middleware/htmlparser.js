@@ -161,7 +161,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             options.unparsedUrl = getCxAttr(node, 'cx-url');
             options.url = self.render(getCxAttr(node, 'cx-url'), templateVars);
             options.timeout = utils.timeToMillis(getCxAttr(node, 'cx-timeout') || '1s');
-            options.cacheKey = self.render(getCxAttr(node, 'cx-cache-key') || getCxAttr(node, 'cx-url'), templateVars);
+            options.cacheKey = self.render(getCxAttr(node, 'cx-cache-key') || utils.urlToCacheKey(getCxAttr(node, 'cx-url'), templateVars));
             options.cacheTTL = utils.timeToMillis(getCxAttr(node, 'cx-cache-ttl') || '1m');
             options.explicitNoCache = getCxAttr(node, 'cx-no-cache') ? self.render(getCxAttr(node, 'cx-no-cache'), templateVars) === 'true' : false;
             options.ignore404 = getCxAttr(node, 'cx-ignore-404') === 'true';
