@@ -28,11 +28,12 @@ module.exports = function(config, eventHandler) {
     config.environment,
     eventHandler),
     cache = cacheFactory.getCache(config.cache),
+    cacheMiddleware = require('./src/cache/cacheMiddleware')(config),
     htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
 
   function backendProxyMiddleware(req, res) {
 
-    htmlParserProxy.middleware(req, res, function() {
+      htmlParserProxy.middleware(req, res, function() {
 
       req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
 
@@ -222,6 +223,7 @@ module.exports = function(config, eventHandler) {
                     .use(selectBackend)
                     .use(rejectUnsupportedMediaType)
                     .use(passThrough)
+                    .use(cacheMiddleware)
                     .use(backendProxyMiddleware);
 
   return function(req, res) {

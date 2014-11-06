@@ -41,7 +41,8 @@
     },
     "cache": {
         "engine": "redis",
-        "url":"redis://localhost:6379?db=0"
+        "url":"redis://localhost:6379?db=0",
+        "apiEnabled": true
     },
     "hogan": {
         "delimiters": "{{ }}"
