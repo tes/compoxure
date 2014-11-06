@@ -219,11 +219,11 @@ module.exports = function(config, eventHandler) {
 
   var middleware = ware()
                     .use(dropFavicon)
+                    .use(cacheMiddleware)
                     .use(interrogateRequest)
                     .use(selectBackend)
                     .use(rejectUnsupportedMediaType)
                     .use(passThrough)
-                    .use(cacheMiddleware)
                     .use(backendProxyMiddleware);
 
   return function(req, res) {
