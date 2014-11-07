@@ -78,6 +78,12 @@
     </code>
     <div id='testnocache' cx-url='{{server:local}}/dynamic' cx-cache-key='dynamicnocache' cx-cache-ttl='10s' cx-no-cache='{{#query:nocache}}true{{/query:nocache}}' class='block'></div>
 
+    <h3>Bundle Inclusion</h3>
+    <p>If you use bosco to manage micro service static bundles there is a quick way to include these in your page (view source).  Note that in real life these are typically attached a script or style tag with cx-replace-outer="true".</p>
+    <code>
+        &lt;div id=&#039;bundles&#039; cx-bundles=&#039;bottom.js,top.js&#039;&gt;&lt;/div&gt;
+    </code>
+    <div id='bundles' cx-bundles='bottom.js,top.js'></div>
 
     <h3>POST etc.</h3>
     <p>Compoxure will directly pass straight through any non GET request to the appropriate backend.</p>

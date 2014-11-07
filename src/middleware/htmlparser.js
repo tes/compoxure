@@ -53,35 +53,54 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             }
         };
 
+        var pushFragment = function(output, tagname, attribs) {
+            if(attribs['cx-replace-outer']) {
+                skipClosingTag = true;
+            } else {
+                output[outputIndex] += utils.createTag(tagname, attribs);
+            }
+            outputIndex ++;
+
+            output[outputIndex] = '_processing_';
+            fragmentOutput[fragmentIndex] = attribs;
+            fragmentOutput[fragmentIndex].outputIndex = outputIndex;
+            fragmentOutput[fragmentIndex].fragmentIndex = fragmentIndex;
+            nextTextDefault = true;
+
+            getCx(fragmentOutput[fragmentIndex], function(fragment, response) {
+                output[fragment.outputIndex] = response;
+                fragment.done = true;
+            });
+
+            outputIndex ++;
+            fragmentIndex ++;
+            output[outputIndex] = '';
+        }
+
         var parser = new htmlparser.Parser({
             onopentag: function(tagname, attribs) {
+
                 if(attribs && attribs['cx-url']) {
 
-                    if(attribs['cx-replace-outer']) {
-                        skipClosingTag = true;
-                    } else {
-                        output[outputIndex] += utils.createTag(tagname, attribs);
+                    pushFragment(output, tagname, attribs);
+
+                } else if(attribs && attribs['cx-bundles']) {
+
+                    var bundleNames = attribs['cx-bundles'].split(','), baseUrl;
+                    if(self.config.cdn && self.config.cdn.url) {
+                        baseUrl = self.config.cdn.url + self.config.environment;
+                        bundleNames.forEach(function(bundle) {
+                            var bundleAttribs = _.clone(attribs);
+                            bundleAttribs['cx-url'] = baseUrl + '/' + (self.config.cdn.build || 'default') + '/html/' + bundle + '.html';
+                            pushFragment(output, tagname, bundleAttribs);
+                        });
                     }
-                    outputIndex ++;
-
-                    output[outputIndex] = '_processing_';
-                    fragmentOutput[fragmentIndex] = attribs;
-                    fragmentOutput[fragmentIndex].outputIndex = outputIndex;
-                    fragmentOutput[fragmentIndex].fragmentIndex = fragmentIndex;
-                    nextTextDefault = true;
-
-                    getCx(fragmentOutput[fragmentIndex], function(fragment, response) {
-                        output[fragment.outputIndex] = response;
-                        fragment.done = true;
-                    });
-
-                    outputIndex ++;
-                    fragmentIndex ++;
-                    output[outputIndex] = '';
 
                 } else if(attribs && attribs['cx-test']) {
+
                     output[outputIndex] += utils.createTag(tagname, attribs);
                     output[outputIndex] += self.render(attribs['cx-test'], req.templateVars);
+
                 } else {
                     output[outputIndex] += utils.createTag(tagname, attribs);
                 }

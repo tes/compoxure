@@ -1,4 +1,7 @@
 {
+    "cdn":{
+        "url":"https://duqxiy1o2cbw6.cloudfront.net/"
+    },
     "parameters": {
         "urls": [
             {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
