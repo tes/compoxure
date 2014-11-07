@@ -196,14 +196,17 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                 // Check to see if we have any statusCode handlers defined
                 if(err.statusCode && self.config.statusCodeHandlers && self.config.statusCodeHandlers[err.statusCode]) {
+
                     var handlerDefn = self.config.statusCodeHandlers[err.statusCode];
                     var handlerFn = self.config.functions && self.config.functions[handlerDefn.fn];
                     if(handlerFn) {
-                        return handlerFn(req, res, req.templateVars, handlerDefn.data);
+                        return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
                     }
+
                 }
 
                 if (err.statusCode === 404 && !options.ignore404) {
+
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
                     debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     self.eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
@@ -211,6 +214,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                         res.writeHead(404, {'Content-Type': 'text/html'});
                         res.end(errorMsg(options));
                     }
+
                 } else {
 
                     if(!req.backend.quietFailure) {
