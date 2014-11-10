@@ -229,7 +229,7 @@ describe('RequestInterrogator', function() {
         var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
 
         interrogator.interrogateRequest(req, function(params) {
-            expect(params).to.have.property('cdn:url', 'http://my.cloudfront.net/test/');
+            expect(params).to.have.property('cdn:url', 'http://localhost:5001/static/');
             done();
         });
     });

@@ -148,9 +148,9 @@ describe("Page Composer", function(){
         });
     });
 
-     it('should have access to current environment, defaulting to development', function(done) {
+     it('should have access to current environment', function(done) {
         getSection('', '', '#environment', function(text) {
-            expect(text).to.be.equal('development');
+            expect(text).to.be.equal('test');
             done();
         });
     });
@@ -173,7 +173,6 @@ describe("Page Composer", function(){
             done();
         });
     });
-
 
     it('should honor max-age when sent through in fragments', function(done) {
         setTimeout(function() {
@@ -223,6 +222,18 @@ describe("Page Composer", function(){
         var requestUrl = getPageComposerUrl('tracer');
         request.get(requestUrl,{headers: {'accept': 'text/html', 'x-tracer': 'willie wonka'}}, function(err, response) {
             expect(response.body).to.be('willie wonka');
+            done();
+        });
+    });
+
+    it('should retrieve bundles via the cx-bundle directive and cdn configuration', function(done) {
+        var requestUrl = getPageComposerUrl('bundles');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            var $ = cheerio.load(response.body);
+            var bundles = $('.bundle');
+            expect($(bundles[0]).text()).to.be('top.js.html');
+            expect($(bundles[1]).text()).to.be('bottom.js.html')
             done();
         });
     });

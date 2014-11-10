@@ -39,10 +39,11 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             fragmentOutput = [],
             nextTextDefault = false,
             skipClosingTag = false,
+            templateVars = _.clone(req.templateVars),
             debugMode = {add: function() {}};
 
         // Only load the debug handler if in debug mode
-        if(req.templateVars['query:cx-debug']) { debugMode = new DebugMode(); }
+        if(templateVars['query:cx-debug']) { debugMode = new DebugMode(); }
 
         output[outputIndex] = '';
         req.timerStart = Date.now();
@@ -86,14 +87,19 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                 } else if(attribs && attribs['cx-bundles']) {
 
-                    var bundleNames = attribs['cx-bundles'].split(','), baseUrl;
+                    var bundleNames = self.render(attribs['cx-bundles'], templateVars).split(','), baseUrl;
                     if(self.config.cdn && self.config.cdn.url) {
                         baseUrl = self.config.cdn.url + self.config.environment;
                         bundleNames.forEach(function(bundle) {
-                            var bundleAttribs = _.clone(attribs);
-                            bundleAttribs['cx-url'] = baseUrl + '/' + (self.config.cdn.build || 'default') + '/html/' + bundle + '.html';
-                            pushFragment(output, tagname, bundleAttribs);
+                            if(bundle) {
+                                var bundleAttribs = _.clone(attribs),
+                                    bundleUrl = baseUrl + '/' + (self.config.cdn.build || 'default') + '/html/' + bundle + '.html';
+                                bundleAttribs['cx-url'] = bundleUrl;
+                                pushFragment(output, tagname, bundleAttribs);
+                                output[outputIndex] += '</' + tagname + '>'; // Close
+                            }
                         });
+                        skipClosingTag = true;
                     }
 
                 } else if(attribs && attribs['cx-test']) {
@@ -174,8 +180,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
         function getCx(node, next) {
 
             var options = {},
-                start = Date.now(),
-                templateVars = _.clone(req.templateVars);
+                start = Date.now();
 
             options.unparsedUrl = getCxAttr(node, 'cx-url');
             options.url = self.render(getCxAttr(node, 'cx-url'), templateVars);

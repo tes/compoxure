@@ -10,7 +10,7 @@ module.exports = function (config, cdn, environment) {
         {pattern: '.*', names: []}
     ], servers: {} };
 
-    environment = environment || {name: process.env.NODE_ENV || 'development'};
+    environment = {name: environment || process.env.NODE_ENV || 'development'};
 
     var hoganCache = {};
 

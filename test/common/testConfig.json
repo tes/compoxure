@@ -1,6 +1,6 @@
 {
     "cdn":{
-        "url":"http://my.cloudfront.net/{{env:name}}/"
+        "url":"http://localhost:5001/static/"
     },
     "parameters": {
         "urls": [

@@ -138,9 +138,20 @@ function initStubServer(fileName, port, hostname) {
             res.end(backendHtml);
         });
 
+        router.get('/bundles', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/bundles.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
         router.post('/post', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end("POST " + req.cookies['PostCookie']);
+        });
+
+        router.get('/static/test/default/html/:file', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(req.params.file);
         });
 
         router.get('/tracer', function(req, res) {

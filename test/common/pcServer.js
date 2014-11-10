@@ -20,6 +20,7 @@ function initPcServer(port, hostname) {
             res.end('CX says no.');
         }
     }
+    config.environment = 'test';
 
     var compoxureMiddleware = cx(config, createEventHandler());
 
