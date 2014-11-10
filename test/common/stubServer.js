@@ -154,6 +154,11 @@ function initStubServer(fileName, port, hostname) {
             res.end(req.params.file);
         });
 
+        router.get('/nohost', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(req.headers.host);
+        });
+
         router.get('/tracer', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/plain"});
             res.end(req.headers['x-tracer']);

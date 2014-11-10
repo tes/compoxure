@@ -238,6 +238,15 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should use the target url to extract a default host if none provided in the backend config', function(done) {
+        var requestUrl = getPageComposerUrl('nohost');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            expect(response.body).to.be('localhost');
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

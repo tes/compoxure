@@ -45,9 +45,10 @@ module.exports = function(config, eventHandler) {
           remoteIp = req.headers['x-forwarded-for'] || remoteAddress,
           backend = req.backend,
           targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
+          targetHost = url.parse(backend.target).host,
           backendHeaders = {
             'x-forwarded-host': req.headers.host,
-            host: backend.host,
+            host: backend.host || targetHost,
             'x-tracer': req.tracer
           },
           targetCacheKey = utils.urlToCacheKey(targetUrl),

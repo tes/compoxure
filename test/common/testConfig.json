@@ -58,6 +58,11 @@
             "target":"http://localhost:5001/tracer",
             "host": "localhost",
             "dontPassUrl": true
+        },
+        {
+            "pattern":"/nohost",
+            "target":"http://localhost:5001/nohost",
+            "dontPassUrl": true
         }
     ],
     "circuitbreaker":{
