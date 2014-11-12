@@ -234,17 +234,22 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
            // For each header prefixed with cx-variable, add to templateVars
            var addToTemplateVars = function(variables) {
+
              _.each(_.filter(_.keys(variables), function(key) {
-                if(key.indexOf('cx-static') >= 0) { return true; }
+                if(key.indexOf('cx-') >= 0) { return true; }
              }), function(cxKey) {
                 var variable = variables[cxKey],
-                    variableKey = cxKey.split('|')[1];
-                if(templateVars['static:' + variableKey]) {
-                    self.eventHandler.logger('error', 'Setting static variable a second time - may indicate a duplicate bundle name: ' + variableKey + ' for url ' + options.url);
+                    strippedKey = cxKey.replace('cx-',''),
+                    variableKey = strippedKey.split('|')[0],
+                    variableName = strippedKey.split('|')[1];
+
+                if(templateVars[variableKey + ':' + variableName]) {
+                    self.eventHandler.logger('error', 'Setting ' + variableKey + ' variable a second time - may indicate a duplicate property: ' + variableName + ' for url ' + options.url);
                 }
-                templateVars['static:' + variableKey] = variable;
-                templateVars['static:' + variableKey + ':encoded'] = encodeURI(variable);
+                templateVars[variableKey + ':' + variableName] = variable;
+                templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
              });
+
            }
 
             var responseStreamCallback = function(data, variables) {

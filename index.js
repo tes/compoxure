@@ -89,14 +89,16 @@ module.exports = function(config, eventHandler) {
       };
 
       // For each header prefixed with cx-variable, add to templateVars
-       var addToTemplateVars = function(variables) {
+      var addToTemplateVars = function(variables) {
          _.each(_.filter(_.keys(variables), function(key) {
-            if(key.indexOf('cx-static') >= 0) { return true; }
+            if(key.indexOf('cx-') >= 0) { return true; }
          }), function(cxKey) {
             var variable = variables[cxKey],
-                variableKey = cxKey.split('|')[1];
-            req.templateVars['static:' + variableKey] = variable;
-            req.templateVars['static:' + variableKey + ':encoded'] = encodeURI(variable);
+                strippedKey = cxKey.replace('cx-',''),
+                variableKey = strippedKey.split('|')[0],
+                variableName = strippedKey.split('|')[1];
+            req.templateVars[variableKey + ':' + variableName] = variable;
+            req.templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
          });
        }
 
