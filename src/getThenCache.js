@@ -11,7 +11,7 @@ function hasCacheControl(res, value) {
     return (res.headers['cache-control'] || '').indexOf(value) !== -1;
 }
 
-function getThenCache(options, debugMode, config, cache, eventHandler, stream, mainResponse, onError) {
+function getThenCache(options, debugMode, config, cache, eventHandler, streamCallback, mainResponse, onError) {
 
     debugMode.add(options.unparsedUrl, {options: _.cloneDeep(options)});
 
@@ -61,15 +61,15 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
 
     if(!options.explicitNoCache && options.cacheTTL > 0) {
 
-        cache.get(options.cacheKey, function(err, content, oldContent) {
+        cache.get(options.cacheKey, function(err, cacheData, oldCacheData) {
 
-            if (err) { return onError(err, oldContent); }
-            if (content) {
+            if (err) { return onError(err, oldCacheData); }
+            if (cacheData && cacheData.content) {
                 var timing = Date.now() - start;
                 eventHandler.logger('debug', 'CACHE HIT for key: ' + options.cacheKey,{tracer:options.tracer, responseTime: timing, pcType:options.type});
                 eventHandler.stats('increment', options.statsdKey + '.cacheHit');
                 debugMode.add(options.unparsedUrl, {status: 'OK', cache: 'HIT', timing: timing});
-                stream.end(content);
+                streamCallback(cacheData.content, cacheData.headers);
                 return;
             }
 
@@ -78,13 +78,13 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
             eventHandler.stats('increment', options.statsdKey + '.cacheMiss');
 
             if(options.url == 'cache') {
-                stream.end('');
+                streamCallback('', {});
                 return;
             }
 
             new CircuitBreaker(options, config, eventHandler, pipeAndCacheContent, function(err, res) {
 
-                if (err) { return onError(err, oldContent); }
+                if (err) { return onError(err, oldCacheData); }
                 var timing = Date.now() - start;
                 debugMode.add(options.unparsedUrl, {status: 'OK', timing: timing});
                 if (mainResponse.headersSent) { return; } // ignore late joiners
@@ -92,16 +92,16 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
                 // Honor fragment cache control headers in a simplistic way
                 if (hasCacheControl(res, 'no-cache') || hasCacheControl(res, 'no-store')) {
                     mainResponse.setHeader('cache-control', 'no-store');
-                    stream.end(res.content);
+                    streamCallback(res.content, res.headers);
                     return;
                 }
                 if (hasCacheControl(res, 'max-age')) {
                     options.cacheTTL = res.headers['cache-control'].split('=')[1] * 1000;
                 }
 
-                stream.end(res.content);
+                streamCallback(res.content, res.headers);
 
-                cache.set(options.cacheKey, res.content, options.cacheTTL, function() {
+                cache.set(options.cacheKey, {content: res.content, headers: res.headers}, options.cacheTTL, function() {
                     eventHandler.logger('debug', 'CACHE SET for key: ' + options.cacheKey + ' @ TTL: ' + options.cacheTTL,{tracer:options.tracer,pcType:options.type});
                 });
 
@@ -116,7 +116,7 @@ function getThenCache(options, debugMode, config, cache, eventHandler, stream, m
             if (err) { return onError(err); }
             var timing = Date.now() - start;
             debugMode.add(options.unparsedUrl, {status: 'OK', cache: 'DISABLED', timing: timing});
-            stream.end(res.content);
+            streamCallback(res.content, res.headers);
         });
 
     }

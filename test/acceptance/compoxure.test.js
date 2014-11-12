@@ -226,14 +226,14 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should retrieve bundles via the cx-bundle directive and cdn configuration', function(done) {
+    it('should retrieve bundles via the cx-bundle directive and cdn configuration using service supplied version numbers if appropriate', function(done) {
         var requestUrl = getPageComposerUrl('bundles');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(200);
             var $ = cheerio.load(response.body);
             var bundles = $('.bundle');
-            expect($(bundles[0]).text()).to.be('top.js.html');
-            expect($(bundles[1]).text()).to.be('bottom.js.html')
+            expect($(bundles[0]).text()).to.be('100 >> service-one-top.js.html');
+            expect($(bundles[1]).text()).to.be('default >> service-two-top.js.html');
             done();
         });
     });

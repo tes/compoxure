@@ -14,26 +14,28 @@ describe("Redis Cache Engine", function() {
 
 	it('should set and get values from cache', function(done) {
         withCache({engine:'redis'}, function(err, cache) {
-            cache.set('bar:123', 'content', 1000, function(err) {
+            cache.set('bar:123', {content:'content', headers:{'header':'1'}}, 1000, function(err) {
                 expect(err).to.be(null);
-                assertCachedValue(cache, 'bar:123', 'content', done);
+                assertCachedValue(cache, 'bar:123', 'content', function() {
+                    assertHeaderValue(cache, 'bar:123', 'header', '1', done);
+                });
             });
         });
 	});
 
     it('should return null when value not present', function(done) {
         withCache({engine:'redis'}, function(err, cache) {
-            assertCachedValue(cache, 'bar:212122', null, done);
+            assertCachedNullValue(cache, 'bar:212122', done);
         });
     });
 
     it('should expire values in cache', function(done) {
         withCache({engine:'redis'}, function(err, cache) {
-            cache.set('bar:1234', 'content', 1000, function(err) {
+            cache.set('bar:1234', {content:'content', headers:{'header':'1'}}, 1000, function(err) {
                 expect(err).to.be(null);
                 assertCachedValue(cache, 'bar:1234', 'content', function() {
                     setTimeout(function() {
-                        assertCachedValue(cache, 'bar:1234', null, done);
+                        assertCachedNullValue(cache, 'bar:1234', done);
                     }, 1100);
                 });
             });
@@ -59,9 +61,26 @@ describe("Redis Cache Engine", function() {
     function assertCachedValue(cache, key, expected, next) {
         cache.get(key, function(err, actual) {
             expect(err).to.be(null);
-            expect(actual).to.be(expected);
+            expect(actual.content).to.be(expected);
             next();
         });
     }
+
+    function assertCachedNullValue(cache, key, next) {
+        cache.get(key, function(err, actual) {
+            expect(err).to.be(null);
+            expect(actual).to.be(null);
+            next();
+        });
+    }
+
+    function assertHeaderValue(cache, key, header, expected, next) {
+        cache.get(key, function(err, actual) {
+            expect(err).to.be(null);
+            expect(actual.headers[header]).to.be(expected);
+            next();
+        });
+    }
+
 
 });

@@ -1,6 +1,6 @@
 {
     "cdn":{
-        "url":"https://duqxiy1o2cbw6.cloudfront.net/"
+        "url":"http://localhost:5001/cdn/"
     },
     "parameters": {
         "urls": [

@@ -33,7 +33,7 @@ module.exports = function(config, eventHandler) {
 
   function backendProxyMiddleware(req, res) {
 
-      htmlParserProxy.middleware(req, res, function() {
+    htmlParserProxy.middleware(req, res, function() {
 
       req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
 
@@ -88,9 +88,26 @@ module.exports = function(config, eventHandler) {
         statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
       };
 
-      getThenCache(options, debugMode, config, cache, eventHandler, res.transformer, res, function(err, oldContent) {
-        if (req.backend.quietFailure && oldContent) {
-          res.transformer.end(oldContent);
+      // For each header prefixed with cx-variable, add to templateVars
+       var addToTemplateVars = function(variables) {
+         _.each(_.filter(_.keys(variables), function(key) {
+            if(key.indexOf('cx-static') >= 0) { return true; }
+         }), function(cxKey) {
+            var variable = variables[cxKey],
+                variableKey = cxKey.split('|')[1];
+            req.templateVars['static:' + variableKey] = variable;
+            req.templateVars['static:' + variableKey + ':encoded'] = encodeURI(variable);
+         });
+       }
+
+      var responseStreamCallback = function(data, variables) {
+        addToTemplateVars(variables);
+        res.transformer.end(data);
+      }
+
+      var handleError = function(err, oldCacheData) {
+        if (req.backend.quietFailure && oldCacheData.content) {
+          res.transformer.end(oldCacheData.content);
           eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
             tracer: req.tracer
           });
@@ -103,7 +120,9 @@ module.exports = function(config, eventHandler) {
             tracer: req.tracer
           });
         }
-      });
+      }
+
+      getThenCache(options, debugMode, config, cache, eventHandler, responseStreamCallback, res, handleError);
 
     });
 

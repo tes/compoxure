@@ -22,7 +22,7 @@ function initStubServer(fileName, port, hostname) {
         });
 
         router.get('/uuid', function(req, res) {
-             res.writeHead(200, {"Content-Type": "text/html"});
+            res.writeHead(200, {"Content-Type": "text/html", "cx-static|bundle": "100"});
             res.end(uuid.v1());
         });
 
@@ -149,10 +149,6 @@ function initStubServer(fileName, port, hostname) {
             res.end("POST " + req.cookies['PostCookie']);
         });
 
-        router.get('/static/test/default/html/:file', function(req, res) {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.end(req.params.file);
-        });
 
         router.get('/nohost', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -163,6 +159,22 @@ function initStubServer(fileName, port, hostname) {
             res.writeHead(200, {"Content-Type": "text/plain"});
             res.end(req.headers['x-tracer']);
         });
+
+        router.get('/service-one', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html", "cx-static|service-one-top": "100"});
+            res.end('Service One - I have a bundle, hear me roar.');
+        });
+
+        router.get('/service-two', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end('Service Two - my bundle is superior, but I have no version.');
+        });
+
+        router.get('/static/test/:version/html/:file', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(req.params.version + " >> " + req.params.file);
+        });
+
     }));
 
     return function(next) {

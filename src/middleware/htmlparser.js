@@ -2,6 +2,7 @@ var htmlparser = require('htmlparser2');
 var _ = require('lodash');
 var Hogan = require('hogan.js');
 var utils = require('../utils');
+var async = require('async');
 var DebugMode = require('../DebugMode');
 var getThenCache = require('../getThenCache');
 var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
@@ -37,6 +38,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             outputIndex = 0,
             fragmentIndex = 0,
             fragmentOutput = [],
+            deferredStack = [],
             nextTextDefault = false,
             skipClosingTag = false,
             templateVars = _.clone(req.templateVars),
@@ -54,7 +56,8 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             }
         };
 
-        var pushFragment = function(output, tagname, attribs) {
+        var pushFragment = function(output, tagname, attribs, deferred) {
+
             if(attribs['cx-replace-outer']) {
                 skipClosingTag = true;
             } else {
@@ -66,16 +69,34 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
             fragmentOutput[fragmentIndex] = attribs;
             fragmentOutput[fragmentIndex].outputIndex = outputIndex;
             fragmentOutput[fragmentIndex].fragmentIndex = fragmentIndex;
+            fragmentOutput[fragmentIndex].deferred = deferred ? true : false;
             nextTextDefault = true;
 
-            getCx(fragmentOutput[fragmentIndex], function(fragment, response) {
-                output[fragment.outputIndex] = response;
-                fragment.done = true;
-            });
+            var fragment = fragmentOutput[fragmentIndex],
+                fragmentCallback = function(fragment, response) {
+                    output[fragment.outputIndex] = response;
+                    fragment.done = true;
+                };
+
+            if(!deferred) {
+                getCx(fragment, fragmentCallback);
+            } else {
+                deferredStack.push({key:deferred, fragment:fragment, callback:fragmentCallback});
+            }
 
             outputIndex ++;
             fragmentIndex ++;
             output[outputIndex] = '';
+        }
+
+        var processDeferredStack = function(next) {
+            async.map(deferredStack, function(deferred, cb) {
+                deferred.fragment['cx-url'] = self.render(deferred.fragment['cx-url'], templateVars);
+                getCx(deferred.fragment, function(fragment, response) {
+                    deferred.callback(fragment, response);
+                    cb();
+                });
+            }, next);
         }
 
         var parser = new htmlparser.Parser({
@@ -93,9 +114,11 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                         bundleNames.forEach(function(bundle) {
                             if(bundle) {
                                 var bundleAttribs = _.clone(attribs),
-                                    bundleUrl = baseUrl + '/' + (self.config.cdn.build || 'default') + '/html/' + bundle + '.html';
+                                    bundleKey = bundle.split('.')[0],
+                                    bundleVersion = '{{^static:' + bundleKey + '}}default{{/static:' + bundleKey + '}}{{#static:' + bundleKey + '}}{{static:' + bundleKey + '}}{{/static:' + bundleKey + '}}',
+                                    bundleUrl = baseUrl + '/' + bundleVersion + '/html/' + bundle + '.html';
                                 bundleAttribs['cx-url'] = bundleUrl;
-                                pushFragment(output, tagname, bundleAttribs);
+                                pushFragment(output, tagname, bundleAttribs, bundle);
                                 output[outputIndex] += '</' + tagname + '>'; // Close
                             }
                         });
@@ -144,19 +167,20 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                  function checkDone() {
                     var done = true, outputHTML = '', i, len;
                     for (i = 0, len = fragmentOutput.length; i < len; i++) {
-                        done = done && fragmentOutput[i].done;
+                        done = done && (fragmentOutput[i].done || fragmentOutput[i].deferred);
                     }
                     if(done) {
-                        var responseTime = Date.now() - req.timerStart;
-                        for (i = 0, len = output.length; i < len; i++) {
-                            outputHTML += output[i];
-                        }
-                        if(req.templateVars['query:cx-debug']) { outputHTML += debugMode.render(); }
-                        self.eventHandler.logger('info', 'Page composer response completed', {tracer: req.tracer,responseTime: responseTime});
-                        self.eventHandler.stats('timing','responseTime',responseTime);
-                        res.end(outputHTML);
+                        processDeferredStack(function() {
+                            var responseTime = Date.now() - req.timerStart;
+                            for (i = 0, len = output.length; i < len; i++) {
+                                outputHTML += output[i];
+                            }
+                            if(req.templateVars['query:cx-debug']) { outputHTML += debugMode.render(); }
+                            self.eventHandler.logger('info', 'Page composer response completed', {tracer: req.tracer,responseTime: responseTime});
+                            self.eventHandler.stats('timing','responseTime',responseTime);
+                            res.end(outputHTML);
+                        });
                     } else {
-
                         if((Date.now() - timeoutStart) > timeout) {
                             if (res.headersSent) { return; }
                             res.writeHead(500, {'Content-Type': 'text/html'});
@@ -208,13 +232,27 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
                 if(self.config.cdn.url) { options.headers['x-cdn-url'] = self.config.cdn.url; }
             }
 
-            var responseStream = {
-                end: function(data) {
-                    next(node, data);
+           // For each header prefixed with cx-variable, add to templateVars
+           var addToTemplateVars = function(variables) {
+             _.each(_.filter(_.keys(variables), function(key) {
+                if(key.indexOf('cx-static') >= 0) { return true; }
+             }), function(cxKey) {
+                var variable = variables[cxKey],
+                    variableKey = cxKey.split('|')[1];
+                if(templateVars['static:' + variableKey]) {
+                    self.eventHandler.logger('error', 'Setting static variable a second time - may indicate a duplicate bundle name: ' + variableKey + ' for url ' + options.url);
                 }
+                templateVars['static:' + variableKey] = variable;
+                templateVars['static:' + variableKey + ':encoded'] = encodeURI(variable);
+             });
+           }
+
+            var responseStreamCallback = function(data, variables) {
+                addToTemplateVars(variables);
+                next(node, data);
             };
 
-            function onErrorHandler(err, oldContent) {
+            function onErrorHandler(err, oldCacheData) {
 
                 var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
 
@@ -245,18 +283,18 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
                         var msg = _.template(errorTemplate);
                         debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, timing: timing });
-                        responseStream.end(msg({ 'err': err.message }));
+                        responseStreamCallback(msg({ 'err': err.message }));
 
                     } else {
 
-                        if(oldContent) {
-                            responseStream.end(oldContent);
+                        if(oldCacheData && oldCacheData.content) {
+                            responseStreamCallback(oldCacheData.content, oldCacheData.headers);
                             debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
                             errorMsg = _.template('STALE <%= url %> cache <%= cacheKey %> failed but serving stale content.');
                             self.eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
                         } else {
                             debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
-                            responseStream.end(req.backend.leaveContentOnFail ? output[node.outputIndex] : '' );
+                            responseStreamCallback(req.backend.leaveContentOnFail ? output[node.outputIndex] : '' );
                         }
                     }
 
@@ -268,7 +306,7 @@ HtmlParserProxy.prototype.middleware = function(req, res, next) {
 
             }
 
-            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStream, res, onErrorHandler);
+            getThenCache(options, debugMode, self.config, self.cache, self.eventHandler, responseStreamCallback, res, onErrorHandler);
 
 
         }

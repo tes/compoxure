@@ -51,9 +51,9 @@ function RedisCache(config) {
             // Allows us to serve stale cached values vs TTL only
             var expires = Date.now();
             if(expires - data.expires > 0) {
-                next(err, null, data.content);
+                next(err, null, {content: data.content, headers: JSON.parse(data.headers || '{}')});
             } else {
-                next(err, data.content);
+                next(err, {content: data.content, headers: JSON.parse(data.headers || '{}')});
             }
         });
     };
@@ -68,7 +68,8 @@ function RedisCache(config) {
         var expires = Date.now() + ttl*1;
         var multi = redisClient.multi();
 
-        multi.hset(key, 'content', value);
+        multi.hset(key, 'content', value.content);
+        multi.hset(key, 'headers', JSON.stringify(value.headers || {}));
         multi.hset(key, 'expires', expires);
         multi.hset(key, 'ttl', ttl);
 

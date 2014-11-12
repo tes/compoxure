@@ -19,7 +19,7 @@ server.use(bodyParser.urlencoded({ extended: false }))
 server.use(connectRoute(function (router) {
 
     router.get('/dynamic', function(req, res) {
-		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.writeHead(200, {'Content-Type': 'text/html', 'cx-static|top': '100'});
     	res.end('This is some dynamic comment: ' + (new Date()));
     });
 
@@ -47,6 +47,7 @@ server.use(connectRoute(function (router) {
 
   	router.get('/slow', function(req, res) {
     	setTimeout(function() {
+            res.writeHead(200, {'Content-Type': 'text/html'});
 			res.end('This is a slow service');
 		},200);
     });
@@ -60,6 +61,13 @@ server.use(connectRoute(function (router) {
     	res.writeHead(200, {'Content-Type': 'text/html'});
     	res.end('PUT Data: ' + req.body.test + '<br/><pre>' + JSON.stringify(req.headers) + '</pre>');
     });
+
+    router.get('/cdn/:environment/:version/html/:file', function(req, res) {
+        res.writeHead(200);
+        res.end('Environment: ' + req.params.environment + ', Version: ' + req.params.version + ', File: ' + req.params.file);
+    });
+
+
 }));
 
 server.listen(5001, 'localhost', function() {

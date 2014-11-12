@@ -310,6 +310,29 @@ e.g. the HTML below would fail silently and quickly in the instance the cache di
 
 To do: build an API for the cache that enables jobs to do this without directly talking to Redis.
 
+## Static Bundles
+
+Using Compoxure in conjunction with Bosco gives you a way to manage the static assets (JS, CSS, Images) that go with the services.
+
+```
+<script cx-bundles='service-one.js,service-two.js'/>
+```
+
+This in the background will turn this into a set of cx-url includes, based on the structure that Bosco uses to publish static assets (both in CDN mode and pushed to S3):
+
+```
+<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-one}}/html/service-one.js.html'/>
+<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-two}}/html/service-two.js.html'/>
+```
+
+The most important of the variables in the above urls are the '{{static:service-one}}'.
+
+This works in the following way:
+
+ * Service One (which is likely included somewhere in the page given it's static assets are), should respond to Compoxure with its content, and in addition, supply an additional header:  cx-static|service-one: 101
+ * This represents the build number for the service, that is also then applied to all of the bundles with the same name.
+ * If no header is supplied by the service, it will revert to 'default'.
+
 ## 404 Responses from Microservices
 
 If any of the requests to a backend service via cx-url return a 404, then compoxure itself will render a 404 back to the client.  At TES we have nginx capture the 404 and return a static 404 page.   This can be turned off on an include by include basis by adding the 'cx-ignore-404' attribute.
