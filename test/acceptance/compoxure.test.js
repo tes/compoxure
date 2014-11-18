@@ -88,7 +88,7 @@ describe("Page Composer", function(){
         var requestUrl = getPageComposerUrl('quiet');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
             var $ = cheerio.load(content);
-            expect($('#faulty').text()).to.be.equal('');
+            expect($('#faulty').text()).to.be.equal('Faulty service');
             done();
         });
     });

@@ -1,12 +1,11 @@
 var utils = require('./src/utils');
 var HtmlParserProxy = require('./src/middleware/htmlparser');
 var RequestInterrogator = require('./src/parameters/RequestInterrogator');
-var cacheFactory = require('./src/cache/cacheFactory');
-var getThenCache = require('./src/getThenCache');
 var _ = require('lodash');
 var request = require('request');
 var url = require('url');
 var HttpStatus = require('http-status-codes');
+var ReliableGet = require('reliable-get');
 var Accepts = require('accepts');
 var ware = require('ware');
 
@@ -27,13 +26,13 @@ module.exports = function(config, eventHandler) {
     config.cdn || {},
     config.environment,
     eventHandler),
-    cache = cacheFactory.getCache(config.cache),
-    cacheMiddleware = require('./src/cache/cacheMiddleware')(config),
-    htmlParserProxy = HtmlParserProxy(config, cache, eventHandler);
+    reliableGet = ReliableGet(config),
+    cacheMiddleware = require('reliable-get/CacheMiddleware')(config),
+    htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler);
 
   function backendProxyMiddleware(req, res) {
 
-    htmlParserProxy.middleware(req, res, function() {
+    htmlParserMiddleware(req, res, function() {
 
       req.tracer = req.headers['x-tracer'] || (Date.now() * 1000) + intraMillis;
 
@@ -53,9 +52,6 @@ module.exports = function(config, eventHandler) {
           },
           targetCacheKey = utils.urlToCacheKey(targetUrl),
           targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
-          debugMode = {
-            add: function() {}
-          },
           options;
 
       if (now > prevMillis) {
@@ -85,7 +81,8 @@ module.exports = function(config, eventHandler) {
         headers: backendHeaders,
         tracer: req.tracer,
         type: 'backend',
-        statsdKey: 'backend_' + utils.urlToCacheKey(backend.host)
+        statsdKey: 'backend_' + utils.urlToCacheKey(backend.host),
+        eventHandler: eventHandler
       };
 
       // For each header prefixed with cx-variable, add to templateVars
@@ -100,16 +97,11 @@ module.exports = function(config, eventHandler) {
             req.templateVars[variableKey + ':' + variableName] = variable;
             req.templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
          });
-       }
-
-      var responseStreamCallback = function(data, variables) {
-        addToTemplateVars(variables);
-        res.transformer.end(data);
       }
 
       var handleError = function(err, oldCacheData) {
-        if (req.backend.quietFailure && oldCacheData.content) {
-          res.transformer.end(oldCacheData.content);
+        if (req.backend.quietFailure && oldCacheData) {
+          res.parse(oldCacheData);
           eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
             tracer: req.tracer
           });
@@ -124,7 +116,14 @@ module.exports = function(config, eventHandler) {
         }
       }
 
-      getThenCache(options, debugMode, config, cache, eventHandler, responseStreamCallback, res, handleError);
+      reliableGet(options, function(err, response) {
+        if(err) {
+          handleError(err, response.stale);
+        } else {
+          addToTemplateVars(response.headers);
+          res.parse(response.content);
+        }
+      });
 
     });
 

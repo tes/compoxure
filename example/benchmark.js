@@ -3,7 +3,7 @@
  */
 var async = require('async');
 var request = require('request');
-var nrequests = 1000;
+var nrequests = 5000;
 
 function runBackendBenchmark(next) {
 
