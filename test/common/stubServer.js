@@ -149,7 +149,6 @@ function initStubServer(fileName, port, hostname) {
             res.end("POST " + req.cookies['PostCookie']);
         });
 
-
         router.get('/nohost', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(req.headers.host);
@@ -173,6 +172,11 @@ function initStubServer(fileName, port, hostname) {
         router.get('/static/test/:version/html/:file', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(req.params.version + " >> " + req.params.file);
+        });
+
+        router.get('/cookie', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/plain"});
+            res.end(req.headers.cookie);
         });
 
     }));

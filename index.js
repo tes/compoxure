@@ -7,6 +7,7 @@ var url = require('url');
 var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var Accepts = require('accepts');
+var cookieParser = require('cookie-parser');
 var ware = require('ware');
 
 var prevMillis = 0;
@@ -44,10 +45,11 @@ module.exports = function(config, eventHandler) {
           remoteIp = req.headers['x-forwarded-for'] || remoteAddress,
           backend = req.backend,
           targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
-          targetHost = url.parse(backend.target).host,
+          targetHost = url.parse(backend.target).hostname,
+          host = backend.host || targetHost,
           backendHeaders = {
             'x-forwarded-host': req.headers.host,
-            host: backend.host || targetHost,
+            host: host,
             'x-tracer': req.tracer
           },
           targetCacheKey = utils.urlToCacheKey(targetUrl),
@@ -81,7 +83,7 @@ module.exports = function(config, eventHandler) {
         headers: backendHeaders,
         tracer: req.tracer,
         type: 'backend',
-        statsdKey: 'backend_' + utils.urlToCacheKey(backend.host),
+        statsdKey: 'backend_' + utils.urlToCacheKey(host),
         eventHandler: eventHandler
       };
 
@@ -145,6 +147,7 @@ module.exports = function(config, eventHandler) {
   }
 
   function selectBackend(req, res, next) {
+
     if (config.backend) {
       req.backend = _.find(config.backend, function(server) {
           if (server.pattern) { return new RegExp(server.pattern).test(req.url); }
@@ -155,7 +158,6 @@ module.exports = function(config, eventHandler) {
           }
       });
     }
-
     if (!req.backend) {
       if (!res.headersSent) {
         res.writeHead(HttpStatus.NOT_FOUND);
@@ -256,6 +258,7 @@ module.exports = function(config, eventHandler) {
                     .use(selectBackend)
                     .use(rejectUnsupportedMediaType)
                     .use(passThrough)
+                    .use(cookieParser)
                     .use(backendProxyMiddleware);
 
   return function(req, res) {

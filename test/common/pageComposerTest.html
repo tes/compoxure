@@ -25,6 +25,9 @@
         <div id='max-age' cx-url='{{server:local}}/millis-maxage' cx-timeout='10s' class='block'>
             Not stored
         </div>
+        <div id='cookie' cx-url='{{server:local}}/cookie' cx-no-cache="true" cx-timeout='10s' class='block'>
+            Cookie
+        </div>
         <div id='replace-outer'>wrapping <div id='replace-outer-content' cx-replace-outer='true' cx-url='{{server:local}}/replaced'></div> content</div>
          <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
          <div id='environment' cx-test='{{env:name}}'></div>

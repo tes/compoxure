@@ -2,6 +2,9 @@
     "cdn":{
         "url":"http://localhost:5001/static/"
     },
+    "cookies":{
+        "whitelist":["CompoxureCookie","TSLCookie"]
+    },
     "parameters": {
         "urls": [
             {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
@@ -48,12 +51,6 @@
             "passThrough": true
         },
         {
-            "pattern":".*",
-            "target":"http://localhost:5001",
-            "host": "localhost",
-            "replaceOuter": false
-        },
-        {
             "pattern":"/tracer",
             "target":"http://localhost:5001/tracer",
             "host": "localhost",
@@ -63,6 +60,12 @@
             "pattern":"/nohost",
             "target":"http://localhost:5001/nohost",
             "dontPassUrl": true
+        },
+        {
+            "pattern":".*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false
         }
     ],
     "circuitbreaker":{

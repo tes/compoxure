@@ -10,6 +10,17 @@ function getCxAttr(node, name) {
   return value && htmlEntities.decode(value);
 }
 
+function filterCookies(config, cookies) {
+    var whitelist = config.cookies.whitelist || [];
+    return _.reduce(cookies, function(result, value, key) {
+      if(whitelist.length === 0 || _.contains(whitelist, key)) {
+        result += result ? '; ' : '';
+        result += key + '=' + value;
+      }
+      return result;
+    }, '');
+}
+
 function getMiddleware(config, reliableGet, eventHandler) {
 
     return function(req, res, next) {
@@ -37,7 +48,9 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 'cx-page-url': templateVars['url:href'],
                 'x-tracer': req.tracer
             };
-            if (req.headers.cookie) { options.headers.cookie = req.headers.cookie; }
+            if (req.cookies) {
+                options.headers.cookie = filterCookies(config, req.cookies);
+            }
             options.tracer = req.tracer;
             options.statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown');
 
@@ -81,7 +94,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     addToTemplateVars(headers);
                     setResponseHeaders(headers);
                 }
-                next(err, content ? content : null);
+                next(err, content ? content : null, headers);
             };
 
             var onErrorHandler = function(err, oldCacheData) {

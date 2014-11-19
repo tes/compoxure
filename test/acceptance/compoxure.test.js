@@ -247,6 +247,21 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should only allow cookies to pass through that are whitelisted', function(done) {
+        var requestUrl = getPageComposerUrl();
+        var j = request.jar();
+        j.setCookie(request.cookie('CompoxureCookie=Test'), getPageComposerUrl());
+        j.setCookie(request.cookie('AnotherCookie=Test'), getPageComposerUrl());
+        j.setCookie(request.cookie('TSLCookie=Test'), getPageComposerUrl());
+        request.get(requestUrl, {jar: j, headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            var $ = cheerio.load(response.body);
+            var cookieValue = $('#cookie').text();
+            expect(cookieValue).to.be('CompoxureCookie=Test; TSLCookie=Test');
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {
