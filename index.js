@@ -7,7 +7,7 @@ module.exports = function(config, eventHandler) {
   eventHandler.logger = eventHandler.logger || function() {};
   eventHandler.stats = eventHandler.stats || function() {};
 
-  var backendProxyMiddleware = require('./src/middleware//proxy')(config, eventHandler);
+  var backendProxyMiddleware = require('./src/middleware/proxy')(config, eventHandler);
   var cacheMiddleware = require('reliable-get/CacheMiddleware')(config);
   var selectBackend = require('./src/middleware/backend')(config);
   var rejectUnsupportedMediaType = require('./src/middleware/mediatypes');

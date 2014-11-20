@@ -11,7 +11,7 @@ function getCxAttr(node, name) {
 }
 
 function filterCookies(config, cookies) {
-    var whitelist = config.cookies.whitelist || [];
+    var whitelist = config.cookies && config.cookies.whitelist || [];
     return _.reduce(cookies, function(result, value, key) {
       if(whitelist.length === 0 || _.contains(whitelist, key)) {
         result += result ? '; ' : '';
