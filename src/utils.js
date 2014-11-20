@@ -66,10 +66,25 @@ function parseRedisConnectionString(connectionString) {
     };
 }
 
+ function updateTemplateVariables(templateVars, variables) {
+   _.each(_.filter(_.keys(variables), function(key) {
+      if(key.indexOf('cx-') >= 0) { return true; }
+   }), function(cxKey) {
+      var variable = variables[cxKey],
+          strippedKey = cxKey.replace('cx-',''),
+          variableKey = strippedKey.split('|')[0],
+          variableName = strippedKey.split('|')[1];
+      templateVars[variableKey + ':' + variableName] = variable;
+      templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
+   });
+   return templateVars;
+ }
+
 module.exports = {
 	timeToMillis: timeToMillis,
 	urlToCacheKey: urlToCacheKey,
 	cacheKeytoStatsd: cacheKeytoStatsd,
 	createTag: createTag,
-	parseRedisConnectionString: parseRedisConnectionString
+	parseRedisConnectionString: parseRedisConnectionString,
+  updateTemplateVariables: updateTemplateVariables
 };

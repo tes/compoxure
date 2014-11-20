@@ -29,61 +29,49 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
         function getCx(fragment, next) {
 
-            var options = {},
-                start = Date.now();
-
-            options.url = getCxAttr(fragment, 'cx-url');
-            options.timeout = utils.timeToMillis(getCxAttr(fragment, 'cx-timeout') || '1s');
-            if(getCxAttr(fragment, 'cx-cache-key')) {
-                options.cacheKey = getCxAttr(fragment, 'cx-cache-key');
-            } else {
-                options.cacheKey = utils.urlToCacheKey(getCxAttr(fragment, 'cx-url'));
-            }
-            options.cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m');
-            options.explicitNoCache = getCxAttr(fragment, 'cx-no-cache') ? getCxAttr(fragment, 'cx-no-cache') === 'true' : false;
-            options.ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true';
-            options.type = 'fragment';
-            options.cache = (options.cacheTTL > 0);
-            options.headers = {
-                'cx-page-url': templateVars['url:href'],
-                'x-tracer': req.tracer
-            };
-            if (req.cookies) {
-                options.headers.cookie = filterCookies(config, req.cookies);
-            }
-            options.tracer = req.tracer;
-            options.statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown');
-
-            if (config.cdn) {
-                if(config.cdn.host) { options.headers['x-cdn-host'] = config.cdn.host; }
-                if(config.cdn.url) { options.headers['x-cdn-url'] = config.cdn.url; }
-            }
-
-           // For each header prefixed with cx-variable, add to templateVars
-           var addToTemplateVars = function(variables) {
-             _.each(_.filter(_.keys(variables), function(key) {
-                if(key.indexOf('cx-') >= 0) { return true; }
-             }), function(cxKey) {
-                var variable = variables[cxKey],
-                    strippedKey = cxKey.replace('cx-',''),
-                    variableKey = strippedKey.split('|')[0],
-                    variableName = strippedKey.split('|')[1];
-
-                if(templateVars[variableKey + ':' + variableName]) {
-                    eventHandler.logger('error', 'Setting ' + variableKey + ' variable a second time - may indicate a duplicate property: ' + variableName + ' for url ' + options.url);
+            var options,
+                start = Date.now(),
+                url = getCxAttr(fragment, 'cx-url'),
+                timeout = utils.timeToMillis(getCxAttr(fragment, 'cx-timeout') || '1s'),
+                cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key'),
+                cacheKey = cacheKeyAttr ? cacheKeyAttr : utils.urlToCacheKey(url),
+                cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m'),
+                explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache'),
+                explicitNoCache = explicitNoCacheAttr ? explicitNoCacheAttr === 'true' : false,
+                ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
+                statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
+                optionsHeaders = {
+                    'cx-page-url': templateVars['url:href'],
+                    'x-tracer': req.tracer
                 }
-                templateVars[variableKey + ':' + variableName] = variable;
-                templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
-             });
-           }
+                if (req.cookies) {
+                    optionsHeaders.cookie = filterCookies(config, req.cookies);
+                }
+                if (config.cdn) {
+                    if(config.cdn.host) { optionsHeaders['x-cdn-host'] = config.cdn.host; }
+                    if(config.cdn.url) { optionsHeaders['x-cdn-url'] = config.cdn.url; }
+                }
 
-            var hasCacheControl = function(headers, value) {
-                if (typeof value === 'undefined') { return headers['cache-control']; }
-                return (headers['cache-control'] || '').indexOf(value) !== -1;
+            options = {
+                url: url,
+                timeout: timeout,
+                cacheKey: cacheKey,
+                cacheTTL: cacheTTL,
+                explicitNoCache: explicitNoCache,
+                cache: cacheTTL > 0,
+                ignore404: ignore404,
+                type: 'fragment',
+                headers: optionsHeaders,
+                tracer: req.tracer,
+                statsdKey: statsdKey
             }
 
             var setResponseHeaders = function(headers) {
                 if (res.headersSent) { return; } // ignore late joiners
+                var hasCacheControl = function(headers, value) {
+                    if (typeof value === 'undefined') { return headers['cache-control']; }
+                    return (headers['cache-control'] || '').indexOf(value) !== -1;
+                }
                 if (hasCacheControl(headers, 'no-cache') || hasCacheControl(headers, 'no-store')) {
                     res.setHeader('cache-control', 'no-store');
                 }
@@ -91,7 +79,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
             var responseCallback = function(err, content, headers) {
                 if(headers) {
-                    addToTemplateVars(headers);
+                    utils.updateTemplateVariables(templateVars, headers);
                     setResponseHeaders(headers);
                 }
                 next(err, content ? content : null, headers);
