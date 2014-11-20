@@ -33,6 +33,11 @@ server.use(connectRoute(function (router) {
         res.end('Unauthorised error.');
     });
 
+    router.get('/broken', function(req) {
+        // Rudely end request
+        req.socket.end();
+    });
+
     router.get('/faulty', function(req, res) {
     	setTimeout(function() {
             if(Math.random() > 0.5) {

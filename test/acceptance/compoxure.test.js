@@ -107,6 +107,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should return a 500 if the backend template returns no response at all', function(done) {
+        var requestUrl = getPageComposerUrl('broken');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(500);
+            done();
+        });
+    });
+
     it('should add no-store cache-control header if any fragments use cx-no-cache', function(done) {
         var requestUrl = getPageComposerUrl('noCacheBackend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
@@ -138,6 +146,13 @@ describe("Page Composer", function(){
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
             var $ = cheerio.load(content);
             expect($('#faulty').text()).to.be.equal('Faulty service');
+            done();
+        });
+    });
+
+    it('should fail gracefully if the service returns no response at all', function(done) {
+        getSection('', '', '#broken', function(text) {
+            expect(text).to.be.equal('Error: Service http://localhost:5001/broken FAILED due to socket hang up');
             done();
         });
     });

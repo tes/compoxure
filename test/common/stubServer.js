@@ -70,6 +70,11 @@ function initStubServer(fileName, port, hostname) {
             res.end("");
         });
 
+        router.get('/broken', function(req) {
+            // Rudely end request
+            req.socket.end();
+        });
+
         router.get('/millis', function(req, res) {
             res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'no-store'});
             res.end('Millis since epoch:' + Date.now());
