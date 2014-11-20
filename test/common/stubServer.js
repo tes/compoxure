@@ -149,6 +149,11 @@ function initStubServer(fileName, port, hostname) {
             res.end(backendHtml);
         });
 
+        router.get('/post', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end("GET /post");
+        });
+
         router.post('/post', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end("POST " + req.cookies['PostCookie']);

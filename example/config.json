@@ -18,6 +18,7 @@
         },
         {
             "pattern": ".*",
+            "timeout": "1000",
             "target":"http://localhost:5001",
             "host":"localhost",
             "ttl":"10s",

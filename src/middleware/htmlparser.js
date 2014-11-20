@@ -146,12 +146,20 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 environment: config.environment,
                 cdn: config.cdn,
                 showErrors: !req.backend.quietFailure,
+                timeout: utils.timeToMillis(req.backend.timeout || '5000'),
                 plugins: [
                     parxerPlugins.Test,
                     parxerPlugins.Url(getCx)
                 ],
                 variables: templateVars
             }, data, function(err, content) {
+                if(err && err.content && !content) {
+                    res.writeHead(err.statusCode || 500, {'Content-Type': 'text/html'});
+                    return res.end(err.content)
+                }
+                if(err.fragmentErrors) {
+                    // TODO: Notify fragment errors to debugger in future
+                }
                 res.end(content);
             });
         }

@@ -10,9 +10,6 @@ function timeToMillis(timeString) {
 		value = 0;
 
 	switch(period) {
-		case 'ms':
-			value = parseInt(num);
-			break;
 		case 's':
 			value = parseInt(num)*1000;
 			break;

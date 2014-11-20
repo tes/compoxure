@@ -23,12 +23,21 @@ describe("Page Composer", function(){
         ], done);
     });
 
+    function createEventHandler() {
+        return {
+            logger: function(level, message, data) {
+            },
+            stats: function(type, key, value) {
+            }
+        }
+    }
+
     function initStubServer(next) {
         stubServer.init('pageComposerTest.html', 5001,'localhost')(next);
     }
 
     function initPageComposer(next) {
-        pcServer.init(5000, 'localhost')(next);
+        pcServer.init(5000, 'localhost', createEventHandler())(next);
     }
 
     function getPageComposerUrl(path, search) {
@@ -194,7 +203,7 @@ describe("Page Composer", function(){
         });
     });
 
-     it('should have access to current environment', function(done) {
+    it('should have access to current environment', function(done) {
         getSection('', '', '#environment', function(text) {
             expect(text).to.be.equal('test');
             done();
@@ -246,6 +255,13 @@ describe("Page Composer", function(){
                 expect(content).to.be("POST Hello");
                 done();
             });
+        });
+    });
+
+    it('should NOT pass through GET requests that have text/html content type to a backend service', function(done) {
+        request.get(getPageComposerUrl('post'), { headers: {'accept': 'text/html'} }, function(err, response, content) {
+            expect(content).to.be("GET /post");
+            done();
         });
     });
 
@@ -304,6 +320,13 @@ describe("Page Composer", function(){
             var $ = cheerio.load(response.body);
             var cookieValue = $('#cookie').text();
             expect(cookieValue).to.be('CompoxureCookie=Test; TSLCookie=Test');
+            done();
+        });
+    });
+
+
+    it('should create a default handler if none provided', function(done) {
+        pcServer.init(5002, 'localhost')(function() {
             done();
         });
     });
