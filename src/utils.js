@@ -1,7 +1,6 @@
 'use strict';
 
 var _ = require('lodash');
-var url = require('url');
 
 function timeToMillis(timeString) {
 
@@ -48,24 +47,6 @@ function urlToCacheKey(url) {
 	return url;
 }
 
-function createTag(tagname, attribs) {
-    var attribArray = [], attribLength = attribs.length, attribCounter = 0;
-    _.forIn(attribs, function(value, key) {
-        attribCounter++;
-        attribArray.push(' ' + key + '=\'' + value + '\'');
-    });
-    return ['<',tagname,(attribLength > 0 ? ' ' : '')].concat(attribArray).concat(['>']).join('');
-}
-
-function parseRedisConnectionString(connectionString) {
-    var params = url.parse(connectionString, true);
-    return {
-        host: params.hostname,
-        port: params.port && parseInt(params.port) || 6379,
-        db: params.query.db && parseInt(params.query.db) || 0
-    };
-}
-
  function updateTemplateVariables(templateVars, variables) {
    _.each(_.filter(_.keys(variables), function(key) {
       if(key.indexOf('cx-') >= 0) { return true; }
@@ -84,7 +65,5 @@ module.exports = {
 	timeToMillis: timeToMillis,
 	urlToCacheKey: urlToCacheKey,
 	cacheKeytoStatsd: cacheKeytoStatsd,
-	createTag: createTag,
-	parseRedisConnectionString: parseRedisConnectionString,
   updateTemplateVariables: updateTemplateVariables
 };

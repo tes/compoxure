@@ -44,6 +44,13 @@ describe("Page Composer", function(){
         return url;
     }
 
+    it('should silently drop favicon requests', function(done) {
+        request.get(getPageComposerUrl('favicon.ico'),{headers: {'accept': 'image/x-icon'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
     it('should ignore requests for anything other than html', function(done) {
         request.get(getPageComposerUrl(),{headers: {'accept': 'text/plain'}}, function(err, response) {
             expect(response.statusCode).to.be(415);
@@ -60,6 +67,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should not die if given a poisoned url', function(done) {
+        var targetUrl = getPageComposerUrl() + '?cid=271014_Primary-103466_email_et_27102014_%%%3dRedirectTo(%40RESOURCEURL1)%3d%%&mid=_&rid=%%External_ID%%&utm_source=ET&utm_medium=email&utm_term=27102014&utm_content=_&utm_campaign=271014_Primary_103466_%%%3dRedirectTo(%40RESOURCEURL1)%3d%%';
+        request.get(targetUrl, {headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
     it('should return a 404 if any of the fragments return a 404', function(done) {
         var requestUrl = getPageComposerUrl('404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
@@ -72,6 +87,22 @@ describe("Page Composer", function(){
         var requestUrl = getPageComposerUrl('ignore404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
+    it('should return a 404 if the backend template returns a 404', function(done) {
+        var requestUrl = getPageComposerUrl('404');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(404);
+            done();
+        });
+    });
+
+    it('should return a 500 if the backend template returns a 500', function(done) {
+        var requestUrl = getPageComposerUrl('500');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(500);
             done();
         });
     });

@@ -33,10 +33,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
             options;
 
-        if (config.cdn) {
-          if (config.cdn.host) { backendHeaders['x-cdn-host'] = config.cdn.host; }
-          if (config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
-        }
+        if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
 
         eventHandler.logger('info', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 
@@ -60,7 +57,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             });
           } else {
             if (!res.headersSent) {
-              res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR);
+              res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
               res.end(err.message);
             }
             eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {
@@ -71,7 +68,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
         reliableGet(options, function(err, response) {
           if(err) {
-            handleError(err, response.stale);
+            handleError(err, response && response.stale);
           } else {
             req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
             res.parse(response.content);
