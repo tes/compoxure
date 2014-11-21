@@ -1,14 +1,12 @@
 'use strict';
 
 var cx = require('../../');
-var config = require('./testConfig.json')
 var connect = require('connect');
 var cookieParser = require('cookie-parser');
-var morgan = require('morgan');
-var HttpStatus = require('http-status-codes');
 
+function initPcServer(port, hostname, eventHandler, configFile) {
 
-function initPcServer(port, hostname, eventHandler) {
+    var config = require('./' + (configFile || 'testConfig') + '.json');
 
     // Define functions
     config.functions = {

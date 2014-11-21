@@ -10,8 +10,7 @@ function getCxAttr(node, name) {
   return value && htmlEntities.decode(value);
 }
 
-function filterCookies(config, cookies) {
-    var whitelist = config.cookies && config.cookies.whitelist || [];
+function filterCookies(whitelist, cookies) {
     return _.reduce(cookies, function(result, value, key) {
       if(whitelist.length === 0 || _.contains(whitelist, key)) {
         result += result ? '; ' : '';
@@ -45,7 +44,8 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     'x-tracer': req.tracer
                 }
                 if (req.cookies) {
-                    optionsHeaders.cookie = filterCookies(config, req.cookies);
+                    var whitelist = config.cookies && config.cookies.whitelist;
+                    optionsHeaders.cookie = whitelist ? filterCookies(whitelist, req.cookies) : req.headers.cookie;
                 }
                 if (config.cdn) {
                     if(config.cdn.host) { optionsHeaders['x-cdn-host'] = config.cdn.host; }

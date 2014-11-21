@@ -1,0 +1,85 @@
+{
+    "cdn":{
+        "url":"http://localhost:5001/static/"
+    },
+    "parameters": {
+        "urls": [
+            {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
+        ],
+        "servers": {
+            "local": "http://localhost:5001"
+        }
+    },
+     "backend": [
+        {
+            "pattern":"/404backend",
+            "target":"http://localhost:5001/404backend",
+            "host": "localhost",
+            "dontPassUrl": true
+        },
+        {
+            "fn":"selectFnTest",
+            "target":"http://localhost:5001/selectFnBackend",
+            "host": "localhost",
+            "dontPassUrl": true
+        },
+        {
+            "pattern":"/quiet.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "quietFailure":true,
+            "dontPassUrl":true
+        },
+        {
+            "pattern":"/leave.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "quietFailure":true,
+            "dontPassUrl":true,
+            "leaveContentOnFail":true
+        },
+        {
+            "pattern":"/post.*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false,
+            "passThrough": true
+        },
+        {
+            "pattern":"/tracer",
+            "target":"http://localhost:5001/tracer",
+            "host": "localhost",
+            "dontPassUrl": true
+        },
+        {
+            "pattern":"/nohost",
+            "target":"http://localhost:5001/nohost",
+            "dontPassUrl": true
+        },
+        {
+            "pattern":".*",
+            "target":"http://localhost:5001",
+            "host": "localhost",
+            "replaceOuter": false
+        }
+    ],
+    "circuitbreaker":{
+        "windowDuration":10000,
+        "numBuckets": 10,
+        "errorThreshold": 100,
+        "volumeThreshold": 20
+    },
+    "statusCodeHandlers":{
+        "403":{
+            "fn":"handle403",
+            "data":{
+                "redirect":"http://www.google.com"
+            }
+        }
+    },
+    "cache": {
+        "engine": "memorycache"
+    }
+}
