@@ -58,7 +58,6 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 cacheKey: cacheKey,
                 cacheTTL: cacheTTL,
                 explicitNoCache: explicitNoCache,
-                cache: cacheTTL > 0,
                 ignore404: ignore404,
                 type: 'fragment',
                 headers: optionsHeaders,
@@ -132,7 +131,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
              }
 
-             reliableGet(options, function(err, response) {
+             reliableGet.get(options, function(err, response) {
                 if(err) {
                     return onErrorHandler(err, response && response.stale);
                 }

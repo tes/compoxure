@@ -6,8 +6,11 @@ var url = require('url');
 
 module.exports = function backendProxyMiddleware(config, eventHandler) {
 
-    var reliableGet = ReliableGet(config),
+    var reliableGet = new ReliableGet(config),
       htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler);
+
+    reliableGet.on('log', eventHandler.logger);
+    reliableGet.on('stat', eventHandler.stats);
 
     return function(req, res) {
 
@@ -66,7 +69,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           }
         }
 
-        reliableGet(options, function(err, response) {
+        reliableGet.get(options, function(err, response) {
           if(err) {
             handleError(err, response && response.stale);
           } else {
