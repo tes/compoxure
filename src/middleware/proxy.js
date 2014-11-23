@@ -71,7 +71,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
         reliableGet.get(options, function(err, response) {
           if(err) {
-            handleError(err, response && response.stale);
+            handleError(err, response);
           } else {
             req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
             res.parse(response.content);

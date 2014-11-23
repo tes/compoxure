@@ -185,7 +185,7 @@ describe("Page Composer", function(){
 
     it('should ignore a cx-url that is invalid unless it is cache', function(done) {
         getSection('', '', '#cacheurl1', function(text) {
-            expect(text).to.be.equal('');
+            expect(text).to.be.equal('No content in cache at key: cache');
             done();
         });
     });

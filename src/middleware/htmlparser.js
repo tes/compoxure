@@ -133,7 +133,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
              reliableGet.get(options, function(err, response) {
                 if(err) {
-                    return onErrorHandler(err, response && response.stale);
+                    return onErrorHandler(err, response);
                 }
                 responseCallback(null, response.content, response.headers);
              });
