@@ -7,7 +7,7 @@
     "start": "node example/index.js",
     "lint": "jshint .",
     "coveralls": "NODE_ENV=test mocha --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "istanbul cover _mocha -- -R spec test/unit/* test/acceptance/* && istanbul check-coverage --statements 95"
+    "test": "istanbul cover _mocha -- -R spec test/unit/* test/acceptance/* && istanbul check-coverage --statements 90"
   },
   "repository": {
     "type": "git",
