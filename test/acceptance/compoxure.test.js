@@ -295,8 +295,8 @@ describe("Page Composer", function(){
             expect(response.statusCode).to.be(200);
             var $ = cheerio.load(response.body);
             var bundles = $('.bundle');
-            expect($(bundles[0]).text()).to.be('100 >> service-one-top.js.html');
-            expect($(bundles[1]).text()).to.be('default >> service-two-top.js.html');
+            expect($(bundles[0]).text()).to.be('service-one >> 100 >> top.js.html');
+            expect($(bundles[1]).text()).to.be('service-two >> default >> top.js.html');
             done();
         });
     });
