@@ -43,7 +43,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     'cx-page-url': templateVars['url:href'],
                     'x-tracer': req.tracer
                 }
-                if (req.cookies) {
+                if (req.cookies && req.headers.cookie) {
                     var whitelist = config.cookies && config.cookies.whitelist;
                     optionsHeaders.cookie = whitelist ? filterCookies(whitelist, req.cookies) : req.headers.cookie;
                 }
