@@ -24,7 +24,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
     return function(req, res, next) {
 
-        var templateVars = _.clone(req.templateVars);
+        var templateVars = req.templateVars;
 
         function getCx(fragment, next) {
 
