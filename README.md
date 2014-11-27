@@ -241,6 +241,7 @@ cx-no-cache|Explicit instruction to not cache when value="true", overrides all o
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
 cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page.
+cx-ignore-error|Set to true to ignore all errors (non 200), or provide a comma delimited list to ignore specific errors on this fragment
 
 
 ```html

@@ -93,7 +93,7 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should not return a 404 if of the fragments return a 404', function(done) {
+    it('should not return a 404 if any of the fragments have ignore-404 or ignore-error', function(done) {
         var requestUrl = getPageComposerUrl('ignore404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(200);

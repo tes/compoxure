@@ -89,22 +89,20 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
                 var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start, msg = _.template(errorTemplate);
 
-                // Check to see if we are just ignoring errors completely for this fragment
-                if(ignoreError && (ignoreError === 'true' || _.contains(ignoreError.split(','), err.statusCode))) {
+                // Check to see if we are just ignoring errors completely for this fragment - takes priority
+                if(ignoreError && (ignoreError === 'true' || _.contains(ignoreError.split(','), '' + err.statusCode))) {
                     errorMsg = _.template('IGNORE <%= statusCode %> for Service <%= url %> cache <%= cacheKey %>.');
                     eventHandler.logger('warn', errorMsg({url: options.url, cacheKey: options.cacheKey, statusCode: err.statusCode}), {tracer:req.tracer});
                     return responseCallback(msg({ 'err': err.message}));
                 }
 
-                // Check to see if we have any statusCode handlers defined
+                // Check to see if we have any statusCode handlers defined, they come next
                 if(err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
-
                     var handlerDefn = config.statusCodeHandlers[err.statusCode];
                     var handlerFn = config.functions && config.functions[handlerDefn.fn];
                     if(handlerFn) {
                         return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
                     }
-
                 }
 
                 if (err.statusCode === 404 && !options.ignore404) {

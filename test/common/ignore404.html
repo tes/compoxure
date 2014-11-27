@@ -3,5 +3,11 @@
         <div cx-url='{{server:local}}/404' cx-cache-key='404' cx-ignore-404='true' cx-cache-ttl='5s' cx-timeout='500' class='block'>
             This fragment will return a 404 that will be ignored.
         </div>
+        <div cx-url='{{server:local}}/403' cx-cache-key='a-403' cx-ignore-error='403,404' cx-cache-ttl='5s' cx-timeout='500' class='block'>
+            This fragment will return a 403 that will be ignored.
+        </div>
+        <div cx-url='{{server:local}}/500' cx-cache-key='b-500' cx-ignore-error='true' cx-cache-ttl='5s' cx-timeout='500' class='block'>
+            This fragment will return a 500 that will be ignored.
+        </div>
     </body>
 </html>
