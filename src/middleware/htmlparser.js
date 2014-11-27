@@ -38,6 +38,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache'),
                 explicitNoCache = explicitNoCacheAttr ? explicitNoCacheAttr === 'true' : false,
                 ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
+                ignoreError = getCxAttr(fragment, 'cx-ignore-error'),
                 statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
                 optionsHeaders = {
                     'cx-page-url': templateVars['url:href'],
@@ -86,7 +87,14 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
             var onErrorHandler = function(err, oldCacheData) {
 
-                var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start;
+                var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start, msg = _.template(errorTemplate);
+
+                // Check to see if we are just ignoring errors completely for this fragment
+                if(ignoreError && (ignoreError === 'true' || _.contains(ignoreError.split(','), err.statusCode))) {
+                    errorMsg = _.template('IGNORE <%= statusCode %> for Service <%= url %> cache <%= cacheKey %>.');
+                    eventHandler.logger('warn', errorMsg({url: options.url, cacheKey: options.cacheKey, statusCode: err.statusCode}), {tracer:req.tracer});
+                    return responseCallback(msg({ 'err': err.message}));
+                }
 
                 // Check to see if we have any statusCode handlers defined
                 if(err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
@@ -110,8 +118,6 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     }
 
                 } else {
-
-                    var msg = _.template(errorTemplate);
 
                     if(oldCacheData && oldCacheData.content) {
                         responseCallback(msg({ 'err': err.message}), oldCacheData.content, oldCacheData.headers);
