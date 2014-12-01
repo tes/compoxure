@@ -281,6 +281,13 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should use the handler functions to respond to a 403 status code of the backend template', function(done) {
+        request.get(getPageComposerUrl('403'), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be.equal(403);
+            done();
+        });
+    });
+
     it('should pass x-tracer to downstreams', function(done) {
         var requestUrl = getPageComposerUrl('tracer');
         request.get(requestUrl,{headers: {'accept': 'text/html', 'x-tracer': 'willie wonka'}}, function(err, response) {

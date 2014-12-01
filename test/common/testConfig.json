@@ -21,6 +21,12 @@
             "dontPassUrl": true
         },
         {
+            "pattern":"/403",
+            "target":"http://localhost:5001/403",
+            "host": "localhost",
+            "dontPassUrl": true
+        },
+        {
             "fn":"selectFnTest",
             "target":"http://localhost:5001/selectFnBackend",
             "host": "localhost",

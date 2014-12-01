@@ -59,6 +59,16 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
               tracer: req.tracer
             });
           } else {
+
+            // Check to see if we have any statusCode handlers defined, they come next
+            if(err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
+                var handlerDefn = config.statusCodeHandlers[err.statusCode];
+                var handlerFn = config.functions && config.functions[handlerDefn.fn];
+                if(handlerFn) {
+                    return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
+                }
+            }
+
             if (!res.headersSent) {
               res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
               res.end(err.message);
