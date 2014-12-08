@@ -18,7 +18,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
         req.tracer = req.headers['x-tracer'];
 
-        var DEFAULT_LOW_TIMEOUT = 500,
+        var DEFAULT_LOW_TIMEOUT = 5000,
             referer = req.headers.referer || 'direct',
             userAgent = req.headers['user-agent'] || 'unknown',
             remoteAddress = req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress,

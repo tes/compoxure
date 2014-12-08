@@ -31,7 +31,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
             var options,
                 start = Date.now(),
                 url = getCxAttr(fragment, 'cx-url'),
-                timeout = utils.timeToMillis(getCxAttr(fragment, 'cx-timeout') || '1s'),
+                timeout = utils.timeToMillis(getCxAttr(fragment, 'cx-timeout') || '5s'),
                 cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key'),
                 cacheKey = cacheKeyAttr ? cacheKeyAttr : utils.urlToCacheKey(url),
                 cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m'),
