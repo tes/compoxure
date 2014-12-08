@@ -16,62 +16,46 @@
      "backend": [
         {
             "pattern":"/404backend",
-            "target":"http://localhost:5001/404backend",
-            "host": "localhost",
-            "dontPassUrl": true
+            "target":"http://localhost:5001/404backend"
         },
         {
             "pattern":"/403",
-            "target":"http://localhost:5001/403",
-            "host": "localhost",
-            "dontPassUrl": true
+            "target":"http://localhost:5001/403"
         },
         {
             "fn":"selectFnTest",
-            "target":"http://localhost:5001/selectFnBackend",
-            "host": "localhost",
-            "dontPassUrl": true
+            "target":"http://localhost:5001/selectFnBackend"
         },
         {
             "pattern":"/quiet.*",
             "target":"http://localhost:5001",
-            "host": "localhost",
-            "replaceOuter": false,
-            "quietFailure":true,
-            "dontPassUrl":true
+            "quietFailure":true
         },
         {
             "pattern":"/leave.*",
             "target":"http://localhost:5001",
-            "host": "localhost",
-            "replaceOuter": false,
             "quietFailure":true,
-            "dontPassUrl":true,
             "leaveContentOnFail":true
         },
         {
             "pattern":"/post.*",
             "target":"http://localhost:5001",
-            "host": "localhost",
-            "replaceOuter": false,
-            "passThrough": true
+            "passThrough": true,
+            "dontPassUrl": false
         },
         {
             "pattern":"/tracer",
-            "target":"http://localhost:5001/tracer",
-            "host": "localhost",
-            "dontPassUrl": true
+            "target":"http://localhost:5001/tracer"
         },
         {
-            "pattern":"/nohost",
-            "target":"http://localhost:5001/nohost",
-            "dontPassUrl": true
+            "pattern":"/differenthost",
+            "target":"http://localhost:5001/differenthost",
+            "host":"tes.co.uk"
         },
         {
             "pattern":".*",
             "target":"http://localhost:5001",
-            "host": "localhost",
-            "replaceOuter": false
+            "dontPassUrl": false
         }
     ],
     "circuitbreaker":{

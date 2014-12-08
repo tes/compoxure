@@ -159,7 +159,7 @@ function initStubServer(fileName, port, hostname) {
             res.end("POST " + req.cookies['PostCookie']);
         });
 
-        router.get('/nohost', function(req, res) {
+        router.get('/differenthost', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(req.headers.host);
         });

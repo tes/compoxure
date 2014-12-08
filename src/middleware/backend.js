@@ -2,6 +2,14 @@ var HttpStatus = require('http-status-codes');
 var _ = require('lodash');
 
 module.exports = function(config)  {
+
+  var backendDefaults = {
+    quietFailure: false,
+    replaceOuter: false,
+    dontPassUrl: true,
+    leaveContentOnFail: true
+  };
+
   return function selectBackend(req, res, next) {
     if (config.backend) {
       req.backend = _.find(config.backend, function(server) {
@@ -22,6 +30,7 @@ module.exports = function(config)  {
         message: 'Backend not found'
       });
     } else {
+      req.backend = _.defaults(req.backend, backendDefaults);
       return next();
     }
   }

@@ -308,11 +308,11 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should use the target url to extract a default host if none provided in the backend config', function(done) {
-        var requestUrl = getPageComposerUrl('nohost');
+    it('should use allow you to specify a host over-ride to use instead of the target host', function(done) {
+        var requestUrl = getPageComposerUrl('differenthost');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(200);
-            expect(response.body).to.be('localhost');
+            expect(response.body).to.be('tes.co.uk');
             done();
         });
     });
