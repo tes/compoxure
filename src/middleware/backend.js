@@ -1,5 +1,6 @@
 var HttpStatus = require('http-status-codes');
 var _ = require('lodash');
+var utils = require('../utils');
 
 module.exports = function(config)  {
 
@@ -31,6 +32,7 @@ module.exports = function(config)  {
       });
     } else {
       req.backend = _.defaults(req.backend, backendDefaults);
+      req.backend.target = utils.render(req.backend.target, req.templateVars);
       return next();
     }
   }

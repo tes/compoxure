@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var url = require('url');
-var Hogan = require('hogan.js');
+var utils = require('../utils');
 
 module.exports = function (config, cdn, environment) {
 
@@ -11,8 +11,6 @@ module.exports = function (config, cdn, environment) {
     ], servers: {} };
 
     environment = {name: environment || process.env.NODE_ENV || 'development'};
-
-    var hoganCache = {};
 
     this.interrogateRequest = function (req, next) {
 
@@ -42,7 +40,7 @@ module.exports = function (config, cdn, environment) {
         });
 
         if(cdn && cdn.url) {
-            flatten(requestVariables, 'cdn', 'url', render(cdn.url, requestVariables));
+            flatten(requestVariables, 'cdn', 'url', utils.render(cdn.url, requestVariables));
         }
 
         next(requestVariables);
@@ -93,13 +91,6 @@ module.exports = function (config, cdn, environment) {
 
         return url.parse(url.format(components),false);
 
-    }
-
-    function render(text, data) {
-        if(!hoganCache[text]) {
-            hoganCache[text] = Hogan.compile(text);
-        }
-        return hoganCache[text].render(data);
     }
 
     function getPort(req) {

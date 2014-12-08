@@ -367,6 +367,16 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should allow use of variables in a backend target', function(done) {
+        var requestUrl = getPageComposerUrl('variabletarget');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#declarative').text()).to.be.equal('Replaced');
+            expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

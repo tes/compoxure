@@ -53,6 +53,10 @@
             "host":"tes.co.uk"
         },
         {
+            "pattern":"/variabletarget",
+            "target":"{{server:local}}"
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false
