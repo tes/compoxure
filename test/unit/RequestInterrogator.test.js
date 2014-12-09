@@ -48,6 +48,36 @@ describe('RequestInterrogator', function() {
         });
     });
 
+    it('should only extract parameters from the query when they\'re not empty', function(done) {
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+                host: 'localhost:5000'
+            },
+            url: '/teaching-resource?storyCode=2206421'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator({
+            query:[
+                {key: 'storyCode', mapTo: 'resourceId' },
+                {key: 'storycode', mapTo: 'resourceId' }
+            ]
+        }, config.cdn || {}, {name: 'test'});
+
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('param:resourceId', '2206421');
+
+            req.url = '/teaching-resource?storycode=2206421'
+
+            interrogator.interrogateRequest(req, function(params) {
+                expect(params).to.have.property('param:resourceId', '2206421');
+                done();
+            });
+        });
+    });
+
     it('should extract parameters from the path', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',

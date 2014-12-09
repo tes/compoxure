@@ -74,7 +74,9 @@ module.exports = function (config, cdn, environment) {
 
         var parameters = {};
         _.forEach(config.query, function(query) {
-            parameters[query.mapTo] = params[query.key];
+            if(params[query.key]) {
+                parameters[query.mapTo] = params[query.key];
+            }
         });
         return parameters;
     }
