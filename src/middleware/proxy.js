@@ -54,7 +54,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
         var handleError = function(err, oldCacheData) {
           if (req.backend.quietFailure && oldCacheData) {
-            res.parse(oldCacheData);
+            res.parse(oldCacheData.content);
             eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
               tracer: req.tracer
             });
