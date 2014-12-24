@@ -157,8 +157,10 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 variables: templateVars
             }, data, function(err, content) {
                 if(err && err.content && !content) {
-                    res.writeHead(err.statusCode || 500, {'Content-Type': 'text/html'});
-                    return res.end(err.content)
+                    if (!res.headersSent) {
+                        res.writeHead(err.statusCode || 500, {'Content-Type': 'text/html'});
+                        return res.end(err.content)
+                    }
                 }
                 if(err.fragmentErrors) {
                     // TODO: Notify fragment errors to debugger in future
