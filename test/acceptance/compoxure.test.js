@@ -288,6 +288,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should use the handler functions to respond to a 302 status code in a fragment', function(done) {
+        request.get(getPageComposerUrl('302backend'), {headers: {'accept': 'text/html'}, followRedirect: false}, function(err, response, content) {
+            expect(response.statusCode).to.be.equal(302);
+            expect(response.headers.location).to.be.equal('/replaced');
+            done();
+        });
+    });
+
     it('should pass x-tracer to downstreams', function(done) {
         var requestUrl = getPageComposerUrl('tracer');
         request.get(requestUrl,{headers: {'accept': 'text/html', 'x-tracer': 'willie wonka'}}, function(err, response) {

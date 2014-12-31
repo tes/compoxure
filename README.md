@@ -83,7 +83,8 @@ The configuration object looks as follows:
     },
     "cache": {
         "engine": "redis"
-    }
+    },
+    "followRedirect": false
 }
 ```
 
@@ -200,6 +201,21 @@ You can specify a function to be executed if any of your backend services return
        }
     }
  }
+```
+
+#### Follow Redirect
+
+There is one final parameter, which is 'followRedirect'.  This applies to the request library used to retrieve fragments.  The default for this value is true, which means that if this configuration is not supplied as false, that if a fragment issues a 301 or 302 then Compoxure will follow it and retrieve the content from that new location and cache it.
+
+If you set this property to false, this means that you can write a status code handler (see above) to capture a 301 or 302 from a fragment, and have the entire page follow to the location specified.
+
+An example handler below (from the Compoxure tests):
+
+```js
+ 'handle302': function(req, res, variables, data, options, err) {
+      res.writeHead(302, {location: err.headers.location});
+      res.end('');
+  }
 ```
 
 #### Environment

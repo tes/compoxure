@@ -13,9 +13,13 @@ function initPcServer(port, hostname, eventHandler, configFile) {
         'selectFnTest': function(req, variables) {
             if(variables['query:selectFn']) { return true; }
         },
-        'handle403': function(req, res, variables, data) {
+        'handle403': function(req, res, variables, data, options, err) {
             res.writeHead(403, {'Content-Type': 'text/html'});
             res.end('CX says no.');
+        },
+        'handle302': function(req, res, variables, data, options, err) {
+            res.writeHead(302, {location: err.headers.location});
+            res.end('');
         }
     }
     config.environment = 'test';

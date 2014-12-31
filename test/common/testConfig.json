@@ -23,6 +23,10 @@
             "target":"http://localhost:5001/403"
         },
         {
+            "pattern":"/302",
+            "target":"http://localhost:5001/302"
+        },
+        {
             "fn":"selectFnTest",
             "target":"http://localhost:5001/selectFnBackend"
         },
@@ -74,9 +78,13 @@
             "data":{
                 "redirect":"http://www.google.com"
             }
+        },
+        "302":{
+            "fn":"handle302"
         }
     },
     "cache": {
         "engine": "memorycache"
-    }
+    },
+    "followRedirect": false
 }

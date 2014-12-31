@@ -66,6 +66,11 @@ function initStubServer(fileName, port, hostname) {
             res.end("403");
         });
 
+        router.get('/302', function(req, res) {
+           res.writeHead(302, {"location": "/replaced"});
+           res.end("");
+        });
+
         router.get('/favicon.ico', function(req, res) {
             res.end("");
         });
@@ -122,6 +127,12 @@ function initStubServer(fileName, port, hostname) {
         router.get('/404backend', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html"});
             var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
+            res.end(backendHtml);
+        });
+
+        router.get('/302backend', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            var backendHtml = fs.readFileSync('./test/common/test302.html', { encoding: 'utf8' });
             res.end(backendHtml);
         });
 
