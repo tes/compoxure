@@ -18,7 +18,7 @@ function initPcServer(port, hostname, eventHandler, configFile) {
             res.end('CX says no.');
         },
         'handle302': function(req, res, variables, data, options, err) {
-            res.writeHead(302, {location: err.headers.location});
+            res.writeHead(err.statusCode, {location: err.headers.location});
             res.end('');
         }
     }
