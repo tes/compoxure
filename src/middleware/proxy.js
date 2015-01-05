@@ -38,6 +38,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
         if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
 
+        if (req.cookies && req.headers.cookie) {
+            var whitelist = config.cookies && config.cookies.whitelist;
+            backendHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
+        }
+
         eventHandler.logger('info', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 
         options = {

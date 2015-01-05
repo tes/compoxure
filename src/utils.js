@@ -69,10 +69,21 @@ function urlToCacheKey(url) {
    return templateVars;
  }
 
+function filterCookies(whitelist, cookies) {
+    return _.reduce(cookies, function(result, value, key) {
+      if(whitelist.length === 0 || _.contains(whitelist, key)) {
+        result += result ? '; ' : '';
+        result += key + '=' + value;
+      }
+      return result;
+    }, '');
+}
+
 module.exports = {
 	timeToMillis: timeToMillis,
 	urlToCacheKey: urlToCacheKey,
 	cacheKeytoStatsd: cacheKeytoStatsd,
   render: render,
-  updateTemplateVariables: updateTemplateVariables
+  updateTemplateVariables: updateTemplateVariables,
+  filterCookies: filterCookies
 };

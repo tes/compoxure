@@ -10,16 +10,6 @@ function getCxAttr(node, name) {
   return value && htmlEntities.decode(value);
 }
 
-function filterCookies(whitelist, cookies) {
-    return _.reduce(cookies, function(result, value, key) {
-      if(whitelist.length === 0 || _.contains(whitelist, key)) {
-        result += result ? '; ' : '';
-        result += key + '=' + value;
-      }
-      return result;
-    }, '');
-}
-
 function getMiddleware(config, reliableGet, eventHandler) {
 
     return function(req, res, next) {
@@ -46,7 +36,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 }
                 if (req.cookies && req.headers.cookie) {
                     var whitelist = config.cookies && config.cookies.whitelist;
-                    optionsHeaders.cookie = whitelist ? filterCookies(whitelist, req.cookies) : req.headers.cookie;
+                    optionsHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
                 }
                 if (config.cdn) {
                     if(config.cdn.host) { optionsHeaders['x-cdn-host'] = config.cdn.host; }
