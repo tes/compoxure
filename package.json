@@ -39,7 +39,7 @@
     "lodash": "~2.4.1",
     "morgan": "^1.2.1",
     "request": "^2.39.0",
-    "serve-static": "^1.4.1",
+    "serve-static": "^1.8.0",
     "sf": "^0.1.7",
     "through": "^2.3.4",
     "ware": "^1.2.0"
