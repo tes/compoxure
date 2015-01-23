@@ -56,7 +56,6 @@ The configuration object looks as follows:
         "target":"http://www.tes.co.uk",
         "host":"www.tes.co.uk",
         "ttl":"10s",
-        "replaceOuter":false,
         "quietFailure":false,
         "leaveContentOnFail":false,
         "dontPassUrl":false,
@@ -101,9 +100,7 @@ These properties configure the backend server that the initial request goes to g
 | ttl                | The amount of time to cache the backend response (TODO : make it honor cache headers)|
 | timeout            | Time to wait for backend to respond - should set low|
 | quietFailure       | Used to determine if compoxure will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
-| replaceOuter       | Used to configure if compoxure will replace the outer HTML element or not (default is NOT).  If you replace the outer element then the response from the micro service will completely replace the matching element|
 | dontPassUrl        | Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
-| leaveContentOnFail | Setting this to true will leave the content that was originally in the markup in the node (e.g. so you can put a safe default inside the element and it will leave it there if it fails)|
 | contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
 
 You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
