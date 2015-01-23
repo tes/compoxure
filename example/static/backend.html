@@ -16,6 +16,7 @@
 </head>
 <body>
     <h3>Include of content</h3>
+    <div>Click here to see this in 'quiet' mode: <a href="/quiet/example">Quiet View</a></div>
     <p>To see this in debug mode, append ?cx-debug=true: <a href="?cx-debug=true">Debug Mode</a></p>
     <code>
         &lt;div cx-url=&#039;{{server:local}}/include.html&#039; cx-cache-key=&#039;shakespeare&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
@@ -38,6 +39,7 @@
     </code>
     <div cx-url='{{server:local}}/500' cx-cache-key='500' cx-cache-ttl='10s' class='block'>
         This is a call to a service that will fail, the configuration does not have quietFail = true, so will tell you it has failed.
+        <div>You can put HTML <b>tags</b> and <i>stuff</i> inside blocks as defaults</div>
     </div>
 
      <h3>Service that is sometimes faulty with cache</h3>

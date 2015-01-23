@@ -17,15 +17,21 @@
             "host":"google.com"
         },
         {
+            "pattern": "/quiet/.*",
+            "timeout": "1000",
+            "target":"http://localhost:5001/backend.html",
+            "host":"localhost",
+            "ttl":"10s",
+            "quietFailure": true
+        },
+        {
             "pattern": ".*",
             "timeout": "1000",
             "target":"http://localhost:5001",
             "host":"localhost",
             "ttl":"10s",
             "dontPassUrl": false,
-            "replaceOuter": false,
-            "quietFailure": false,
-            "leaveContentOnFail": false
+            "quietFailure": false
         }
     ],
     "statusCodeHandlers":{
