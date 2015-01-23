@@ -19,7 +19,7 @@ server.use(bodyParser.urlencoded({ extended: false }))
 server.use(connectRoute(function (router) {
 
     router.get('/dynamic', function(req, res) {
-		res.writeHead(200, {'Content-Type': 'text/html', 'cx-static|top': '100'});
+		res.writeHead(200, {'Content-Type': 'text/html', 'x-static|service|top': '100'});
     	res.end('This is some dynamic comment: ' + (new Date()));
     });
 

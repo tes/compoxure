@@ -22,6 +22,7 @@
             "target":"http://localhost:5001",
             "host":"localhost",
             "ttl":"10s",
+            "dontPassUrl": false,
             "replaceOuter": false,
             "quietFailure": false,
             "leaveContentOnFail": false
