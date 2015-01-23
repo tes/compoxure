@@ -16,7 +16,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
       htmlParserMiddleware(req, res, function() {
 
-        req.tracer = req.headers['x-tracer'];
+        req.tracer = req.headers['x-tracer'] || 'no-tracer';
 
         var DEFAULT_LOW_TIMEOUT = 5000,
             referer = req.headers.referer || 'direct',
@@ -28,7 +28,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             targetHost = url.parse(backend.target).hostname,
             host = backend.host || targetHost,
             backendHeaders = {
-              'x-forwarded-host': req.headers.host,
+              'x-forwarded-host': req.headers.host || 'no-forwarded-host',
               host: host,
               'x-tracer': req.tracer
             },
