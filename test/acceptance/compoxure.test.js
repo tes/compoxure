@@ -160,6 +160,16 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should leave the HTML content that was originally in the element if it is configured to do so', function(done) {
+        var requestUrl = getPageComposerUrl('leave');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#faultyhtml h1').text()).to.be.equal('Bob');
+            expect($('#faultyhtml span').text()).to.be.equal('The builder');
+            done();
+        });
+    });
+
     it('should fail gracefully if the service returns no response at all', function(done) {
         getSection('', '', '#broken', function(text) {
             expect(text).to.be.equal('Error: Service http://localhost:5001/broken FAILED due to socket hang up');
