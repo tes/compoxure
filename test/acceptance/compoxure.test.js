@@ -328,8 +328,7 @@ describe("Page Composer", function(){
             expect(response.statusCode).to.be(200);
             var $ = cheerio.load(response.body);
             var bundles = $('.bundle');
-            expect($(bundles[0]).text()).to.be('service-one >> 100 >> top.js.html');
-            expect($(bundles[1]).text()).to.be('service-two >> YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE >> top.js.html');
+            expect($(bundles[0]).text()).to.be('service-one >> 100 >> top.js.htmlservice-two >> YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE >> top.js.html');
             done();
         });
     });
@@ -355,7 +354,6 @@ describe("Page Composer", function(){
                 done();
             });
         });
-
     });
 
     it('should only allow cookies to pass through that are whitelisted', function(done) {

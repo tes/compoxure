@@ -14,6 +14,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
 
     return function(req, res) {
 
+
+
       htmlParserMiddleware(req, res, function() {
 
         req.tracer = req.headers['x-tracer'] || 'no-tracer';
@@ -49,6 +51,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           url: targetUrl,
           cacheKey: targetCacheKey,
           cacheTTL: targetCacheTTL,
+          explicitNoCache: req.explicitNoCache,
           timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
           headers: backendHeaders,
           tracer: req.tracer,
