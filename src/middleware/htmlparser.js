@@ -155,6 +155,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if(err.fragmentErrors) {
                     // TODO: Notify fragment errors to debugger in future
                 }
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end(content);
             });
         }
