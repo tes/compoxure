@@ -102,7 +102,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     if (!res.headersSent) {
                         res.writeHead(404, {'Content-Type': 'text/html'});
-                        res.end(errorMsg(options));
+                        return res.end(errorMsg(options));
                     }
 
                 } else {
@@ -146,7 +146,8 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 ],
                 variables: templateVars
             }, data, function(err, content) {
-                if(err && err.content && !content) {
+                // Overall errors
+                if(err && err.content) {
                     if (!res.headersSent) {
                         res.writeHead(err.statusCode || 500, {'Content-Type': 'text/html'});
                         return res.end(err.content)
@@ -155,8 +156,12 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if(err.fragmentErrors) {
                     // TODO: Notify fragment errors to debugger in future
                 }
-                res.writeHead(200, {'Content-Type': 'text/html'});
-                res.end(content);
+                if (!res.headersSent) {
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.end(content);
+                } else {
+                    eventHandler.logger('error','Attempting to write output but response already sent.',{tracer: req.tracer, url:req.url,headers:req.headers});
+                }
             });
         }
 
