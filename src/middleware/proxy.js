@@ -45,6 +45,12 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             backendHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
         }
 
+        if(backend.headers){
+            backend.headers.forEach(function(header) {
+                backendHeaders[header] = req.headers[header] || '';
+            });
+        }
+
         eventHandler.logger('info', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 
         options = {

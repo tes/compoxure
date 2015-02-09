@@ -180,6 +180,11 @@ function initStubServer(fileName, port, hostname) {
             res.end(req.headers['x-tracer']);
         });
 
+        router.get('/header/:name', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/plain" });
+            res.end(req.headers[req.params.name]);
+        });
+
         router.get('/service-one', function(req, res) {
             res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100"});
             res.end('Service One - I have a bundle, hear me roar.');
