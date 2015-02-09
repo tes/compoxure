@@ -102,6 +102,7 @@ These properties configure the backend server that the initial request goes to g
 | quietFailure       | Used to determine if compoxure will serve some error text in response to a microservice failure or fail silently (e.g. serve nothing into the space).
 | dontPassUrl        | Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
 | contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
+| headers            | An array of header names to specify headers forwarded to the backend server. |
 
 You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
 
