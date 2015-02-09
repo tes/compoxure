@@ -322,6 +322,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should forward specified headers to downstreams', function(done) {
+        var requestUrl = getPageComposerUrl('header/x-geoip-country-code');
+        request.get(requestUrl,{headers: {'accept': 'text/html',  'x-geoip-country-code': 'GB'}}, function(err, response) {
+            expect(response.body).to.be('GB');
+            done();
+        });
+    });
+
     it('should retrieve bundles via the cx-bundle directive and cdn configuration using service supplied version numbers if appropriate', function(done) {
         var requestUrl = getPageComposerUrl('bundles');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {

@@ -52,6 +52,14 @@
             "target":"http://localhost:5001/tracer"
         },
         {
+            "pattern":"/header",
+            "target":"http://localhost:5001",
+            "dontPassUrl": false,
+            "headers": [
+                "x-geoip-country-code"
+            ]
+        },
+        {
             "pattern":"/differenthost",
             "target":"http://localhost:5001/differenthost",
             "host":"tes.co.uk"
