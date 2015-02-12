@@ -138,6 +138,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
             parxer({
                 environment: config.environment,
                 cdn: config.cdn,
+                minified: config.minified,
                 showErrors: !req.backend.quietFailure,
                 timeout: utils.timeToMillis(req.backend.timeout || '5000'),
                 plugins: [

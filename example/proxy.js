@@ -29,6 +29,7 @@ config.functions = {
     }
 }
 config.environment = process.env.NODE_ENV || 'development';
+config.minified = config.environment !== 'development';
 
 var compoxureMiddleware = cx(config, cxEventHandler);
 
