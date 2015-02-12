@@ -67,22 +67,22 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
         };
 
         var handleError = function(err, oldCacheData) {
+
+          // Check to see if we have any statusCode handlers defined
+          if(err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
+              var handlerDefn = config.statusCodeHandlers[err.statusCode];
+              var handlerFn = config.functions && config.functions[handlerDefn.fn];
+              if(handlerFn) {
+                  return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
+              }
+          }
+
           if (req.backend.quietFailure && oldCacheData) {
             res.parse(oldCacheData.content);
             eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
               tracer: req.tracer
             });
           } else {
-
-            // Check to see if we have any statusCode handlers defined, they come next
-            if(err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
-                var handlerDefn = config.statusCodeHandlers[err.statusCode];
-                var handlerFn = config.functions && config.functions[handlerDefn.fn];
-                if(handlerFn) {
-                    return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
-                }
-            }
-
             if (!res.headersSent) {
               res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
               res.end(err.message);
