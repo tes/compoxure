@@ -35,6 +35,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             },
             targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),
             targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
+            explicitNoCache = backend.noCache || req.explicitNoCache,
             options;
 
         if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
@@ -56,7 +57,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           url: targetUrl,
           cacheKey: targetCacheKey,
           cacheTTL: targetCacheTTL,
-          explicitNoCache: req.explicitNoCache,
+          explicitNoCache: explicitNoCache,
           timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
           headers: backendHeaders,
           tracer: req.tracer,
