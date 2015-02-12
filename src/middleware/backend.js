@@ -33,6 +33,7 @@ module.exports = function(config)  {
     } else {
       req.backend = _.defaults(req.backend, backendDefaults);
       req.backend.target = utils.render(req.backend.target, req.templateVars);
+      req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;
       return next();
     }
   }

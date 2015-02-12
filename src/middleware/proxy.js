@@ -7,14 +7,12 @@ var url = require('url');
 module.exports = function backendProxyMiddleware(config, eventHandler) {
 
     var reliableGet = new ReliableGet(config),
-      htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler);
+        htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler);
 
     reliableGet.on('log', eventHandler.logger);
     reliableGet.on('stat', eventHandler.stats);
 
     return function(req, res) {
-
-
 
       htmlParserMiddleware(req, res, function() {
 
@@ -35,7 +33,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
               host: host,
               'x-tracer': req.tracer
             },
-            targetCacheKey = utils.urlToCacheKey(targetUrl),
+            targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),
             targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
             options;
 
