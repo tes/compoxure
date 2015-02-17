@@ -6,8 +6,8 @@ var errorTemplate = '<div style="color: red; font-weight: bold; font-family: mon
 var htmlEntities = new (require('html-entities').AllHtmlEntities)();
 
 function getCxAttr(node, name) {
-  var value = node.attribs[name] || node.attribs['data-' + name];
-  return value && htmlEntities.decode(value);
+    var value = node.attribs[name] || node.attribs['data-' + name];
+    return value && htmlEntities.decode(value);
 }
 
 function getMiddleware(config, reliableGet, eventHandler) {
@@ -34,14 +34,14 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     'cx-page-url': templateVars['url:href'],
                     'x-tracer': req.tracer
                 }
-                if (req.cookies && req.headers.cookie) {
-                    var whitelist = config.cookies && config.cookies.whitelist;
-                    optionsHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
-                }
-                if (config.cdn) {
-                    if(config.cdn.host) { optionsHeaders['x-cdn-host'] = config.cdn.host; }
-                    if(config.cdn.url) { optionsHeaders['x-cdn-url'] = config.cdn.url; }
-                }
+            if (req.cookies && req.headers.cookie) {
+                var whitelist = config.cookies && config.cookies.whitelist;
+                optionsHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
+            }
+            if (config.cdn) {
+                if(config.cdn.host) { optionsHeaders['x-cdn-host'] = config.cdn.host; }
+                if(config.cdn.url) { optionsHeaders['x-cdn-url'] = config.cdn.url; }
+            }
 
             options = {
                 url: url,
@@ -101,6 +101,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     if (!res.headersSent) {
+                        res.notFoundSent = true;
                         res.writeHead(404, {'Content-Type': 'text/html'});
                         return res.end(errorMsg(options));
                     }
@@ -121,18 +122,18 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
                     eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
 
-                 }
+                }
 
-             }
+            }
 
-             reliableGet.get(options, function(err, response) {
+            reliableGet.get(options, function(err, response) {
                 if(err) {
                     return onErrorHandler(err, response);
                 }
                 responseCallback(null, response.content, response.headers);
-             });
+            });
 
-         }
+        }
 
         res.parse = function(data) {
             parxer({
@@ -160,11 +161,11 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if (!res.headersSent) {
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
-                } else {
-                    eventHandler.logger('error','Attempting to write output but response already sent.',{tracer: req.tracer, url:req.url,headers:req.headers});
+                } else if (!res.notFoundSent) {
+                    eventHandler.logger('warn','Attempting to write output but response already sent.',{tracer: req.tracer, url:req.url,headers:req.headers});
                 }
             });
-        }
+        };
 
         next();
 
