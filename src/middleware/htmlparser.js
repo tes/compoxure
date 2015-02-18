@@ -101,7 +101,6 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
                     eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
                     if (!res.headersSent) {
-                        res.notFoundSent = true;
                         res.writeHead(404, {'Content-Type': 'text/html'});
                         return res.end(errorMsg(options));
                     }
@@ -124,7 +123,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
                 }
 
-            }
+            };
 
             reliableGet.get(options, function(err, response) {
                 if(err) {
@@ -161,8 +160,6 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if (!res.headersSent) {
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
-                } else if (!res.notFoundSent) {
-                    eventHandler.logger('warn','Attempting to write output but response already sent.',{tracer: req.tracer, url:req.url,headers:req.headers});
                 }
             });
         };
