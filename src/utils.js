@@ -1,8 +1,6 @@
 'use strict';
 
 var _ = require('lodash');
-var Hogan = require('hogan.js');
-var hoganCache = {};
 
 function timeToMillis(timeString) {
 
@@ -30,13 +28,6 @@ function timeToMillis(timeString) {
 
 	return value;
 
-}
-
-function render(text, data) {
-    if(!hoganCache[text]) {
-        hoganCache[text] = Hogan.compile(text);
-    }
-    return hoganCache[text].render(data);
 }
 
 function cacheKeytoStatsd(key) {
@@ -83,7 +74,7 @@ module.exports = {
 	timeToMillis: timeToMillis,
 	urlToCacheKey: urlToCacheKey,
 	cacheKeytoStatsd: cacheKeytoStatsd,
-  render: render,
+  render: require('parxer').render,
   updateTemplateVariables: updateTemplateVariables,
   filterCookies: filterCookies
 };

@@ -6,6 +6,8 @@ var connect = require('connect');
 var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 
+require('./memory');
+
 function createEventHandler() {
     return {
         logger: function(level, message) {
@@ -41,3 +43,5 @@ server.use(compoxureMiddleware);
 server.listen(5000, 'localhost', function() {
     console.log('Example compoxure server on http://localhost:5000');
 });
+
+
