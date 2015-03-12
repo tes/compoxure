@@ -19,6 +19,12 @@
             "target":"http://localhost:5001/404backend"
         },
         {
+            "pattern":"/alternate500",
+            "quietFailure":true,
+            "ttl":1,
+            "target":"{{server:local}}/alternate500"
+        },
+        {
             "pattern":"/403",
             "target":"http://localhost:5001/403"
         },

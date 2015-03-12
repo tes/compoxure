@@ -61,6 +61,19 @@ function initStubServer(fileName, port, hostname) {
             res.end("404");
         });
 
+        var alternate500 = true;
+        router.get('/alternate500', function(req, res) {
+            alternate500 = !alternate500;
+            if(alternate500) {
+                res.writeHead(500, {"Content-Type": "text/html"});
+                res.end("500");
+            } else {
+                res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100"});
+                var backendHtml = fs.readFileSync('./test/common/bundle500.html', { encoding: 'utf8' });
+                res.end(backendHtml);
+            }
+        });
+
         router.get('/403', function(req, res) {
             res.writeHead(403, {"Content-Type": "text/html"});
             res.end("403");
@@ -76,7 +89,6 @@ function initStubServer(fileName, port, hostname) {
         });
 
         router.get('/broken', function(req) {
-            // Rudely end request
             req.socket.end();
         });
 

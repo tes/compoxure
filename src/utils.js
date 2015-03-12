@@ -45,6 +45,7 @@ function urlToCacheKey(url) {
 }
 
  function updateTemplateVariables(templateVars, variables) {
+
    _.each(_.filter(_.keys(variables), function(key) {
       if(key.indexOf('x-') >= 0) { return true; }
    }), function(cxKey) {

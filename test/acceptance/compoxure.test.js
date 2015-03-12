@@ -409,6 +409,21 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should use cached headers when a backend 500s', function(done) {
+        var requestUrl = getPageComposerUrl('alternate500');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be(200);
+            setTimeout(function() {
+                request.get(requestUrl, {headers: {'accept': 'text/html'}}, function(err, response, content) {
+                    var $ = cheerio.load(content);
+                    expect(response.statusCode).to.be(200);
+                    expect($('.bundle').text()).to.be('service-one >> 100 >> top.js.html');
+                    done();
+                });
+            },50);
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {
