@@ -30,7 +30,6 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             backendHeaders = {
               'x-forwarded-host': req.headers.host || 'no-forwarded-host',
               'x-forwarded-for': req.headers['x-forwarded-for'] || remoteAddress,
-              'accept-language': req.headers['accept-language'],
               host: host,
               'x-tracer': req.tracer
             },
@@ -44,6 +43,10 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
         if (req.cookies && req.headers.cookie) {
             var whitelist = config.cookies && config.cookies.whitelist;
             backendHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
+        }
+
+        if (req.headers['accept-language']) {
+          backendHeaders['accept-language'] = req.headers['accept-language'];
         }
 
         if(backend.headers){

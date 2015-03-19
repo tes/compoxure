@@ -322,6 +322,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass accept-language to downstreams', function(done) {
+        var requestUrl = getPageComposerUrl('lang');
+        request.get(requestUrl,{headers: {'accept': 'text/html', 'Accept-Language': 'es'}}, function(err, response) {
+            expect(response.body).to.be('es');
+            done();
+        });
+    });
+
     it('should forward specified headers to downstreams', function(done) {
         var requestUrl = getPageComposerUrl('header/x-geoip-country-code');
         request.get(requestUrl,{headers: {'accept': 'text/html',  'x-geoip-country-code': 'GB'}}, function(err, response) {

@@ -217,6 +217,11 @@ function initStubServer(fileName, port, hostname) {
             res.end(req.headers.cookie);
         });
 
+        router.get('/lang', function(req, res) {
+            res.writeHead(200, {"Content-Type": "text/plain"});
+            res.end(req.headers['accept-language']);
+        });
+
     }));
 
     return function(next) {
