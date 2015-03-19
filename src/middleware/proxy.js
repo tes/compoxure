@@ -30,6 +30,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             backendHeaders = {
               'x-forwarded-host': req.headers.host || 'no-forwarded-host',
               'x-forwarded-for': req.headers['x-forwarded-for'] || remoteAddress,
+              'accept-language': req.headers['accept-language'],
               host: host,
               'x-tracer': req.tracer
             },
