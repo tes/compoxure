@@ -269,6 +269,18 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass a cookie to a url when using a template', function(done) {
+        var j = request.jar();
+        var cookie = request.cookie('geo=US');
+        j.setCookie(cookie, getPageComposerUrl(),function() {
+            request.get(getPageComposerUrl(), { jar: j, headers: {'accept': 'text/html'} }, function(err, response, content) {
+                var $ = cheerio.load(content);
+                expect($('#country').text()).to.be.equal('US');
+                done();
+            });
+        });
+    });
+
     it('should NOT pass through GET requests that have text/html content type to a backend service', function(done) {
         request.get(getPageComposerUrl('post'), { headers: {'accept': 'text/html'} }, function(err, response, content) {
             expect(content).to.be("GET /post");

@@ -1,7 +1,7 @@
 'use strict';
 
 var cx = require('../../');
-var connect = require('connect');
+var express = require('express');
 var cookieParser = require('cookie-parser');
 
 function initPcServer(port, hostname, eventHandler, configFile) {
@@ -26,7 +26,7 @@ function initPcServer(port, hostname, eventHandler, configFile) {
 
     var compoxureMiddleware = cx(config, eventHandler);
 
-    var server = connect();
+    var server = express();
 
     server.use(cookieParser());
     server.use(compoxureMiddleware);
