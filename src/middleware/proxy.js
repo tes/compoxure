@@ -70,6 +70,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           eventHandler: eventHandler
         };
 
+        var logError = function(err, message) {
+           var logLevel = err.statusCode === 404 ? 'warn' : 'error';
+           eventHandler.logger(logLevel, message, {
+              tracer: req.tracer
+           });
+        }
+
         var handleError = function(err, oldCacheData) {
 
           // Check to see if we have any statusCode handlers defined
@@ -84,17 +91,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           if (req.backend.quietFailure && oldCacheData) {
             req.templateVars = utils.updateTemplateVariables(req.templateVars, oldCacheData.headers);
             res.parse(oldCacheData.content);
-            eventHandler.logger('error', 'Backend FAILED but serving STALE content: ' + err.message, {
-              tracer: req.tracer
-            });
+            logError(err, 'Backend FAILED but serving STALE content: ' + err.message);
           } else {
             if (!res.headersSent) {
               res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
               res.end(err.message);
             }
-            eventHandler.logger('error', 'Backend FAILED to respond: ' + err.message, {
-              tracer: req.tracer
-            });
+            logError(err, 'Backend FAILED but to respond: ' + err.message);
           }
         }
 

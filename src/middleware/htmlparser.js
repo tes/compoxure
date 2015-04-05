@@ -75,6 +75,13 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 next(err, content ? content : null, headers);
             };
 
+            var logError = function(err, message, ignoreError) {
+               var logLevel = err.statusCode === 404 || ignoreError ? 'warn' : 'error';
+               eventHandler.logger(logLevel, message, {
+                  tracer: req.tracer
+               });
+            }
+
             var onErrorHandler = function(err, oldCacheData) {
 
                 var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start, msg = _.template(errorTemplate);
@@ -82,7 +89,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 // Check to see if we are just ignoring errors completely for this fragment - takes priority
                 if(ignoreError && (ignoreError === 'true' || _.contains(ignoreError.split(','), '' + err.statusCode))) {
                     errorMsg = _.template('IGNORE <%= statusCode %> for Service <%= url %> cache <%= cacheKey %>.');
-                    eventHandler.logger('warn', errorMsg({url: options.url, cacheKey: options.cacheKey, statusCode: err.statusCode}), {tracer:req.tracer});
+                    logError(err, errorMsg({url: options.url, cacheKey: options.cacheKey, statusCode: err.statusCode}), true);
                     return responseCallback(msg({ 'err': err.message}));
                 }
 
@@ -98,8 +105,9 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if (err.statusCode === 404 && !options.ignore404) {
 
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
-                    //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: 404, timing: timing});
-                    eventHandler.logger('error', errorMsg({url: options.url, cacheKey: options.cacheKey}), {tracer:req.tracer});
+
+                    logError(err, errorMsg({url: options.url, cacheKey: options.cacheKey}));
+
                     if (!res.headersSent) {
                         res.writeHead(404, {'Content-Type': 'text/html'});
                         return res.end(errorMsg(options));
@@ -111,7 +119,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                         responseCallback(msg({ 'err': err.message}), oldCacheData.content, oldCacheData.headers);
                         //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
                         errorMsg = _.template('STALE <%= url %> cache <%= cacheKey %> failed but serving stale content.');
-                        eventHandler.logger('error', errorMsg(options), {tracer:req.tracer});
+                        logError(err, errorMsg(options));
                     } else {
                         //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
                         responseCallback(msg({ 'err': err.message}));
@@ -119,7 +127,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
                     eventHandler.stats('increment', options.statsdKey + '.error');
                     errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
-                    eventHandler.logger('error', errorMsg({url: options.url, timing: timing, elapsed: elapsed}), {tracer:req.tracer});
+                    logError(err, errorMsg({url: options.url, timing: timing, elapsed: elapsed}));
 
                 }
 
