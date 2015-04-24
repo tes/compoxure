@@ -3,6 +3,8 @@ var HtmlParserProxy = require('./htmlparser');
 var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var url = require('url');
+var appendQuery = require('append-query');
+var _ = require('lodash');
 
 module.exports = function backendProxyMiddleware(config, eventHandler) {
 
@@ -33,10 +35,18 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
               host: host,
               'x-tracer': req.tracer
             },
-            targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),
             targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
             explicitNoCache = backend.noCache || req.explicitNoCache,
+            appendToUrl = backend.appendToUrl,
             options;
+
+        if (appendToUrl) {
+          _.forEach(appendToUrl, function(value, key) {
+            appendToUrl[key] = utils.render(value, req.templateVars);
+          });
+
+          targetUrl = appendQuery(targetUrl, appendToUrl);
+        }
 
         if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
 
@@ -54,6 +64,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
                 backendHeaders[header] = req.headers[header] || '';
             });
         }
+
+        var targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl);
 
         eventHandler.logger('info', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 

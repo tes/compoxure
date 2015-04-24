@@ -24,9 +24,8 @@
   },
   "homepage": "https://github.com/tes/compoxure",
   "dependencies": {
-    "parxer": "latest",
-    "reliable-get": "latest",
     "accepts": "^1.1.0",
+    "append-query": "^1.1.0",
     "async": "^0.9.0",
     "body-parser": "^1.6.7",
     "cookie-parser": "^1.3.2",
@@ -34,6 +33,8 @@
     "http-status-codes": "^1.0.2",
     "lodash": "~3.6.0",
     "morgan": "^1.2.1",
+    "parxer": "latest",
+    "reliable-get": "latest",
     "request": "^2.39.0",
     "serve-static": "^1.8.0",
     "ware": "^1.2.0"
