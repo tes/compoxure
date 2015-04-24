@@ -75,6 +75,22 @@
             "target":"{{server:local}}"
         },
         {
+            "pattern": "/appendQueryCookie",
+            "target":"http://localhost:5001",
+            "dontPassUrl": false,
+            "appendToUrl": {
+                "appendedCookie": "{{cookie:siteCountry}}"
+            }
+        },
+        {
+            "pattern": "/appendQuery",
+            "target":"http://localhost:5001",
+            "dontPassUrl": false,
+            "appendToUrl": {
+                "appended": "true"
+            }
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false

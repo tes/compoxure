@@ -413,6 +413,27 @@ describe("Page Composer", function(){
 
     });
 
+    it('should append query string params if they are specified on the backend', function(done) {
+        var requestUrl = getPageComposerUrl('appendQuery');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be(200);
+            expect(content).to.be("true");
+
+            done();
+        });
+    });
+
+    it('should append a cookie to the query string params if they are specified on the backend', function(done) {
+        var requestUrl = getPageComposerUrl('appendQueryCookie');
+        var siteCountryCookie = 'siteCountry=us';
+        request.get(requestUrl, {headers: {'accept': 'text/html', 'cookie': siteCountryCookie}}, function(err, response, content) {
+            expect(response.statusCode).to.be(200);
+            expect(content).to.be("us");
+
+            done();
+        });
+    });
+
     it('should create a default handler if none provided', function(done) {
         pcServer.init(5002, 'localhost')(function() {
             done();

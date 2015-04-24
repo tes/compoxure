@@ -229,6 +229,16 @@ function initStubServer(fileName, port, hostname) {
         res.end(req.headers['accept-language']);
     });
 
+    app.get('/appendQuery', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/plain"});
+        res.end(req.query.appended);
+    });
+
+    app.get('/appendQueryCookie', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/plain"});
+        res.end(req.query.appendedCookie);
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
