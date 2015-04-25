@@ -39,13 +39,14 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             explicitNoCache = backend.noCache || req.explicitNoCache,
             appendToUrl = backend.appendToUrl,
             options;
-
         if (appendToUrl) {
+	  var appendResult = {};
+
           _.forEach(appendToUrl, function(value, key) {
-            appendToUrl[key] = utils.render(value, req.templateVars);
+            appendResult[key] = utils.render(value, req.templateVars);
           });
 
-          targetUrl = appendQuery(targetUrl, appendToUrl);
+          targetUrl = appendQuery(targetUrl, appendResult);
         }
 
         if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
