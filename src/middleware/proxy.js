@@ -3,7 +3,6 @@ var HtmlParserProxy = require('./htmlparser');
 var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var url = require('url');
-var appendQuery = require('append-query');
 var _ = require('lodash');
 
 module.exports = function backendProxyMiddleware(config, eventHandler) {
@@ -40,13 +39,16 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             appendToUrl = backend.appendToUrl,
             options;
         if (appendToUrl) {
-	  var appendResult = {};
-
           _.forEach(appendToUrl, function(value, key) {
-            appendResult[key] = utils.render(value, req.templateVars);
+              if (targetUrl.indexOf(key) === -1) {
+                  if (targetUrl.indexOf('?') === -1) {
+                      targetUrl += '?';
+                  } else {
+                      targetUrl += '&';
+                  }
+                  targetUrl += key + '=' + utils.render(value, req.templateVars);
+              }
           });
-
-          targetUrl = appendQuery(targetUrl, appendResult);
         }
 
         if (config.cdn && config.cdn.url) { backendHeaders['x-cdn-url'] = config.cdn.url; }
