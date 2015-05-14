@@ -32,7 +32,7 @@
     "http-status-codes": "^1.0.2",
     "lodash": "~3.6.0",
     "morgan": "^1.2.1",
-    "parxer": "0.2.14",
+    "parxer": "0.2.15",
     "reliable-get": "latest",
     "request": "^2.39.0",
     "serve-static": "^1.8.0",
