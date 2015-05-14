@@ -151,7 +151,8 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 timeout: utils.timeToMillis(req.backend.timeout || '5000'),
                 plugins: [
                     parxerPlugins.Test,
-                    parxerPlugins.Url(getCx)
+                    parxerPlugins.Url(getCx),
+                    parxerPlugins.Bundle(getCx)
                 ],
                 variables: templateVars
             }, data, function(err, content) {
