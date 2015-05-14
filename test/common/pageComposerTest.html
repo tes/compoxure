@@ -37,5 +37,7 @@
         <div id='replace-outer'>wrapping <div id='replace-outer-content' cx-replace-outer='true' cx-url='{{server:local}}/replaced'></div> content</div>
          <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
          <div id='environment' cx-test='{{env:name}}'></div>
+         <div id='if-true' cx-if='{{server:local}}' cx-if-value="http://localhost:5001">I EXIST</div>
+         <div id='if-not-true' cx-if='{{server:local}}' cx-if-value="http://www.google.com">I DO NOT EXIST</div>
     </body>
 </html>

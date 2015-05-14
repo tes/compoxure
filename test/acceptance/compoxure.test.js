@@ -361,6 +361,19 @@ describe("Page Composer", function(){
         });
     });
 
+     it('should honor the cx-if directive', function(done) {
+        var requestUrl = getPageComposerUrl();
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            var $ = cheerio.load(response.body);
+            var ifTrue = $('#if-true');
+            var ifNotTrue = $('#if-not-true');
+            expect(ifTrue.text()).to.be('I EXIST');
+            expect(ifNotTrue.text()).to.be('');
+            done();
+        });
+    });
+
     it('should use allow you to specify a host over-ride to use instead of the target host', function(done) {
         var requestUrl = getPageComposerUrl('differenthost');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
