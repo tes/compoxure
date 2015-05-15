@@ -143,6 +143,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
         }
 
         res.parse = function(data) {
+
             parxer({
                 environment: config.environment,
                 cdn: config.cdn,
@@ -151,7 +152,9 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 timeout: utils.timeToMillis(req.backend.timeout || '5000'),
                 plugins: [
                     parxerPlugins.Test,
-                    parxerPlugins.Url(getCx)
+                    parxerPlugins.If,
+                    parxerPlugins.Url(getCx),
+                    parxerPlugins.Bundle(getCx)
                 ],
                 variables: templateVars
             }, data, function(err, content) {
