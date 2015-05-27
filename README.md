@@ -251,7 +251,7 @@ cx-cache-key|The key to use to cache the response (if blank it will use the cx-u
 cx-cache-ttl|The time to cache the response (set to zero for no cache - defaults to 60s).
 cx-statsd-key|The key to use to report stats to statsd, defaults to cache-key if not set.
 cx-timeout|The timeout to wait for the service to respond.
-cx-no-cache|Explicit instruction to not cache when value="true", overrides all other cache instruction.
+cx-no-cache|Explicit instruction to not cache when value value eval's to true, overrides all other cache instruction.
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
 cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page.
@@ -261,6 +261,14 @@ cx-ignore-error|Set to true to ignore all errors (non 200), or provide a comma d
 ```html
 <div cx-url='{{server:local}}/application/widget' cx-cache-ttl='10s' cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">
      This content will be replaced on the way through
+</div>
+```
+
+Example of dynamic cx-no-cache:
+
+```html
+<div cx-url='{{server:local}}/application/widget' cx-cache-ttl='10s' cx-no-cache="\{{cookie:userId}}==={{authorId}}" cx-cache-key='widget:user:{{cookie:userId}}' cx-timeout='1s' cx-statsd-key="widget_user">
+     This content won't be cached if the user is the author of the widget
 </div>
 ```
 
