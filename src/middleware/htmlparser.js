@@ -18,6 +18,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
 
         function getCx(fragment, next) {
 
+            /*jslint evil: true */
             var options,
                 start = Date.now(),
                 url = getCxAttr(fragment, 'cx-url'),
@@ -26,7 +27,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 cacheKey = cacheKeyAttr ? cacheKeyAttr : utils.urlToCacheKey(url),
                 cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m'),
                 explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache'),
-                explicitNoCache = req.explicitNoCache || (explicitNoCacheAttr ? explicitNoCacheAttr === 'true' : false),
+                explicitNoCache = req.explicitNoCache || (explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false),
                 ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
                 ignoreError = getCxAttr(fragment, 'cx-ignore-error'),
                 statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
@@ -34,6 +35,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     'cx-page-url': templateVars['url:href'],
                     'x-tracer': req.tracer
                 }
+
             if (req.cookies && req.headers.cookie) {
                 var whitelist = config.cookies && config.cookies.whitelist;
                 optionsHeaders.cookie = whitelist ? utils.filterCookies(whitelist, req.cookies) : req.headers.cookie;
