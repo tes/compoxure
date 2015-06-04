@@ -91,7 +91,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           if (req.backend.quietFailure && oldCacheData) {
             req.templateVars = utils.updateTemplateVariables(req.templateVars, oldCacheData.headers);
             res.parse(oldCacheData.content);
-            logError(err, 'Backend FAILED but serving STALE content: ' + err.message);
+            logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey +  ' : ' + err.message);
           } else {
             if (!res.headersSent) {
               res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
