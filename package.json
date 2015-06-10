@@ -41,6 +41,8 @@
   "devDependencies": {
     "blanket": "^1.1.6",
     "cheerio": "^0.17.0",
+    "connect": "^3.3.5",
+    "connect-route": "^0.1.5",
     "coveralls": "^2.11.1",
     "expect.js": "~0.3.1",
     "express": "^4.12.3",
