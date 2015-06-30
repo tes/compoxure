@@ -31,7 +31,9 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
                 ignoreError = getCxAttr(fragment, 'cx-ignore-error'),
                 statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
+                accept = getCxAttr(fragment, 'cx-accept') || 'text/html',
                 optionsHeaders = {
+                    'accept': accept,
                     'cx-page-url': templateVars['url:href'],
                     'x-tracer': req.tracer
                 }

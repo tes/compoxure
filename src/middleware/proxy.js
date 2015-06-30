@@ -27,10 +27,12 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             targetUrl = backend.target + (backend.dontPassUrl ? '' : req.url),
             targetHost = url.parse(backend.target).hostname,
             host = backend.host || targetHost,
+            accept = backend.accept || 'text/html',
             backendHeaders = {
               'x-forwarded-host': req.headers.host || 'no-forwarded-host',
               'x-forwarded-for': req.headers['x-forwarded-for'] || remoteAddress,
               host: host,
+              accept: accept,
               'x-tracer': req.tracer
             },
             targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),

@@ -33,6 +33,9 @@
         <div id='cookie' cx-url='{{server:local}}/cookie' cx-no-cache="true" cx-timeout='10s' class='block'>
             Cookie
         </div>
+        <div id='accept' cx-accept='application/json' cx-url='{{server:local}}/header/accept' cx-no-cache="true" cx-timeout='10s' class='block'>
+            Accept Header Directive
+        </div>
         <div id='country' cx-url='{{server:local}}/country?geo={{cookie:geo}}' cx-no-cache="true" cx-timeout='10s' class='block'></div>
         <div id='replace-outer'>wrapping <div id='replace-outer-content' cx-replace-outer='true' cx-url='{{server:local}}/replaced'></div> content</div>
          <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>

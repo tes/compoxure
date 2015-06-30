@@ -350,6 +350,24 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass a default accept header of text/html', function(done) {
+        var requestUrl = getPageComposerUrl('header/accept');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.body).to.be('text/html');
+            done();
+        });
+    });
+
+    it('should allow fragments to over ride the accept header', function(done) {
+        var requestUrl = getPageComposerUrl();
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            var $ = cheerio.load(response.body);
+            var acceptValue = $('#accept').text();
+            expect(acceptValue).to.be('application/json');
+            done();
+        });
+    });
+
     it('should retrieve bundles via the cx-bundle directive and cdn configuration using service supplied version numbers if appropriate', function(done) {
         var requestUrl = getPageComposerUrl('bundles');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
