@@ -108,6 +108,9 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
             handleError(err, response);
           } else {
             req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
+            if(response.headers['set-cookie']) {
+              res.setHeader('set-cookie', response.headers['set-cookie']);
+            }
             res.parse(response.content);
           }
         });

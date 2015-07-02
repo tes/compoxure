@@ -69,6 +69,10 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 if (hasCacheControl(headers, 'no-cache') || hasCacheControl(headers, 'no-store')) {
                     res.setHeader('cache-control', 'no-store');
                 }
+                if (headers['set-cookie']) {
+                  var existingResponseCookies = res.getHeader('set-cookie') || [];
+                  res.setHeader('set-cookie', _.union(existingResponseCookies, headers['set-cookie']));
+                }
             }
 
             var responseCallback = function(err, content, headers) {

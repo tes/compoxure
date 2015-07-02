@@ -368,6 +368,16 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass set-cookie headers upstream from a backend', function(done) {
+        var requestUrl = getPageComposerUrl('set-cookie');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.headers['set-cookie']).to.contain('hello=world; Path=/');
+            expect(response.headers['set-cookie']).to.contain('another=cookie; Path=/');
+            expect(response.headers['set-cookie']).to.contain('hello=again; Path=/');
+            done();
+        });
+    });
+
     it('should retrieve bundles via the cx-bundle directive and cdn configuration using service supplied version numbers if appropriate', function(done) {
         var requestUrl = getPageComposerUrl('bundles');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
