@@ -1,9 +1,13 @@
 language: node_js
 node_js:
-  - "0.10"
-  - "0.12"
-  - "1.5"
+- '0.10'
+- '0.12'
+- '1.5'
 after_script:
-  - npm run coveralls
+- npm run coveralls
 services:
-  - redis-server
+- redis-server
+notifications:
+  hipchat:
+    rooms:
+      secure: bS4/Cv5LNy+CK2kMkkWgSojHhiAiJCuhsvtPusfCm29kMvelvgsETy8DUV7eQyCMab/lVAp8rbbMQ0x0xcX9yXkk3ubesVY5RFoXUyoQkc2FMx48bMrQQfqMDDK4D0BPRUPwGj9kvAYKSZ0CD/kW56KcrPl9wsPHznjocNHKU/M=
