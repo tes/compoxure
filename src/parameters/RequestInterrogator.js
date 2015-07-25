@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var url = require('url');
+var Parser = require('express-device').Parser;
 var utils = require('../utils');
 
 module.exports = function (config, cdn, environment) {
@@ -19,6 +20,8 @@ module.exports = function (config, cdn, environment) {
         var queryParams = interrogateParams(parsedUrl.query);
         var pageUrl = getPageUrl(req, parsedUrl);
         var user = req.user || {userId: '_'};
+        var deviceType = new Parser(req).get_type();
+        if (deviceType === 'bot') { deviceType = 'desktop'; } // Serve desktop versions to bots ?
 
         var requestVariables = {};
 
@@ -30,7 +33,8 @@ module.exports = function (config, cdn, environment) {
             header: req.headers,
             server: config.servers,
             env: environment,
-            user: user
+            user: user,
+            device: {type: deviceType}
         };
 
         _.forOwn(requestConfig, function (values, type) {

@@ -287,6 +287,7 @@ server|A server short name from the configuration in the parameters section of c
 env|Environment, property available is name e.g. {{env:name}}
 cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
 user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}
+device|Device type {{device:type}} = desktop|phone|tablet
 
 Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}}).  An example set is shown below.  Note that they will vary depending on your request, parameter configuration, cookies etc.
 

@@ -245,6 +245,65 @@ describe('RequestInterrogator', function() {
         });
     });
 
+    it('should get parse the user agent and generate a phone device type', function(done) {
+
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+                'user-agent': 'Mozilla/5.0(iPhone;U;CPUiPhoneOS4_0likeMacOSX;en-us)AppleWebKit/532.9(KHTML,likeGecko)Version/4.0.5Mobile/8A293Safari/6531.22.7'
+            },
+            url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('device:type', 'phone');
+            done();
+        });
+
+    });
+
+    it('should get parse the user agent and generate a desktop device type', function(done) {
+
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+                'user-agent': 'Mozilla/5.0 ;Windows NT 6.1; WOW64; Trident/7.0; rv:11.0; like Gecko'
+            },
+            url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('device:type', 'desktop');
+            done();
+        });
+
+    });
+
+    it('should get parse the user agent and set to desktop if not known', function(done) {
+
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            headers: {
+            },
+            url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name:'test'});
+
+        interrogator.interrogateRequest(req, function(params) {
+            expect(params).to.have.property('device:type', 'desktop');
+            done();
+        });
+
+    });
+
     it('should parse cdn url configuration using template variables', function(done) {
 
         var req  = httpMocks.createRequest({
