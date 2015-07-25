@@ -342,6 +342,24 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should pass user-agent to downstreams', function(done) {
+        var requestUrl = getPageComposerUrl('ua');
+        var ua = 'Mozilla/5.0 ;iPhone; CPU iPhone OS 8_1_2 like Mac OS X; AppleWebKit/600.1.4 ;KHTML, like Gecko; Version/8.0 Mobile/12B440 Safari/600.1.4';
+        request.get(requestUrl,{headers: {'accept': 'text/html', 'user-agent': ua}}, function(err, response) {
+            expect(response.body).to.be(ua);
+            done();
+        });
+    });
+
+    it('should pass x-device to downstreams', function(done) {
+        var requestUrl = getPageComposerUrl('device');
+        var ua = 'Mozilla/5.0 ;iPhone; CPU iPhone OS 8_1_2 like Mac OS X; AppleWebKit/600.1.4 ;KHTML, like Gecko; Version/8.0 Mobile/12B440 Safari/600.1.4';
+        request.get(requestUrl,{headers: {'accept': 'text/html', 'user-agent': ua}}, function(err, response) {
+            expect(response.body).to.be('phone');
+            done();
+        });
+    });
+
     it('should forward specified headers to downstreams', function(done) {
         var requestUrl = getPageComposerUrl('header/x-geoip-country-code');
         request.get(requestUrl,{headers: {'accept': 'text/html',  'x-geoip-country-code': 'GB'}}, function(err, response) {

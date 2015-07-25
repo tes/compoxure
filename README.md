@@ -289,6 +289,8 @@ cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
 user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}
 device|Device type {{device:type}} = desktop|phone|tablet
 
+Note: It also passes the device:type down to downstreams in a header - as 'x-device'.
+
 Note that you can add an additional :encoded key to any parameter to get the value url encoded (e.g. {{url:search:encoded}}).  An example set is shown below.  Note that they will vary depending on your request, parameter configuration, cookies etc.
 
 ```
@@ -316,7 +318,8 @@ Note that you can add an additional :encoded key to any parameter to get the val
   'header:cookie': 'example=12345',
   'server:local': 'http://localhost:5001',
   'env:name': 'development',
-  'user:userId': '_'
+  'user:userId': '_',
+  'device:type': 'phone'
   }
   ```
 

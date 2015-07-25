@@ -242,6 +242,16 @@ function initStubServer(fileName, port, hostname) {
         res.end(req.headers['accept-language']);
     });
 
+    app.get('/ua', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/plain"});
+        res.end(req.headers['user-agent']);
+    });
+
+    app.get('/device', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/plain"});
+        res.end(req.headers['x-device']);
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
