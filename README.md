@@ -59,6 +59,7 @@ The configuration object looks as follows:
         "quietFailure":false,
         "leaveContentOnFail":false,
         "dontPassUrl":false,
+        "passThrough":false,
         "contentTypes":["html"]
     }],
     "parameters": {
