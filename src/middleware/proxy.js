@@ -37,7 +37,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
               'x-tracer': req.tracer,
               'user-agent': userAgent,
               'x-device': device,
-              'x-geoip-country-code': req.headers['x-geoip-country-code']
+              'x-geoip-country-code': req.headers['x-geoip-country-code'],
+              'x-csrf-token': req.headers['x-csrf-token']
             },
             targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),
             targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
