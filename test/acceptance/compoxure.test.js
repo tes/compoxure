@@ -407,6 +407,17 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should retrieve images via the cx-src directive and cdn configuration using service supplied version numbers if appropriate', function(done) {
+        var requestUrl = getPageComposerUrl('bundles');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(200);
+            var $ = cheerio.load(response.body);
+            var image = $('.image');
+            expect(image['0'].attribs.src).to.be('http://localhost:5001/static/service-one/100/img/image.png');
+            done();
+        });
+    });
+
     it('should use allow you to specify a host over-ride to use instead of the target host', function(done) {
         var requestUrl = getPageComposerUrl('differenthost');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {

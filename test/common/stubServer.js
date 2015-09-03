@@ -198,7 +198,7 @@ function initStubServer(fileName, port, hostname) {
     });
 
     app.get('/service-one', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100"});
+        res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100", "x-static|service-one": "100"});
         res.end('Service One - I have a bundle, hear me roar.');
     });
 

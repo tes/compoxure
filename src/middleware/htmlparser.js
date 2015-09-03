@@ -162,6 +162,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     parxerPlugins.Test,
                     parxerPlugins.If,
                     parxerPlugins.Url(getCx),
+                    parxerPlugins.Image(),
                     parxerPlugins.Bundle(getCx)
                 ],
                 variables: templateVars
