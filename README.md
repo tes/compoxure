@@ -343,23 +343,38 @@ To do: build an API for the cache that enables jobs to do this without directly 
 Using Compoxure in conjunction with Bosco gives you a way to manage the static assets (JS, CSS, Images) that go with the services.
 
 ```
-<script cx-bundles='service-one.js,service-two.js'/>
+<script cx-bundles='service-one/main.js,service-two/app.js'/>
 ```
 
 This in the background will turn this into a set of cx-url includes, based on the structure that Bosco uses to publish static assets (both in CDN mode and pushed to S3):
 
 ```
-<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-one}}/html/service-one.js.html'/>
-<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-two}}/html/service-two.js.html'/>
+<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-one}}/html/main.js.html'/>
+<script cx-bundles='{{cdn:url}}/{{environment:name}}/{{static:service-two}}/html/app.js.html'/>
 ```
 
-The most important of the variables in the above urls are the '{{static:service-one}}'.
+The most important of the variables in the above urls are the '{{static:service-one}}', which would resolve to: ```service-one/81``` (the service name and build number).
 
 This works in the following way:
 
- * Service One (which is likely included somewhere in the page given it's static assets are), should respond to Compoxure with its content, and in addition, supply an additional header:  cx-static|service-one: 101
+ * Service One (which is likely included somewhere in the page given it's static assets are), should respond to Compoxure with its content, and in addition, supply an additional header:  cx-static|service-one|main: 101
  * This represents the build number for the service, that is also then applied to all of the bundles with the same name.
  * If no header is supplied by the service, it will revert to 'default'.
+ * If you include https://github.com/tes/bundle-version middleware this can all be handled for you.
+
+## Images
+
+In addition to bundles, you can use a directive to get access to images from a service that also respect the service version and cdn url.
+
+```
+<img cx-src='service-one/image.png' />
+```
+
+This would resolve to:
+
+```
+<script src='{{cdn:url}}/{{environment:name}}/{{static:service-one}}/img/image.png'/>
+```
 
 ## 404 Responses from Microservices
 
