@@ -154,6 +154,12 @@ function initStubServer(fileName, port, hostname) {
         res.end(backendHtml);
     });
 
+    app.get('/donotignore404backend', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        var backendHtml = fs.readFileSync('./test/common/donotignore404.html', { encoding: 'utf8' });
+        res.end(backendHtml);
+    });
+
     app.get('/selectFnBackend', function(req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
         var backendHtml = fs.readFileSync('./test/common/selectFnBackend.html', { encoding: 'utf8' });

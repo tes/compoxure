@@ -85,10 +85,10 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should return a 404 if any of the fragments return a 404', function(done) {
+    it('should not return a 404 if any of the fragments return a 404', function(done) {
         var requestUrl = getPageComposerUrl('404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
-            expect(response.statusCode).to.be(404);
+            expect(response.statusCode).to.be(200);
             done();
         });
     });
@@ -97,6 +97,15 @@ describe("Page Composer", function(){
         var requestUrl = getPageComposerUrl('ignore404backend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.statusCode).to.be(200);
+            done();
+        });
+    });
+
+
+    it('should return a 404 if any of the fragments have ignore-404 = false', function(done) {
+        var requestUrl = getPageComposerUrl('donotignore404backend');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.statusCode).to.be(404);
             done();
         });
     });

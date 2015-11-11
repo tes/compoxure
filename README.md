@@ -1,8 +1,6 @@
 # Compoxure Composition Middleware
 [![Build Status](https://travis-ci.org/tes/compoxure.svg?branch=master)](https://travis-ci.org/tes/compoxure) [![Dependencies](https://david-dm.org/tes/compoxure.svg)](https://david-dm.org/tes/compoxure) [![Coverage Status](https://img.shields.io/coveralls/tes/compoxure.svg)](https://coveralls.io/r/tes/compoxure?branch=master)
 
-[![NPM](https://nodei.co/npm/compoxure.png?downloads=true)](https://nodei.co/npm/compoxure/)
-
 Composition proxy replacement for ESI or SSI uses [htmlparser2](https://github.com/fb55/htmlparser2/) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
@@ -255,7 +253,7 @@ cx-timeout|The timeout to wait for the service to respond.
 cx-no-cache|Explicit instruction to not cache when value value eval's to true, overrides all other cache instruction.
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
-cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page.
+cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page, defaults to TRUE.
 cx-ignore-error|Set to true to ignore all errors (non 200), or provide a comma delimited list to ignore specific errors on this fragment
 
 

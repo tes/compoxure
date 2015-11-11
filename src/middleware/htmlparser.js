@@ -28,7 +28,7 @@ function getMiddleware(config, reliableGet, eventHandler) {
                 cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m'),
                 explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache'),
                 explicitNoCache = req.explicitNoCache || (explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false),
-                ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
+                ignore404 = (getCxAttr(fragment, 'cx-ignore-404') || 'true')  === 'true',
                 ignoreError = getCxAttr(fragment, 'cx-ignore-error'),
                 statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
                 accept = getCxAttr(fragment, 'cx-accept') || 'text/html',
