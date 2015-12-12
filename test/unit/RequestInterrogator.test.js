@@ -328,7 +328,7 @@ describe('RequestInterrogator', function() {
             headers: {
                 host: 'localhost:5000'
             },
-            experiment: {
+            experiments: {
                 test: 'A'
             },
             method: 'GET',
@@ -340,7 +340,7 @@ describe('RequestInterrogator', function() {
 
         interrogator.interrogateRequest(req, function(params) {
             var expectedPageUrl = 'http://localhost:5000/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420';
-            expect(params).to.have.property('experiment:test', 'A');
+            expect(params).to.have.property('experiments:test', 'A');
             done();
         });
     });

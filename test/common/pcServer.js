@@ -33,7 +33,7 @@ function initPcServer(port, hostname, eventHandler, configFile) {
         // This would be a call off to a service (e.g. planout based)
         // To retrieve active experiments for the current user.
         // Assumed it returns a simple object one level of properties deep
-        req.experiment = {details_block: 'A123', another_test: 'B112'};
+        req.experiments = {details_block: 'A123', another_test: 'B112'};
         next();
     });
     server.use(compoxureMiddleware);
