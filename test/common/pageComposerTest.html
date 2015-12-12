@@ -40,5 +40,8 @@
         <div id='replace-outer'>wrapping <div id='replace-outer-content' cx-replace-outer='true' cx-url='{{server:local}}/replaced'></div> content</div>
          <div id='testlogic' cx-test='{{#query:logic}}Logic ftw!{{/query:logic}}'></div>
          <div id='environment' cx-test='{{env:name}}'></div>
+         <div id='experiment' cx-url='{{server:local}}/experiment?variant={{experiment:details_block}}' cx-cache-key="{{experiment:details_block}}" cx-timeout='10s' class='block'>
+            Experiment block
+        </div>
     </body>
 </html>

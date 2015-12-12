@@ -34,6 +34,7 @@ module.exports = function (config, cdn, environment) {
             server: config.servers,
             env: environment,
             user: user,
+            experiment: req.experiment || {},
             device: {type: deviceType}
         };
 

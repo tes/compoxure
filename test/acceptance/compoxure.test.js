@@ -186,6 +186,14 @@ describe("Page Composer", function(){
         });
     });
 
+     it('should use the experiment variables if they are available', function(done) {
+        request.get(getPageComposerUrl(), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            var $ = cheerio.load(content);
+            expect($('#experiment').text()).to.be.equal('A123');
+            done();
+        });
+    });
+
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('', '', '#invalidurl', function(text) {
             expect(text).to.be.equal('Error: Service invalid FAILED due to Invalid URL invalid');
