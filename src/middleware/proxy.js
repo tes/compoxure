@@ -109,6 +109,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         }
 
         optionsTransformer(req, options, function(err, transformedOptions) {
+          if (err) { return handleError(err); }
           reliableGet.get(transformedOptions, function(err, response) {
             if(err) {
               handleError(err, response);

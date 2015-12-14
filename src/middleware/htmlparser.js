@@ -142,6 +142,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             };
 
             optionsTransformer(req, options, function(err, transformedOptions) {
+                if (err) { return onErrorHandler(err, {}, transformedOptions); }
                 reliableGet.get(transformedOptions, function(err, response) {
                     if(err) {
                         return onErrorHandler(err, response, transformedOptions);

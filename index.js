@@ -7,7 +7,7 @@ module.exports = function(config, eventHandler, optionsTransformer) {
   eventHandler.logger = eventHandler.logger || function() {};
   eventHandler.stats = eventHandler.stats || function() {};
 
-  optionsTransformer = optionsTransformer || function(options, next) { next(null, options); };
+  optionsTransformer = optionsTransformer || function(req, options, next) { next(null, options); };
 
   var backendProxyMiddleware = require('./src/middleware/proxy')(config, eventHandler, optionsTransformer);
   var cacheMiddleware = require('reliable-get/CacheMiddleware')(config);
