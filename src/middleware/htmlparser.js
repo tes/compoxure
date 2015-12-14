@@ -10,7 +10,7 @@ function getCxAttr(node, name) {
     return value && htmlEntities.decode(value);
 }
 
-function getMiddleware(config, reliableGet, eventHandler) {
+function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
     return function(req, res, next) {
 
@@ -90,14 +90,14 @@ function getMiddleware(config, reliableGet, eventHandler) {
                });
             }
 
-            var onErrorHandler = function(err, oldCacheData) {
+            var onErrorHandler = function(err, oldCacheData, transformedOptions) {
 
                 var errorMsg, elapsed = Date.now() - req.timerStart, timing = Date.now() - start, msg = _.template(errorTemplate);
 
                 // Check to see if we are just ignoring errors completely for this fragment - takes priority
                 if(ignoreError && (ignoreError === 'true' || _.contains(ignoreError.split(','), '' + err.statusCode))) {
                     errorMsg = _.template('IGNORE <%= statusCode %> for Service <%= url %> cache <%= cacheKey %>.');
-                    logError(err, errorMsg({url: options.url, cacheKey: options.cacheKey, statusCode: err.statusCode}), true);
+                    logError(err, errorMsg({url: transformedOptions.url, cacheKey: transformedOptions.cacheKey, statusCode: err.statusCode}), true);
                     return responseCallback(msg({ 'err': err.message}));
                 }
 
@@ -106,46 +106,48 @@ function getMiddleware(config, reliableGet, eventHandler) {
                     var handlerDefn = config.statusCodeHandlers[err.statusCode];
                     var handlerFn = config.functions && config.functions[handlerDefn.fn];
                     if(handlerFn) {
-                        return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
+                        return handlerFn(req, res, req.templateVars, handlerDefn.data, transformedOptions, err);
                     }
                 }
 
-                if (err.statusCode === 404 && !options.ignore404) {
+                if (err.statusCode === 404 && !transformedOptions.ignore404) {
 
                     errorMsg = _.template('404 Service <%= url %> cache <%= cacheKey %> returned 404.');
 
-                    logError(err, errorMsg({url: options.url, cacheKey: options.cacheKey}));
+                    logError(err, errorMsg({url: transformedOptions.url, cacheKey: transformedOptions.cacheKey}));
 
                     if (!res.headersSent) {
                         res.writeHead(404, {'Content-Type': 'text/html'});
-                        return res.end(errorMsg(options));
+                        return res.end(errorMsg(transformedOptions));
                     }
 
                 } else {
 
                     if(oldCacheData && oldCacheData.content) {
                         responseCallback(msg({ 'err': err.message}), oldCacheData.content, oldCacheData.headers);
-                        //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
+                        //debugMode.add(transformedOptions.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, staleContent: true, timing: timing });
                         errorMsg = _.template('STALE <%= url %> cache <%= cacheKey %> failed but serving stale content.');
-                        logError(err, errorMsg(options));
+                        logError(err, errorMsg(transformedOptions));
                     } else {
-                        //debugMode.add(options.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
+                        //debugMode.add(transformedOptions.unparsedUrl, {status: 'ERROR', httpStatus: err.statusCode, defaultContent: true, timing: timing });
                         responseCallback(msg({ 'err': err.message}));
                     }
 
-                    eventHandler.stats('increment', options.statsdKey + '.error');
+                    eventHandler.stats('increment', transformedOptions.statsdKey + '.error');
                     errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
-                    logError(err, errorMsg({url: options.url, timing: timing, elapsed: elapsed}));
+                    logError(err, errorMsg({url: transformedOptions.url, timing: timing, elapsed: elapsed}));
 
                 }
 
             };
 
-            reliableGet.get(options, function(err, response) {
-                if(err) {
-                    return onErrorHandler(err, response);
-                }
-                responseCallback(null, response.content, response.headers);
+            optionsTransformer(req, options, function(err, transformedOptions) {
+                reliableGet.get(transformedOptions, function(err, response) {
+                    if(err) {
+                        return onErrorHandler(err, response, transformedOptions);
+                    }
+                    responseCallback(null, response.content, response.headers);
+                });
             });
 
         }

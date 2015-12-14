@@ -24,7 +24,19 @@ function initPcServer(port, hostname, eventHandler, configFile) {
     }
     config.environment = 'test';
 
-    var compoxureMiddleware = cx(config, eventHandler);
+    // Example options transformer
+    var optionsTransformer = function(req, options, next) {
+        // You have full access to req, and the selected backend
+        if(req.backend && req.backend.name === 'transformer') {
+            // You can modify any element of the options object
+            options.cacheKey = 'prefix-' + options.cacheKey + '-suffix';
+            // Url modified to allow for testing
+            options.url = options.url + '?cacheKey=' + options.cacheKey;
+        }
+        next(null, options);
+    }
+
+    var compoxureMiddleware = cx(config, eventHandler, optionsTransformer);
 
     var server = express();
 

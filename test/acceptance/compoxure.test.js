@@ -186,10 +186,17 @@ describe("Page Composer", function(){
         });
     });
 
-     it('should use the experiment variables if they are available', function(done) {
+    it('should use the experiment variables if they are available', function(done) {
         request.get(getPageComposerUrl(), {headers: {'accept': 'text/html'}}, function(err, response, content) {
             var $ = cheerio.load(content);
             expect($('#experiment').text()).to.be.equal('A123');
+            done();
+        });
+    });
+
+    it('should use the options transformer if provided', function(done) {
+        request.get(getPageComposerUrl('/transformer'), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(content).to.be.equal('prefix-cache-key-suffix');
             done();
         });
     });
