@@ -322,4 +322,27 @@ describe('RequestInterrogator', function() {
             done();
         });
     });
+
+    it('should pass experiment variables through so they can be used', function(done) {
+        var req  = httpMocks.createRequest({
+            headers: {
+                host: 'localhost:5000'
+            },
+            experiments: {
+                test: 'A'
+            },
+            method: 'GET',
+            url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+        });
+        req.connection = {};
+
+        var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, {name: 'test'});
+
+        interrogator.interrogateRequest(req, function(params) {
+            var expectedPageUrl = 'http://localhost:5000/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420';
+            expect(params).to.have.property('experiments:test', 'A');
+            done();
+        });
+    });
+
 });

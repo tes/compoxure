@@ -75,6 +75,13 @@
             "target":"{{server:local}}"
         },
         {
+            "name":"transformer",
+            "pattern":"/transformer",
+            "dontPassUrl": false,
+            "cacheKey":"cache-key",
+            "target":"{{server:local}}"
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false

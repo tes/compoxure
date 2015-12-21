@@ -1,13 +1,15 @@
 var cookieParser = require('cookie-parser');
 var ware = require('ware');
 
-module.exports = function(config, eventHandler) {
+module.exports = function(config, eventHandler, optionsTransformer) {
 
   eventHandler = eventHandler || {};
   eventHandler.logger = eventHandler.logger || function() {};
   eventHandler.stats = eventHandler.stats || function() {};
 
-  var backendProxyMiddleware = require('./src/middleware/proxy')(config, eventHandler);
+  optionsTransformer = optionsTransformer || function(req, options, next) { next(null, options); };
+
+  var backendProxyMiddleware = require('./src/middleware/proxy')(config, eventHandler, optionsTransformer);
   var cacheMiddleware = require('reliable-get/CacheMiddleware')(config);
   var selectBackend = require('./src/middleware/backend')(config);
   var rejectUnsupportedMediaType = require('./src/middleware/mediatypes');

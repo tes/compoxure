@@ -4,10 +4,10 @@ var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var url = require('url');
 
-module.exports = function backendProxyMiddleware(config, eventHandler) {
+module.exports = function backendProxyMiddleware(config, eventHandler, optionsTransformer) {
 
     var reliableGet = new ReliableGet(config),
-        htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler);
+        htmlParserMiddleware = HtmlParserProxy.getMiddleware(config, reliableGet, eventHandler, optionsTransformer);
 
     reliableGet.on('log', eventHandler.logger);
     reliableGet.on('stat', eventHandler.stats);
@@ -108,16 +108,19 @@ module.exports = function backendProxyMiddleware(config, eventHandler) {
           }
         }
 
-        reliableGet.get(options, function(err, response) {
-          if(err) {
-            handleError(err, response);
-          } else {
-            req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
-            if(response.headers['set-cookie']) {
-              res.setHeader('set-cookie', response.headers['set-cookie']);
+        optionsTransformer(req, options, function(err, transformedOptions) {
+          if (err) { return handleError(err); }
+          reliableGet.get(transformedOptions, function(err, response) {
+            if(err) {
+              handleError(err, response);
+            } else {
+              req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
+              if(response.headers['set-cookie']) {
+                res.setHeader('set-cookie', response.headers['set-cookie']);
+              }
+              res.parse(response.content);
             }
-            res.parse(response.content);
-          }
+          });
         });
 
       });
