@@ -8,7 +8,8 @@ module.exports = function(config)  {
     quietFailure: false,
     replaceOuter: false,
     dontPassUrl: true,
-    leaveContentOnFail: true
+    leaveContentOnFail: true,
+    addResponseHeaders: {}
   };
 
   return function selectBackend(req, res, next) {

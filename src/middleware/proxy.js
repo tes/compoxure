@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var utils = require('../utils');
 var HtmlParserProxy = require('./htmlparser');
 var HttpStatus = require('http-status-codes');
@@ -108,6 +109,14 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           }
         }
 
+        var setAdditionalHeaders = function() {
+          var headersToAdd = _.keys(backend.addResponseHeaders);
+          headersToAdd.forEach(function(header) {
+            var headerValue = backend.addResponseHeaders[header];
+            if(headerValue) { res.setHeader(header, headerValue); }
+          });
+        }
+
         optionsTransformer(req, options, function(err, transformedOptions) {
           if (err) { return handleError(err); }
           reliableGet.get(transformedOptions, function(err, response) {
@@ -118,6 +127,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
               if(response.headers['set-cookie']) {
                 res.setHeader('set-cookie', response.headers['set-cookie']);
               }
+              setAdditionalHeaders();
               res.parse(response.content);
             }
           });

@@ -36,6 +36,11 @@ function initStubServer(fileName, port, hostname) {
         res.end(req.query.cacheKey);
     });
 
+    app.get('/additionalHeaders', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end("Check the headers luke");
+    });
+
     app.get('/user/:user?', function(req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
         res.end("User: " + req.params.user || 'Unknown user');

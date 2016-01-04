@@ -82,6 +82,16 @@
             "target":"{{server:local}}"
         },
         {
+            "name":"additionalHeaders",
+            "pattern":"/additionalHeaders",
+            "dontPassUrl": false,
+            "cacheKey":"additional-headers",
+            "target":"{{server:local}}",
+            "addResponseHeaders": {
+                "x-robots-tag": "noindex"
+            }
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false
