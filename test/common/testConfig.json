@@ -92,6 +92,14 @@
             }
         },
         {
+            "name":"passThroughHeaders",
+            "pattern":"/passThroughHeaders",
+            "dontPassUrl": false,
+            "cacheKey":"allow-headers",
+            "target":"{{server:local}}",
+            "passThroughHeaders": ["x-robots-tag"]
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false

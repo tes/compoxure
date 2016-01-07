@@ -41,6 +41,11 @@ function initStubServer(fileName, port, hostname) {
         res.end("Check the headers luke");
     });
 
+    app.get('/passThroughHeaders', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html", "X-Robots-Tag": "noindex,nofollow"});
+        res.end("Check the headers luke");
+    });
+
     app.get('/user/:user?', function(req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
         res.end("User: " + req.params.user || 'Unknown user');

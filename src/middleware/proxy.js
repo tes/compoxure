@@ -117,6 +117,14 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           });
         }
 
+        var passThroughHeaders = function(backendHeaders) {
+          var headersToAllow = backend.passThroughHeaders || [];
+          headersToAllow.forEach(function(header) {
+            var headerValue = backendHeaders[header];
+            if(headerValue) { res.setHeader(header, headerValue); }
+          });
+        }
+
         optionsTransformer(req, options, function(err, transformedOptions) {
           if (err) { return handleError(err); }
           reliableGet.get(transformedOptions, function(err, response) {
@@ -128,6 +136,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 res.setHeader('set-cookie', response.headers['set-cookie']);
               }
               setAdditionalHeaders();
+              passThroughHeaders(response.headers);
               res.parse(response.content);
             }
           });
