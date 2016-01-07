@@ -208,6 +208,13 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should return pass through back end headers if configured', function(done) {
+        request.get(getPageComposerUrl('/passThroughHeaders'), {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.headers['x-robots-tag']).to.be.equal('noindex,nofollow');
+            done();
+        });
+    });
+
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('', '', '#invalidurl', function(text) {
             expect(text).to.be.equal('Error: Service invalid FAILED due to Invalid URL invalid');
