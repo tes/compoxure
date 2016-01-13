@@ -18,7 +18,7 @@ module.exports = function(config)  {
           if (server.pattern) { return new RegExp(server.pattern).test(req.url); }
           if (server.fn) {
             if (typeof config.functions[server.fn] == 'function') {
-              return config.functions[server.fn](req, req.templateVars);
+              return config.functions[server.fn](req, req.templateVars, server);
             }
           }
       });
