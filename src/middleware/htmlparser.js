@@ -3,6 +3,7 @@ var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
 var utils = require('../utils');
 var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
+var debugTemplate = '<div> <ul> <% _.forEach(fragments, function(f) { %><li><%- f.status + " : " + f.timing + "ms : " + f.url %></li><% }); %> </ul> </div>'
 var htmlEntities = new (require('html-entities').AllHtmlEntities)();
 
 function getCxAttr(node, name) {
@@ -15,7 +16,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     return function(req, res, next) {
 
         var templateVars = req.templateVars;
-
+        var fragmentTimings = [];
         function getCx(fragment, next) {
 
             /*jslint evil: true */
@@ -147,6 +148,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     if(err) {
                         return onErrorHandler(err, response, transformedOptions);
                     }
+                    fragmentTimings.push({ url: options.url, status: response.statusCode, timing: response.timing });
                     responseCallback(null, response.content, response.headers);
                 });
             });
@@ -181,6 +183,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     // TODO: Notify fragment errors to debugger in future
                 }
                 if (!res.headersSent) {
+                    if (req.headers && req.headers['x-cx-debug']) {
+                      content += _.template(debugTemplate)({fragments: fragmentTimings});
+                    }
+
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
                 }
@@ -197,4 +203,3 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 module.exports = {
     getMiddleware: getMiddleware
 };
-
