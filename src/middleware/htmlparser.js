@@ -183,7 +183,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     // TODO: Notify fragment errors to debugger in future
                 }
                 if (!res.headersSent) {
-                    if (req.headers && req.headers['x-cx-debug']) {
+                    if (req.query && req.query['cx-debug']) {
                       content += _.template(debugTemplate)({fragments: fragmentTimings});
                     }
 
