@@ -392,6 +392,18 @@ Compoxure uses a number of time intervals for timeouts and TTLS. To make this si
 
 e.g. 1s = 1000, 1m = 60*1000 etc.  The valid values are 1s, 1m, 1h, 1d.  If you do not provide a suffix it assumes ms.
 
+## Debug mode
+Adding the query string parameter ```?cx-debug=true``` will cause compoxure to append a collection of debug information regarding fragments collected in the page.
+In the example app it produces:
+```
+200 : 3ms : http://localhost:5001/include.html
+200 : 12ms : http://localhost:5001/dynamic
+200 : 12ms : http://localhost:5001/dynamic
+200 : 114ms : http://localhost:5001/faulty
+200 : 1ms : http://localhost:5001/cdn/service/YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE/html/bottom.js.html
+200 : 1ms : http://localhost:5001/cdn/service/100/html/top.js.html
+```
+
 ## Alternatives / Rationale
 
 We built compoxure because it solved a set of problems that alternative solutions didn't quite reach.

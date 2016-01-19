@@ -13,6 +13,62 @@ module.exports = function (config, cdn, environment) {
 
     environment = {name: environment || process.env.NODE_ENV || 'development'};
 
+
+    function flatten(variables, type, key, value) {
+        variables[type + ':' + key] = value;
+        variables[type + ':' + key + ':encoded'] = encodeURIComponent(value);
+    }
+
+    function interrogatePath(path) {
+
+        var matches = _.map(config.urls, function (url) {
+            var regexp = new RegExp(url.pattern);
+            var match = regexp.exec(path);
+            if (!match) { return {}; }
+            return _.object(url.names, _.rest(match, 1));
+        });
+
+        var parameters = {};
+        _.each(matches, function (match) {
+            _.each(match, function (value, key) {
+                parameters[key] = value;
+            });
+        });
+
+        return parameters;
+    }
+
+    function interrogateParams(params) {
+
+        var parameters = {};
+        _.forEach(config.query, function(query) {
+            if(params[query.key]) {
+                parameters[query.mapTo] = params[query.key];
+            }
+        });
+        return parameters;
+    }
+
+    function getPort(req) {
+        var host = req.headers.http_host || req.headers.host;
+        var res = host ? host.match(/:(\d+)/) : '';
+        return res ? res[1] : req.connection.pair ? '443' : '80';
+    }
+
+    function getPageUrl(req, parsedUrl) {
+
+        var components = {
+            host: req.headers.http_host || req.headers.host,
+            port: getPort(req),
+            protocol: req.isSpdy ? 'https' : (req.connection.pair ? 'https' : 'http'),
+            search: parsedUrl.search,
+            pathname: parsedUrl.pathname
+        };
+
+        return url.parse(url.format(components),false);
+
+    }
+
     this.interrogateRequest = function (req, next) {
 
         var parsedUrl = url.parse(req.url, true);
@@ -50,60 +106,5 @@ module.exports = function (config, cdn, environment) {
 
         next(requestVariables);
     };
-
-    function flatten(variables, type, key, value) {
-        variables[type + ':' + key] = value;
-        variables[type + ':' + key + ':encoded'] = encodeURIComponent(value);
-    }
-
-    function interrogatePath(path) {
-
-        var matches = _.map(config.urls, function (url) {
-            var regexp = new RegExp(url.pattern);
-            var match = regexp.exec(path);
-            if (!match) { return {}; }
-            return _.object(url.names, _.rest(match, 1));
-        });
-
-        var parameters = {};
-        _.each(matches, function (match) {
-            _.each(match, function (value, key) {
-                parameters[key] = value;
-            });
-        });
-
-        return parameters;
-    }
-
-    function interrogateParams(params) {
-
-        var parameters = {};
-        _.forEach(config.query, function(query) {
-            if(params[query.key]) {
-                parameters[query.mapTo] = params[query.key];
-            }
-        });
-        return parameters;
-    }
-
-    function getPageUrl(req, parsedUrl) {
-
-        var components = {
-            host: req.headers.http_host || req.headers.host,
-            port: getPort(req),
-            protocol: req.isSpdy ? 'https' : (req.connection.pair ? 'https' : 'http'),
-            search: parsedUrl.search,
-            pathname: parsedUrl.pathname
-        };
-
-        return url.parse(url.format(components),false);
-
-    }
-
-    function getPort(req) {
-        var host = req.headers.http_host || req.headers.host;
-        var res = host ? host.match(/:(\d+)/) : '';
-        return res ? res[1] : req.connection.pair ? '443' : '80';
-    }
 
 };
