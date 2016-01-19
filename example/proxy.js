@@ -4,6 +4,7 @@ var cx = require('../');
 var config = require('./config.json')
 var connect = require('connect');
 var cookieParser = require('cookie-parser');
+var query = require('connect-query');
 var morgan = require('morgan');
 
 require('./memory');
@@ -37,6 +38,7 @@ var compoxureMiddleware = cx(config, cxEventHandler);
 
 var server = connect();
 server.use(cookieParser());
+server.use(query());
 if(process.env.logging !== 'false') { server.use(morgan('combined')); }
 server.use(compoxureMiddleware);
 

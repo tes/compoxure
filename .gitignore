@@ -10,3 +10,4 @@ node_modules
 manifest.json
 dump.rdb
 coverage
+example/memory.csv
