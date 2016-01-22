@@ -146,7 +146,7 @@ describe("Page Composer", function(){
         var requestUrl = getPageComposerUrl();
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response, content) {
             var $ = cheerio.load(content);
-            expect($('#faulty').text()).to.be.equal('Error: Service http://localhost:5001/500 FAILED due to status code 500');
+            expect($('#faulty').text()).to.be.contain('status code 500');
             done();
         });
     });
@@ -172,7 +172,7 @@ describe("Page Composer", function(){
 
     it('should fail gracefully if the service returns no response at all', function(done) {
         getSection('', '', '#broken', function(text) {
-            expect(text).to.be.equal('Error: Service http://localhost:5001/broken FAILED due to socket hang up');
+            expect(text).to.be.contain('socket hang up');
             done();
         });
     });
@@ -217,7 +217,7 @@ describe("Page Composer", function(){
 
     it('should ignore a cx-url that is invalid', function(done) {
         getSection('', '', '#invalidurl', function(text) {
-            expect(text).to.be.equal('Error: Service invalid FAILED due to Invalid URL invalid');
+            expect(text).to.be.contain('Invalid URL invalid');
             done();
         });
     });
