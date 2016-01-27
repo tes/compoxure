@@ -530,6 +530,24 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should accept array of pattern (first pattern)', function(done) {
+        var requestUrl = getPageComposerUrl('arrayOfPattern1');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be(200);
+            expect(response.body).to.be('arrayOfPattern');
+            done();
+        });
+    });
+
+    it('should accept array of pattern (second pattern)', function(done) {
+        var requestUrl = getPageComposerUrl('arrayOfPattern2');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function(err, response, content) {
+            expect(response.statusCode).to.be(200);
+            expect(response.body).to.be('arrayOfPattern');
+            done();
+        });
+    });
+
     function getSection(path, search, query, next) {
         var url = getPageComposerUrl(path, search);
         request.get(url,{headers: {'accept': 'text/html'}}, function(err, response, content) {

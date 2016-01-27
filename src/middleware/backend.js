@@ -15,7 +15,11 @@ module.exports = function(config)  {
   return function selectBackend(req, res, next) {
     if (config.backend) {
       req.backend = _.find(config.backend, function(server) {
-          if (server.pattern) { return new RegExp(server.pattern).test(req.url); }
+          if (server.pattern) {
+            return [].concat(server.pattern).some(function (pattern) {
+              return new RegExp(pattern).test(req.url);
+            });
+          }
           if (server.fn) {
             if (typeof config.functions[server.fn] == 'function') {
               return config.functions[server.fn](req, req.templateVars, server);

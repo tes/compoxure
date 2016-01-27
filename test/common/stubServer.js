@@ -272,6 +272,11 @@ function initStubServer(fileName, port, hostname) {
         res.end(req.headers['x-device']);
     });
 
+    app.get(['/arrayOfPattern1', '/arrayOfPattern2'], function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('arrayOfPattern');
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
