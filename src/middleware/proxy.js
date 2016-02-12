@@ -63,7 +63,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             });
         }
 
-        eventHandler.logger('info', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
+        eventHandler.logger('debug', 'GET ' + req.url, {tracer: req.tracer, referer: referer, remoteIp: remoteIp, userAgent: userAgent});
 
         options = {
           url: targetUrl,
