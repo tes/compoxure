@@ -100,6 +100,11 @@
             "passThroughHeaders": ["x-robots-tag"]
         },
         {
+            "pattern":["/arrayOfPattern1", "/arrayOfPattern2"],
+            "dontPassUrl":false,
+            "target":"{{server:local}}"
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false
