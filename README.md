@@ -382,7 +382,7 @@ If any of the requests to a backend service via cx-url return a 404, then compox
 
 ## Cache-Control header on Responses from Microservices
 
-If a request to a backend service via cx-url returns a response with Cache-Control header set to no-store, this directive takes priority over any otherwise configured caching and response doesn't get cached. Compoxure also copies this header onto the response to the client. This is in efect a form of cache busting from microservice.
+If a request to a backend service via cx-url returns a response with Cache-Control header set to no-store or no-cache, this directive takes priority over any otherwise configured caching and response doesn't get cached. Compoxure also copies this header onto the response to the client; however, transforming it into `no-cache, no-store, must-revalidate`. This is in efect a form of cache busting from microservice.
 
 If a microservice responds with Cache-Control header with a max-age value, then this value takes priority over other caching config and response is cached for max-age time. Header is not copied to client response in this case
 
