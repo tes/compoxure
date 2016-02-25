@@ -125,10 +125,10 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should add no-store cache-control header if any fragments use cx-no-cache', function(done) {
+    it('should add no-cache, no-store, must-revalidate cache-control header if any fragments use cx-no-cache', function(done) {
         var requestUrl = getPageComposerUrl('noCacheBackend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
-            expect(response.headers['cache-control']).to.be.equal('no-store');
+            expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
             done();
         });
     });
@@ -262,9 +262,9 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should pass no-store in Cache-control header from fragment response to client response', function(done) {
+    it('should pass no-cache, no-store, must-revalidate in Cache-control header from fragment response to client response', function(done) {
         request.get(getPageComposerUrl(), function(err, response) {
-            expect(response.headers['cache-control']).to.be.equal('no-store');
+            expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
             done();
         });
     });
