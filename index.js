@@ -1,4 +1,5 @@
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var ware = require('ware');
 
 module.exports = function(config, eventHandler, optionsTransformer) {
@@ -13,7 +14,7 @@ module.exports = function(config, eventHandler, optionsTransformer) {
   var cacheMiddleware = require('reliable-get/CacheMiddleware')(config);
   var selectBackend = require('./src/middleware/backend')(config);
   var rejectUnsupportedMediaType = require('./src/middleware/mediatypes');
-  var passThrough = require('./src/middleware/passthrough');
+  var passThrough = require('./src/middleware/passthrough')(config);
   var interrogateRequest = require('./src/middleware/interrorgator')(config, eventHandler);
   var cleanInvalidUri = require('./src/middleware/invalidurl')(eventHandler);
   var dropFavIcon = require('./src/middleware/favicon');
@@ -27,6 +28,7 @@ module.exports = function(config, eventHandler, optionsTransformer) {
                     .use(rejectUnsupportedMediaType)
                     .use(passThrough)
                     .use(cookieParser)
+                    .use(bodyParser.text({type: 'text/compoxure'}))
                     .use(backendProxyMiddleware);
 
   return function(req, res) {
