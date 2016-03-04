@@ -85,7 +85,7 @@
       debugElement.style.right = '4px';
       debugElement.style.bottom = '4px';
       debugElement.style.width = '380px';
-      debugElement.style.backgroundColor = 'rgba(255, 165, 0, 0.9)';
+      debugElement.style.backgroundColor = 'rgb(251, 216, 151)';
       debugElement.style.padding = '4px';
       debugElement.style.boxShadow = '2px 2px 8px black';
       debugElement.style.fontSize = '12zpx';
@@ -124,6 +124,8 @@
         }
       });
       var infoBox = d.createElement('pre');
+      infoBox.style.background = 'transparent';
+      infoBox.style.margin = '0';
       infoBox.innerHTML = JSON.stringify(info.cxDebugData, undefined, 1);
       debugElement.appendChild(infoBox);
       
