@@ -85,7 +85,7 @@
       debugElement.style.right = '4px';
       debugElement.style.bottom = '4px';
       debugElement.style.width = '380px';
-      debugElement.style.backgroundColor = 'rgba(210, 233, 253, 0.9)';
+      debugElement.style.backgroundColor = 'rgba(255, 165, 0, 0.9)';
       debugElement.style.padding = '4px';
       debugElement.style.boxShadow = '2px 2px 8px black';
       debugElement.style.fontSize = '12zpx';
@@ -116,10 +116,10 @@
           selection.addRange(range);
         }
         else if (isElementNode(node)){
-          var oldOutline = node.style.outline;
-          node.style.outline = 'solid orange 6px';
+          var oldBoxShadow = node.style.boxShadow;
+          node.style.boxShadow = '0px 0px 0px 5px rgba(255, 165, 0, 0.7) inset';
           resetList.push(function () {
-            node.style.outline = oldOutline;
+            node.style.boxShadow = oldBoxShadow;
           });
         }
       });
