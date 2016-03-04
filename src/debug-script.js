@@ -5,6 +5,10 @@
     return n.nodeType === 3;
   }
 
+  function isElementNode(n) {
+    return n.nodeType === 1;
+  }
+
   function getNodeFromPoint(x, y) {
     var range, textNode;
     if (d.caretPositionFromPoint) {
@@ -105,23 +109,22 @@
       selection.removeAllRanges();
       info.cxDebugNodes.forEach(function (node) {
         // add outline
-        if (!isTextNode(node)) {
+        if (isTextNode(node)) {
+          var range = d.createRange();
+          range.setStart(info, 0);
+          range.setEnd(info, node.data.length);
+          selection.addRange(range);
+        }
+        else if (isElementNode(node)){
           var oldOutline = node.style.outline;
           node.style.outline = 'solid orange 6px';
           resetList.push(function () {
             node.style.outline = oldOutline;
           });
         }
-        else {
-          var range = d.createRange();
-          range.setStart(info, 0);
-          range.setEnd(info, node.data.length);
-          selection.addRange(range);
-        }
       });
       var infoBox = d.createElement('pre');
       infoBox.innerHTML = JSON.stringify(info.cxDebugData, undefined, 1);
-      console.log(info.cxDebugData)
       debugElement.appendChild(infoBox);
       
     }
