@@ -10,7 +10,8 @@
             {"pattern": "/pattern/.*-(\\d+)", "names": ["storyId"]}
         ],
         "servers": {
-            "local": "http://localhost:5001"
+            "local": "http://localhost:5001",
+            "local-extension": "http://localhost:5011"
         }
     },
      "backend": [
@@ -103,6 +104,10 @@
             "pattern":["/arrayOfPattern1", "/arrayOfPattern2"],
             "dontPassUrl":false,
             "target":"{{server:local}}"
+        },
+        {
+            "pattern":"/browser-extension",
+            "target":"http://localhost:5011/browser-extension-not-parsed"
         },
         {
             "pattern":".*",

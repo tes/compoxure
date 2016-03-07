@@ -431,3 +431,9 @@ See: http://blog.lavoie.sl/2013/08/varnish-esi-and-cookies.html
 ### 'Front End' server
 
 The final option is to simply build a service that's purpose in life is aggregating backend services together into pages programmatically.  e.g. a controller that calls out to a number of services and passes their combined responses into a view layer in a traditional web app.  The problem with this approach is this server now becomes a single monolithic impediment to fast release cycles, and each of the service wrappers in the front end app will now need to implement circuit breaker and other patterns to ensure this app doesn't die, taking down all of the pages and services it fronts, when any of the underlying servics die.
+
+### Debugging compoxure parsing
+
+To test the parsing functionality using the browser extension: 
+- configuration should have `enableExtension = true` 
+- POST the template string with `Content-Type: text/compoxure` 

@@ -277,6 +277,11 @@ function initStubServer(fileName, port, hostname) {
         res.end('arrayOfPattern');
     });
 
+    app.get('/browser-extension-backend', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('Browser extension working');
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };

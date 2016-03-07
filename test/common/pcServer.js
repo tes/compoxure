@@ -4,9 +4,11 @@ var cx = require('../../');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 
-function initPcServer(port, hostname, eventHandler, configFile) {
+function initPcServer(port, hostname, eventHandler, configFile, enableExtension) {
 
     var config = require('./' + (configFile || 'testConfig') + '.json');
+
+    config.enableExtension = enableExtension;
 
     // Define functions
     config.functions = {
