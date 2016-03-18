@@ -101,6 +101,21 @@
             "passThroughHeaders": ["x-robots-tag"]
         },
         {
+           "name":"noCacheBackendViaFragment",
+           "pattern":"/noCacheBackendViaFragment",
+           "dontPassUrl": false,
+           "target":"{{server:local}}",
+           "passThroughHeaders": ["cache-control"]
+        },
+        {
+           "name":"noCacheBackend",
+           "pattern":"/noCacheBackend",
+           "dontPassUrl": false,
+           "noCache":true,
+           "target":"{{server:local}}",
+           "passThroughHeaders": ["cache-control"]
+        },
+        {
             "pattern":["/arrayOfPattern1", "/arrayOfPattern2"],
             "dontPassUrl":false,
             "target":"{{server:local}}"
