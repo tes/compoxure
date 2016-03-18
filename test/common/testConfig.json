@@ -105,6 +105,12 @@
             "target":"{{server:local}}"
         },
         {
+            "name": "noCacheBackendHeaders",
+            "pattern":"/noCacheBackendHeaders.*",
+            "target":"http://localhost:5001",
+            "noCacheHeaders": "no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0"
+        },
+        {
             "pattern":".*",
             "target":"http://localhost:5001",
             "dontPassUrl": false

@@ -6,10 +6,9 @@ var cookieParser = require('cookie-parser');
 var http = require('http');
 var fs = require('fs');
 var uuid = require('node-uuid');
-var stubServer = {};
 
 // This should probably be made its own project!
-function initStubServer(fileName, port, hostname) {
+function initStubServer(fileName, port/*, hostname*/) {
 
     var app = express();
 
@@ -183,6 +182,12 @@ function initStubServer(fileName, port, hostname) {
     app.get('/noCacheBackend', function(req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
         var backendHtml = fs.readFileSync('./test/common/noCacheBackend.html', { encoding: 'utf8' });
+        res.end(backendHtml);
+    });
+
+    app.get('/noCacheBackendHeaders', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": "no-store"});
+        var backendHtml = fs.readFileSync('./test/common/noCacheBackendHeaders.html', { encoding: 'utf8' });
         res.end(backendHtml);
     });
 

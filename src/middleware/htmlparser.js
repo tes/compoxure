@@ -68,7 +68,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     return (headers['cache-control'] || '').indexOf(value) !== -1;
                 }
                 if (hasCacheControl(headers, 'no-cache') || hasCacheControl(headers, 'no-store')) {
-                    res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
+                    res.setHeader('Cache-Control', req.backend.noCacheHeaders || 'no-cache, no-store, must-revalidate');
                 }
                 if (headers['set-cookie']) {
                   var existingResponseCookies = res.getHeader('set-cookie') || [];
