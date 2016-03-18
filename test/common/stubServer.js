@@ -179,15 +179,21 @@ function initStubServer(fileName, port/*, hostname*/) {
         res.end(backendHtml);
     });
 
-    app.get('/noCacheBackend', function(req, res) {
+    app.get('/noCacheBackendFromFragment', function(req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/noCacheBackend.html', { encoding: 'utf8' });
+        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
         res.end(backendHtml);
     });
 
-    app.get('/noCacheBackendHeaders', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": "no-store"});
-        var backendHtml = fs.readFileSync('./test/common/noCacheBackendHeaders.html', { encoding: 'utf8' });
+    app.get('/noCacheBackend', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": 'no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0'});
+        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
+        res.end(backendHtml);
+    });
+
+    app.get('/noCacheBackendViaFragment', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": 'private'});
+        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
         res.end(backendHtml);
     });
 

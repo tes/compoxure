@@ -105,7 +105,8 @@ These properties configure the backend server that the initial request goes to g
 | contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
 | headers            | An array of header names to specify headers forwarded to the backend server. |
 | noCache            | Do not cache this backend. |
-| noCacheHeaders     | If the backend is not cached, use this string for Cache-Control instead of the default `no-cache, no-store, must-revalidate`. |
+| passThroughHeaders | Pass this array of headers to the client if the backend sets them. E.g., `"passThroughHeaders": ["x-robot-tag","cache-control"]`|
+| addResponseHeaders | Set the response headers in this map always. E.g., `"addResponseHeaders": { "x-robots-tag": "noindex" }`
 
 You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
 
@@ -384,7 +385,7 @@ If any of the requests to a backend service via cx-url return a 404, then compox
 
 ## Cache-Control header on Responses from Microservices
 
-If a request to a backend service via cx-url returns a response with Cache-Control header set to `no-store` or `no-cache`, this directive takes priority over any otherwise configured caching and response doesn't get cached. Compoxure also copies this header onto the response to the client as `no-cache, no-store, must-revalidate`. This can be overridden by using `noCacheHeaders`. This is in effect a form of cache busting from microservice.
+If a request to a backend service via cx-url returns a response with Cache-Control header set to `no-store` or `no-cache`, this directive takes priority over any otherwise configured caching, and the response doesn't get cached. Compoxure also copies this header onto the response to the client as `no-cache, no-store, must-revalidate`. This can be overridden by the backend by using `passThroughHeaders:["cache-control"]"`. This is in effect a form of cache busting from microservice.
 
 If a microservice responds with Cache-Control header with a max-age value, then this value takes priority over other caching config and response is cached for max-age time. Header is not copied to client response in this case
 

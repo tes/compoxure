@@ -100,15 +100,24 @@
             "passThroughHeaders": ["x-robots-tag"]
         },
         {
+           "name":"noCacheBackendViaFragment",
+           "pattern":"/noCacheBackendViaFragment",
+           "dontPassUrl": false,
+           "target":"{{server:local}}",
+           "passThroughHeaders": ["cache-control"]
+        },
+        {
+           "name":"noCacheBackend",
+           "pattern":"/noCacheBackend",
+           "dontPassUrl": false,
+           "noCache":true,
+           "target":"{{server:local}}",
+           "passThroughHeaders": ["cache-control"]
+        },
+        {
             "pattern":["/arrayOfPattern1", "/arrayOfPattern2"],
             "dontPassUrl":false,
             "target":"{{server:local}}"
-        },
-        {
-            "name": "noCacheBackendHeaders",
-            "pattern":"/noCacheBackendHeaders.*",
-            "target":"http://localhost:5001",
-            "noCacheHeaders": "no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0"
         },
         {
             "pattern":".*",

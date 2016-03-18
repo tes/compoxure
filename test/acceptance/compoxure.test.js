@@ -123,17 +123,25 @@ describe("Page Composer", function(){
     });
 
     it('should add no-cache, no-store, must-revalidate cache-control header if any fragments use cx-no-cache', function(done) {
-        var requestUrl = getPageComposerUrl('noCacheBackend');
+        var requestUrl = getPageComposerUrl('noCacheBackendFromFragment');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
             done();
         });
     });
 
-    it('should use backend config noCacheHeaders for Cache-Control header', function(done) {
-        var requestUrl = getPageComposerUrl('noCacheBackendHeaders');
+    it('should pass through cache-control header', function(done) {
+        var requestUrl = getPageComposerUrl('noCacheBackend');
         request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
             expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0');
+            done();
+        });
+    });
+
+    it('should use fragment\'s cache-control header overriding backend', function(done) {
+        var requestUrl = getPageComposerUrl('noCacheBackendViaFragment');
+        request.get(requestUrl,{headers: {'accept': 'text/html'}}, function(err, response) {
+            expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
             done();
         });
     });

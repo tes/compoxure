@@ -67,8 +67,15 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     if (typeof value === 'undefined') { return headers['cache-control']; }
                     return (headers['cache-control'] || '').indexOf(value) !== -1;
                 }
+                // A fragment is telling us to not cache it. We force the entire backend/composed page to not be cached.
                 if (hasCacheControl(headers, 'no-cache') || hasCacheControl(headers, 'no-store')) {
-                    res.setHeader('Cache-Control', req.backend.noCacheHeaders || 'no-cache, no-store, must-revalidate');
+                    // Use the fragment's cache-control header only if we don't already have one from the backend, or
+                    // it does not have no-cache or no-store.
+                    var backendCacheControl = res.getHeader('cache-control');
+                    if (!backendCacheControl || !(hasCacheControl({'cache-control': backendCacheControl}, 'no-cache') ||
+                      hasCacheControl({'cache-control': backendCacheControl}, 'no-store'))) {
+                        res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
+                    }
                 }
                 if (headers['set-cookie']) {
                   var existingResponseCookies = res.getHeader('set-cookie') || [];
