@@ -407,6 +407,91 @@ In the example app it produces:
 200 : 1ms : http://localhost:5001/cdn/service/100/html/top.js.html
 ```
 
+## Statistics
+
+You can add a statisticsHandler to the config functions to allow the underlying parsing engine to provide statistics back to you on each render:
+
+```js
+  'statisticsHandler': function(backend, statistics) {
+      // Store the statistics somewhere for the backend
+  }
+```
+
+An example of the statistics for an example page, showing stats about fragments and bundles rendered:
+
+
+```json
+{
+  "fragments": {
+    "http://localhost:5001/include.html": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/include.html",
+        "cx-cache-key": "shakespeare",
+        "cx-cache-ttl": "10s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/include.html",
+        "cx-cache-key-raw": "shakespeare"
+      }
+    },
+    "http://localhost:5001/dynamic": {
+      "attribs": {
+        "id": "testnocache",
+        "cx-url": "http://localhost:5001/dynamic",
+        "cx-cache-key": "dynamicnocache",
+        "cx-cache-ttl": "10s",
+        "cx-no-cache": "",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/dynamic",
+        "cx-cache-key-raw": "dynamicnocache",
+        "cx-no-cache-raw": "{{#query:nocache}}true{{/query:nocache}}"
+      }
+    },
+    "http://localhost:5001/500": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/500",
+        "cx-cache-key": "500",
+        "cx-cache-ttl": "10s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/500",
+        "cx-cache-key-raw": "500"
+      }
+    },
+    "http://localhost:5001/faulty": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/faulty",
+        "cx-cache-key": "faulty-nocache",
+        "cx-cache-ttl": "0",
+        "cx-timeout": "1s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/faulty",
+        "cx-cache-key-raw": "faulty-nocache"
+      }
+    },
+    "http://localhost:5001/slow": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/slow",
+        "cx-cache-key": "slowservice",
+        "cx-cache-ttl": "10s",
+        "cx-timeout": "20",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/slow",
+        "cx-cache-key-raw": "slowservice"
+      }
+    }
+  },
+  "bundles": {
+    "service|bottom": {
+      "service": "service",
+      "name": "bottom.js"
+    },
+    "service|top": {
+      "service": "service",
+      "name": "top.js"
+    }
+  }
+}
+```
+
 ## Alternatives / Rationale
 
 We built compoxure because it solved a set of problems that alternative solutions didn't quite reach.
@@ -437,6 +522,6 @@ The final option is to simply build a service that's purpose in life is aggregat
 
 ### Debugging compoxure parsing
 
-To test the parsing functionality using the browser extension: 
-- configuration should have `enableExtension = true` 
-- POST the template string with `Content-Type: text/compoxure` 
+To test the parsing functionality using the browser extension:
+- configuration should have `enableExtension = true`
+- POST the template string with `Content-Type: text/compoxure`

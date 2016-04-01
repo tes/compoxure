@@ -29,6 +29,10 @@ config.functions = {
         if (res.headersSent) { return; } // too late to redirect
         res.writeHead(403, {'Content-Type': 'text/html'});
         res.end('CX says no, redirect to: ' + data.redirect + ' , return here: ' + variables['url:href']);
+    },
+    'statisticsHandler': function(backend, statistics) {
+        // Example statistics handler
+        console.log(JSON.stringify(statistics, null, 2));
     }
 }
 config.environment = process.env.NODE_ENV || 'development';

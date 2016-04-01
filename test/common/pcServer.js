@@ -22,6 +22,9 @@ function initPcServer(port, hostname, eventHandler, configFile, enableExtension)
         'handle302': function(req, res, variables, data, options, err) {
             res.writeHead(err.statusCode, {location: err.headers.location});
             res.end('');
+        },
+        'statisticsHandler': function(backend, statistics) {
+            // Example statistics handler
         }
     }
     config.environment = 'test';

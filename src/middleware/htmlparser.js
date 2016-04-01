@@ -163,7 +163,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         }
 
         res.parse = function(data) {
-
             parxer({
                 environment: config.environment,
                 cdn: config.cdn,
@@ -189,11 +188,14 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                 if(err.fragmentErrors) {
                     // TODO: Notify fragment errors to debugger in future
                 }
+                if(err.statistics && config.functions && config.functions.statisticsHandler) {
+                  // Send stats to the stats handler if it is defined
+                  config.functions.statisticsHandler(req.backend, err.statistics);
+                }
                 if (!res.headersSent) {
                     if (req.query && req.query['cx-debug']) {
                       content += _.template(debugTemplate)({fragments: fragmentTimings});
                     }
-
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
                 }
