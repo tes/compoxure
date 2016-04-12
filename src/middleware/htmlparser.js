@@ -5,7 +5,6 @@ var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
 var utils = require('../utils');
 var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
-// var debugTemplate = _.template('<div> <ul> <% _.forEach(fragments, function(f) { %><li><%- f.status + " : " + f.timing + "ms : " + f.url %></li><% }); %> </ul> </div>');
 var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
 var debugScript = '<script>' + fs.readFileSync(path.join(__dirname, '../debug-script.js'), 'utf8') + '</script>';
 var htmlEntities = new (require('html-entities').AllHtmlEntities)();
@@ -216,8 +215,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                 }
                 if (!res.headersSent) {
                     if (req.query && req.query['cx-debug']) {
-                      // content += debugTemplate({fragments: fragmentTimings});
-                      content += debugScript;
+                      content = content.replace('</body>', debugScript + '</body>');
                     }
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
