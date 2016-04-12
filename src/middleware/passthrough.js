@@ -2,10 +2,12 @@ var request = require('request');
 var url = require('url');
 var utils = require('../utils');
 
-module.exports = function(req, res, next) {
+module.exports = function(config) {
+  return function(req, res, next) {
 
     var isPassThrough = function(req) {
       if (!req.backend.passThrough) { return false }
+      if (config.enableExtension && req.method === 'POST' && req.is('text/compoxure')) { return false; }
       if (req.method !== 'GET') { return true; }
       if (req.contentType === 'text/html') { return false; }
       if (req.contentType === 'html') { return false; }
@@ -38,5 +40,5 @@ module.exports = function(req, res, next) {
       next();
 
     }
-
+  }
 }

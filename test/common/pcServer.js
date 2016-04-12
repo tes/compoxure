@@ -4,9 +4,11 @@ var cx = require('../../');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 
-function initPcServer(port, hostname, eventHandler, configFile) {
+function initPcServer(port, hostname, eventHandler, configFile, enableExtension) {
 
     var config = require('./' + (configFile || 'testConfig') + '.json');
+
+    config.enableExtension = enableExtension;
 
     // Define functions
     config.functions = {
@@ -20,6 +22,9 @@ function initPcServer(port, hostname, eventHandler, configFile) {
         'handle302': function(req, res, variables, data, options, err) {
             res.writeHead(err.statusCode, {location: err.headers.location});
             res.end('');
+        },
+        'statisticsHandler': function(backend, statistics) {
+            // Example statistics handler
         }
     }
     config.environment = 'test';

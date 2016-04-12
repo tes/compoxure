@@ -33,7 +33,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                 cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m'),
                 explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache'),
                 explicitNoCache = req.explicitNoCache || (explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false),
-                ignore404 = getCxAttr(fragment, 'cx-ignore-404') === 'true',
+                ignore404 = (getCxAttr(fragment, 'cx-ignore-404') || 'true')  === 'true',
                 ignoreError = getCxAttr(fragment, 'cx-ignore-error'),
                 statsdKey = 'fragment_' + (getCxAttr(fragment, 'cx-statsd-key') || 'unknown'),
                 accept = getCxAttr(fragment, 'cx-accept') || 'text/html',
@@ -71,8 +71,15 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                     if (typeof value === 'undefined') { return headers['cache-control']; }
                     return (headers['cache-control'] || '').indexOf(value) !== -1;
                 }
+                // A fragment is telling us to not cache it. We force the entire backend/composed page to not be cached.
                 if (hasCacheControl(headers, 'no-cache') || hasCacheControl(headers, 'no-store')) {
-                    res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
+                    // Use the fragment's cache-control header only if we don't already have one from the backend, or
+                    // it does not have no-cache or no-store.
+                    var backendCacheControl = res.getHeader('cache-control');
+                    if (!backendCacheControl || !(hasCacheControl({'cache-control': backendCacheControl}, 'no-cache') ||
+                      hasCacheControl({'cache-control': backendCacheControl}, 'no-store'))) {
+                        res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
+                    }
                 }
                 if (headers['set-cookie']) {
                   var existingResponseCookies = res.getHeader('set-cookie') || [];
@@ -178,7 +185,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         }
 
         res.parse = function(data) {
-
             parxer({
                 environment: config.environment,
                 cdn: config.cdn,
@@ -204,12 +210,15 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                 if(err.fragmentErrors) {
                     // TODO: Notify fragment errors to debugger in future
                 }
+                if(err.statistics && config.functions && config.functions.statisticsHandler) {
+                  // Send stats to the stats handler if it is defined
+                  config.functions.statisticsHandler(req.backend, err.statistics);
+                }
                 if (!res.headersSent) {
                     if (req.query && req.query['cx-debug']) {
                       // content += debugTemplate({fragments: fragmentTimings});
                       content += debugScript;
                     }
-
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
                 }

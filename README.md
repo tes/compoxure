@@ -1,8 +1,6 @@
 # Compoxure Composition Middleware
 [![Build Status](https://travis-ci.org/tes/compoxure.svg?branch=master)](https://travis-ci.org/tes/compoxure) [![Dependencies](https://david-dm.org/tes/compoxure.svg)](https://david-dm.org/tes/compoxure) [![Coverage Status](https://img.shields.io/coveralls/tes/compoxure.svg)](https://coveralls.io/r/tes/compoxure?branch=master)
 
-[![NPM](https://nodei.co/npm/compoxure.png?downloads=true)](https://nodei.co/npm/compoxure/)
-
 Composition proxy replacement for ESI or SSI uses [htmlparser2](https://github.com/fb55/htmlparser2/) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
@@ -104,6 +102,9 @@ These properties configure the backend server that the initial request goes to g
 | dontPassUrl        | Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
 | contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
 | headers            | An array of header names to specify headers forwarded to the backend server. |
+| noCache            | Do not cache this backend. |
+| passThroughHeaders | Pass this array of headers to the client if the backend sets them. E.g., `"passThroughHeaders": ["x-robot-tag","cache-control"]`|
+| addResponseHeaders | Set the response headers in this map always. E.g., `"addResponseHeaders": { "x-robots-tag": "noindex" }`
 
 You can define multiple backends, by adding as many declarations for backends as you like, with differing patterns.  The first match wins e.g.
 
@@ -255,7 +256,7 @@ cx-timeout|The timeout to wait for the service to respond.
 cx-no-cache|Explicit instruction to not cache when value value eval's to true, overrides all other cache instruction.
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
-cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page.
+cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page, defaults to TRUE.
 cx-ignore-error|Set to true to ignore all errors (non 200), or provide a comma delimited list to ignore specific errors on this fragment
 
 
@@ -382,7 +383,7 @@ If any of the requests to a backend service via cx-url return a 404, then compox
 
 ## Cache-Control header on Responses from Microservices
 
-If a request to a backend service via cx-url returns a response with Cache-Control header set to no-store or no-cache, this directive takes priority over any otherwise configured caching and response doesn't get cached. Compoxure also copies this header onto the response to the client as `no-cache, no-store, must-revalidate`. This is in effect a form of cache busting from microservice.
+If a request to a backend service via cx-url returns a response with Cache-Control header set to `no-store` or `no-cache`, this directive takes priority over any otherwise configured caching, and the response doesn't get cached. Compoxure also copies this header onto the response to the client as `no-cache, no-store, must-revalidate`. This can be overridden by the backend by using `passThroughHeaders:["cache-control"]"`. This is in effect a form of cache busting from microservice.
 
 If a microservice responds with Cache-Control header with a max-age value, then this value takes priority over other caching config and response is cached for max-age time. Header is not copied to client response in this case
 
@@ -402,6 +403,91 @@ In the example app it produces:
 200 : 114ms : http://localhost:5001/faulty
 200 : 1ms : http://localhost:5001/cdn/service/YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE/html/bottom.js.html
 200 : 1ms : http://localhost:5001/cdn/service/100/html/top.js.html
+```
+
+## Statistics
+
+You can add a statisticsHandler to the config functions to allow the underlying parsing engine to provide statistics back to you on each render:
+
+```js
+  'statisticsHandler': function(backend, statistics) {
+      // Store the statistics somewhere for the backend
+  }
+```
+
+An example of the statistics for an example page, showing stats about fragments and bundles rendered:
+
+
+```json
+{
+  "fragments": {
+    "http://localhost:5001/include.html": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/include.html",
+        "cx-cache-key": "shakespeare",
+        "cx-cache-ttl": "10s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/include.html",
+        "cx-cache-key-raw": "shakespeare"
+      }
+    },
+    "http://localhost:5001/dynamic": {
+      "attribs": {
+        "id": "testnocache",
+        "cx-url": "http://localhost:5001/dynamic",
+        "cx-cache-key": "dynamicnocache",
+        "cx-cache-ttl": "10s",
+        "cx-no-cache": "",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/dynamic",
+        "cx-cache-key-raw": "dynamicnocache",
+        "cx-no-cache-raw": "{{#query:nocache}}true{{/query:nocache}}"
+      }
+    },
+    "http://localhost:5001/500": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/500",
+        "cx-cache-key": "500",
+        "cx-cache-ttl": "10s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/500",
+        "cx-cache-key-raw": "500"
+      }
+    },
+    "http://localhost:5001/faulty": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/faulty",
+        "cx-cache-key": "faulty-nocache",
+        "cx-cache-ttl": "0",
+        "cx-timeout": "1s",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/faulty",
+        "cx-cache-key-raw": "faulty-nocache"
+      }
+    },
+    "http://localhost:5001/slow": {
+      "attribs": {
+        "cx-url": "http://localhost:5001/slow",
+        "cx-cache-key": "slowservice",
+        "cx-cache-ttl": "10s",
+        "cx-timeout": "20",
+        "class": "block",
+        "cx-url-raw": "{{server:local}}/slow",
+        "cx-cache-key-raw": "slowservice"
+      }
+    }
+  },
+  "bundles": {
+    "service|bottom": {
+      "service": "service",
+      "name": "bottom.js"
+    },
+    "service|top": {
+      "service": "service",
+      "name": "top.js"
+    }
+  }
+}
 ```
 
 ## Alternatives / Rationale
@@ -431,3 +517,9 @@ See: http://blog.lavoie.sl/2013/08/varnish-esi-and-cookies.html
 ### 'Front End' server
 
 The final option is to simply build a service that's purpose in life is aggregating backend services together into pages programmatically.  e.g. a controller that calls out to a number of services and passes their combined responses into a view layer in a traditional web app.  The problem with this approach is this server now becomes a single monolithic impediment to fast release cycles, and each of the service wrappers in the front end app will now need to implement circuit breaker and other patterns to ensure this app doesn't die, taking down all of the pages and services it fronts, when any of the underlying servics die.
+
+### Debugging compoxure parsing
+
+To test the parsing functionality using the browser extension:
+- configuration should have `enableExtension = true`
+- POST the template string with `Content-Type: text/compoxure`
