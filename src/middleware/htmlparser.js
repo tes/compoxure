@@ -1,9 +1,12 @@
+var fs = require('fs');
+var path = require('path');
 var parxer = require('parxer').parxer;
 var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
 var utils = require('../utils');
 var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
-var debugTemplate = '<div> <ul> <% _.forEach(fragments, function(f) { %><li><%- f.status + " : " + f.timing + "ms : " + f.url %></li><% }); %> </ul> </div>'
+var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
+var debugScript = '<script>' + fs.readFileSync(path.join(__dirname, '../debug-script.js'), 'utf8') + '</script>';
 var htmlEntities = new (require('html-entities').AllHtmlEntities)();
 
 function getCxAttr(node, name) {
@@ -149,14 +152,32 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
             };
 
+            var isDebugEnabled = function () {
+                return req.query && req.query['cx-debug'];
+            };
+
+            var delimitContent = function (response, options) {
+                var id = _.uniqueId();
+                var data = {
+                  options: options,
+                  status: response.statusCode,
+                  timing: response.timing,
+                };
+                var open_tag = debugScriptTag({data: data, id: id, type: 'open'});
+                var close_tag = debugScriptTag({data: null, id: id, type: 'close'});
+                return open_tag + response.content + close_tag;
+            };
+
             optionsTransformer(req, options, function(err, transformedOptions) {
                 if (err) { return onErrorHandler(err, {}, transformedOptions); }
                 reliableGet.get(transformedOptions, function(err, response) {
+                    var content;
                     if(err) {
                         return onErrorHandler(err, response, transformedOptions);
                     }
                     fragmentTimings.push({ url: options.url, status: response.statusCode, timing: response.timing });
-                    responseCallback(null, response.content, response.headers);
+                    content  = isDebugEnabled() ? delimitContent(response, options) : response.content;
+                    responseCallback(null, content, response.headers);
                 });
             });
 
@@ -194,7 +215,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
                 }
                 if (!res.headersSent) {
                     if (req.query && req.query['cx-debug']) {
-                      content += _.template(debugTemplate)({fragments: fragmentTimings});
+                      content = content.replace('</body>', debugScript + '</body>');
                     }
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end(content);
