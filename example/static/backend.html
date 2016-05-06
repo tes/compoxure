@@ -94,6 +94,7 @@
         &lt;div id=&#039;bundles&#039; cx-bundles=&#039;bottom.js,top.js&#039;&gt;&lt;/div&gt;
     </code>
     <div id='bundles' cx-bundles='service/bottom.js,service/top.js'></div>
+
     <h3>POST etc.</h3>
     <p>Compoxure will directly pass straight through any non GET request to the appropriate backend.</p>
     <div id='testpost' class='block'>
@@ -101,6 +102,30 @@
             Post: <input name="test"></input>
             <button name="submit" type="submit">Submit</button>
         </form>
+    </div>
+
+    <h3>Nested Fragments</h3>
+    <p>Compoxure now runs multiple passes over the fragments returned. Enabling nested fragments</p>
+    <code>
+        &lt;div id='nestedroot' cx-url='{{server:local}}/nestedroot' class='block'&gt;&lt;/div&gt;
+    </code>
+    <br />
+    <br />
+    <code>
+        &lt;div&gt;&lt;p&gt;From the root&lt;/p&gt;&lt;div id=&quot;frag1&quot; cx-url=&quot;{{server:local}}/nestedfrag1&quot; class=&quot;block&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+    </code>
+    <br />
+    <br />
+    <code>
+        &lt;div&gt;&lt;div id=&quot;frag2&quot; cx-url=&quot;{{server:local}}/nestedsub/2&quot; class=&quot;block&quot;&gt;&lt;/div&gt;&lt;div id=&quot;frag3&quot; cx-url=&quot;{{server:local}}/nestedsub/3&quot; class=&quot;block&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+    </code>
+    <br />
+    <br />
+    <code>
+      &lt;div&gt;&lt;p&gt;Another fragment with id: ' + req.params.id + '&lt;/p&gt;&lt;/div&gt;
+    </code>
+    <div id='nestedroot' cx-url='{{server:local}}/nestedroot' class='block'></div>
+
 </body>
 
 </html>
