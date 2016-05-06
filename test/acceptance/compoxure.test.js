@@ -569,11 +569,33 @@ describe("Page Composer", function(){
         });
     });
 
-    it('should allow child cx components', function (done) {
-        var requestUrl = getPageComposerUrl('childComponents');
+    it('should allow & parse an additional fragment', function (done) {
+        var requestUrl = getPageComposerUrl('nested-fragment');
         request.get(requestUrl, {headers: {'accept': 'text/html'}}, function (err, response, content) {
-          
-          done();
+            expect(response.statusCode).to.be(200);
+            var $ = cheerio.load(response.body);
+            var expectedHTML = '<div><h1>Welcome</h1><p>Welcome content</p></div>';
+            expect(response.body).to.be(expectedHTML);
+            expect($('h1').text()).to.be('Welcome');
+            expect($('p').text()).to.be('Welcome content');
+            done();
+        });
+    });
+
+    it('should allow & parse multiple fragments', function (done) {
+        var requestUrl = getPageComposerUrl('multiple-fragment');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function (err, response, content) {
+            var $ = cheerio.load(response.body);
+            var expectedHTML = '<body>' +
+              '<header class="header">Header</header>' +
+              '<main class="main"><p>bla bla bla</p></main>' +
+              '<footer class="footer">Footer</footer>' +
+            '</body>';
+            expect(response.body).to.be(expectedHTML);
+            expect($('.header').text()).to.be('Header');
+            expect($('.main p').text()).to.be('bla bla bla');
+            expect($('.footer').text()).to.be('Footer');
+            done();
         });
     });
 

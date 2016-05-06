@@ -299,19 +299,43 @@ function initStubServer(fileName, port/*, hostname*/) {
         res.end('Browser extension working');
     });
 
-    app.get('/childComponents', function (req, res) {
+    app.get('/nested-fragment', function (req, res) {
         res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div cx-url="{{server:local}}/includebob" cx-replace-outer="true"></div>');
+        res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
     });
 
-    app.get('/includebob', function (req, res) {
-      res.writeHead(200, {"Content-Type": "text/html"});
-      res.end('<div><p>My friend is</p><div cx-url="{{server:local}}/bob" cx-replace-outer="true"></div></div>');
+    app.get('/welcome-fragment', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
     });
 
-    app.get('/bob', function (req, res) {
+    app.get('/fragment-content', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<p>Welcome content</p>');
+    });
+
+    app.get('/multiple-fragment', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/multiple-fragment-content" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/multiple-fragment-content', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<body>' +
+          '<div cx-url="{{server:local}}/header-fragment" cx-replace-outer="true"></div>' +
+          '<main class="main"><p>bla bla bla</p></main>' +
+          '<div cx-url="{{server:local}}/footer-fragment" cx-replace-outer="true"></div>' +
+          '</body>');
+    });
+
+    app.get('/header-fragment', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<header class="header">Header</header>');
+    });
+
+    app.get('/footer-fragment', function (req, res) {
       res.writeHead(200, {"Content-Type": "text/html"});
-      res.end('<div>Bob</div>');
+      res.end('<footer class="footer">Footer</footer>');
     });
 
     return function(next) {
