@@ -569,6 +569,14 @@ describe("Page Composer", function(){
         });
     });
 
+    it('should allow child cx components', function (done) {
+        var requestUrl = getPageComposerUrl('childComponents');
+        request.get(requestUrl, {headers: {'accept': 'text/html'}}, function (err, response, content) {
+          
+          done();
+        });
+    });
+
     context('Browser extension', function() {
         var template =
             "<div id='declarative' cx-replace-outer='true' cx-url='{{server:local}}/replaced' cx-cache-ttl='1' cx-cache-key='replace:declarative:browser-extension' cx-timeout='1s' class='block'>" +

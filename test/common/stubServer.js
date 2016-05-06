@@ -299,6 +299,21 @@ function initStubServer(fileName, port/*, hostname*/) {
         res.end('Browser extension working');
     });
 
+    app.get('/childComponents', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/includebob" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/includebob', function (req, res) {
+      res.writeHead(200, {"Content-Type": "text/html"});
+      res.end('<div><p>My friend is</p><div cx-url="{{server:local}}/bob" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/bob', function (req, res) {
+      res.writeHead(200, {"Content-Type": "text/html"});
+      res.end('<div>Bob</div>');
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
