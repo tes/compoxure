@@ -338,6 +338,31 @@ function initStubServer(fileName, port/*, hostname*/) {
       res.end('<footer class="footer">Footer</footer>');
     });
 
+    app.get('/default-limit', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/fragment1" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/fragment1', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 1</p><div cx-url="{{server:local}}/fragment2" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment2', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 2</p><div cx-url="{{server:local}}/fragment3" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment3', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 3</p><div cx-url="{{server:local}}/fragment4" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment4', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 4</p><div cx-url="{{server:local}}/fragment5" cx-replace-outer="true"</div></div>');
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
