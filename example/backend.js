@@ -50,6 +50,21 @@ server.use(connectRoute(function (router) {
         },100);
     });
 
+    router.get('/nestedroot', function(req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end('<div><p>From the root</p><div id="frag1" cx-url="{{server:local}}/nestedfrag1" class="block"></div></div>')
+    });
+
+    router.get('/nestedfrag1', function(req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end('<div><div id="frag2" cx-url="{{server:local}}/nestedsub/2" class="block"></div><div id="frag3" cx-url="{{server:local}}/nestedsub/3" class="block"></div></div>')
+    });
+
+    router.get('/nestedsub/:id', function(req, res) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end('<div><p>Another fragment with id: ' + req.params.id + '</p></div>')
+    });
+
   	router.get('/slow', function(req, res) {
     	setTimeout(function() {
             res.writeHead(200, {'Content-Type': 'text/html'});

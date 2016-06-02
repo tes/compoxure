@@ -150,5 +150,6 @@
     "cache": {
         "engine": "memorycache"
     },
-    "followRedirect": false
+    "followRedirect": false,
+    "fragmentPasses": 3
 }

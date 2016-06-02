@@ -82,7 +82,8 @@ The configuration object looks as follows:
     "cache": {
         "engine": "redis"
     },
-    "followRedirect": false
+    "followRedirect": false,
+    "fragmentPasses": 5
 }
 ```
 
@@ -238,6 +239,47 @@ The best option here is to use a different delimiter for Compoxure, and this can
 ---------|------------
 delimiters|New delimiter string - e.g. '<% %>'
 
+
+#### Fragment Passes
+
+Compoxure will parse fragments within fragments up to ```fragmentPasses``` deep. If not specified with default to 5.
+
+i.e.
+
+Component1
+```html
+<div>
+  <p>Widget 1</p>
+</div>
+```
+Component2
+```html
+<div>
+  <p>Widget Two</p>
+  <div cx-url='{{server:local}}/application/component1'></div>
+</div>
+```
+Root
+```html
+<body>
+  <div cx-url='{{server:local}}/application/component2'></div>
+</body>
+```
+Result of rendering Root:
+```html
+<body>
+  <div cx-url='{{server:local}}/application/component2'>
+    <div>
+      <p>Widget Two</p>
+      <div cx-url='{{server:local}}/application/component1'>
+        <div>
+          <p>Widget 1</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+```
 
 ### Declarative Parameters
 

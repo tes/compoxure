@@ -299,6 +299,70 @@ function initStubServer(fileName, port/*, hostname*/) {
         res.end('Browser extension working');
     });
 
+    app.get('/nested-fragment', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/welcome-fragment', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment-content', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<p>Welcome content</p>');
+    });
+
+    app.get('/multiple-fragment', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/multiple-fragment-content" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/multiple-fragment-content', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<body>' +
+          '<div cx-url="{{server:local}}/header-fragment" cx-replace-outer="true"></div>' +
+          '<main class="main"><p>bla bla bla</p></main>' +
+          '<div cx-url="{{server:local}}/footer-fragment" cx-replace-outer="true"></div>' +
+          '</body>');
+    });
+
+    app.get('/header-fragment', function (req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<header class="header">Header</header>');
+    });
+
+    app.get('/footer-fragment', function (req, res) {
+      res.writeHead(200, {"Content-Type": "text/html"});
+      res.end('<footer class="footer">Footer</footer>');
+    });
+
+    app.get('/default-limit', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div cx-url="{{server:local}}/fragment1" cx-replace-outer="true"></div>');
+    });
+
+    app.get('/fragment1', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 1</p><div cx-url="{{server:local}}/fragment2" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment2', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 2</p><div cx-url="{{server:local}}/fragment3" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment3', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 3</p><div cx-url="{{server:local}}/fragment4" cx-replace-outer="true"></div></div>');
+    });
+
+    app.get('/fragment4', function(req, res) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end('<div><p>fragment 4</p><div cx-url="{{server:local}}/fragment5" cx-replace-outer="true"</div></div>');
+    });
+
     return function(next) {
         app.listen(port).on('listening', next);
     };
