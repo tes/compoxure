@@ -370,6 +370,18 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<div><p>fragment 4</p><div cx-url="{{server:local}}/fragment5" cx-replace-outer="true"</div></div>');
   });
 
+  app.get('/needs-content', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<html><div id="content" cx-content="home"></div><div id="item" cx-content-item="{{content:foo}}">default</div><div id="tag" cx-content-item="{{content:tag}}">not home</div></html>');
+  });
+
+  app.get('/content/:tag', function (req, res) {
+    res.json({ 
+      tag: req.params.tag, 
+      foo: 'bar' 
+    });
+  });
+
   return function (next) {
     app.listen(port).on('listening', next);
   };
