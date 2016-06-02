@@ -10,364 +10,371 @@ var uuid = require('node-uuid');
 // This should probably be made its own project!
 function initStubServer(fileName, port/*, hostname*/) {
 
-    var app = express();
+  var app = express();
 
-    app.use(cookieParser());
-    app.use(bodyParser.urlencoded({extended: true}));
+  app.use(cookieParser());
+  app.use(bodyParser.urlencoded({ extended: true }));
 
-    app.get('/replaced', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('Replaced');
+  app.get('/replaced', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('Replaced');
+  });
+
+  app.get('/uuid', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one|bundle": "100" });
+    res.end(uuid.v1());
+  });
+
+  app.get('/experiment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(req.query.variant);
+  });
+
+  app.get('/transformer', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(req.query.cacheKey);
+  });
+
+  app.get('/additionalHeaders', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("Check the headers luke");
+  });
+
+  app.get('/passThroughHeaders', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "X-Robots-Tag": "noindex,nofollow" });
+    res.end("Check the headers luke");
+  });
+
+  app.get('/user/:user?', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("User: " + req.params.user || 'Unknown user');
+  });
+
+  app.get('/', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/' + fileName, { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/delayed', function (req, res) {
+    setTimeout(function () {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end("Delayed by 100ms");
+    }, 100);
+  });
+
+  app.get('/timeout', function (req, res) {
+    setTimeout(function () {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end("Delayed by 6seconds");
+    }, 6000);
+  });
+
+  app.get('/500', function (req, res) {
+    res.writeHead(500, { "Content-Type": "text/html" });
+    res.end("500");
+  });
+
+  app.get('/404', function (req, res) {
+    res.writeHead(404, { "Content-Type": "text/html" });
+    res.end("404");
+  });
+
+  var alternate500 = true;
+  app.get('/alternate500', function (req, res) {
+    alternate500 = !alternate500;
+    if (alternate500) {
+      res.writeHead(500, { "Content-Type": "text/html" });
+      res.end("500");
+    } else {
+      res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one|top": "100" });
+      var backendHtml = fs.readFileSync('./test/common/bundle500.html', { encoding: 'utf8' });
+      res.end(backendHtml);
+    }
+  });
+
+  app.get('/403', function (req, res) {
+    res.writeHead(403, { "Content-Type": "text/html" });
+    res.end("403");
+  });
+
+  app.get('/302', function (req, res) {
+    res.writeHead(302, { "location": "/replaced" });
+    res.end("");
+  });
+
+  app.get('/favicon.ico', function (req, res) {
+    res.end("");
+  });
+
+  app.get('/broken', function (req) {
+    req.socket.end();
+  });
+
+  app.get('/millis', function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+    res.end('Millis since epoch:' + Date.now());
+  });
+
+  app.get('/millis-maxage', function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'max-age=1' });
+    res.end('Millis since epoch:' + Date.now());
+  });
+
+  app.get('/faulty', function (req, res) {
+    setTimeout(function () {
+      if (Math.random() > 0.5) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end("Faulty service managed to serve good content!");
+      } else {
+        res.writeHead(500, { "Content-Type": "text/html" });
+        res.end("Faulty service broken");
+      }
+    }, 100);
+  });
+
+  app.get('/intermittentslow', function (req, res) {
+    if (Math.random() > 0.5) {
+      setTimeout(function () {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end("Why is this service sometimes so slow?");
+      }, 2000);
+    } else {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      var largeHtml = fs.readFileSync('./test/common/large.html', { encoding: 'utf8' });
+      res.write(largeHtml);
+      setTimeout(function () {
+        res.end(largeHtml);
+      }, 100);
+    }
+  });
+
+  app.get('/403backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/test403.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/404backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/302backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/test302.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/ignore404backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/donotignore404backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/donotignore404.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/selectFnBackend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/selectFnBackend.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/noCacheBackendFromFragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/noCacheBackend', function (req, res) {
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "Cache-Control": 'no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0'
     });
+    var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
 
-    app.get('/uuid', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|bundle": "100"});
-        res.end(uuid.v1());
+  app.get('/noCacheBackendViaFragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "Cache-Control": 'private' });
+    var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/bundles', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/bundles.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/post', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("GET /post");
+  });
+
+  app.post('/post', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("POST " + req.cookies['PostCookie']);
+  });
+
+  app.get('/differenthost', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(req.headers.host);
+  });
+
+  app.get('/tracer', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers['x-tracer']);
+  });
+
+  app.get('/header/:name', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers[req.params.name]);
+  });
+
+  app.get('/service-one', function (req, res) {
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "x-static|service-one|top": "100",
+      "x-static|service-one": "100"
     });
+    res.end('Service One - I have a bundle, hear me roar.');
+  });
 
-    app.get('/experiment', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(req.query.variant);
-    });
+  app.get('/service-two', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('Service Two - my bundle is superior, but I have no version.');
+  });
 
-    app.get('/transformer', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(req.query.cacheKey);
-    });
+  app.get('/static/:service/:version/html/:file', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(req.params.service + " >> " + req.params.version + " >> " + req.params.file);
+  });
 
-    app.get('/additionalHeaders', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end("Check the headers luke");
-    });
+  app.get('/cookie', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers.cookie);
+  });
 
-    app.get('/passThroughHeaders', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "X-Robots-Tag": "noindex,nofollow"});
-        res.end("Check the headers luke");
-    });
+  app.get('/set-cookie', function (req, res) {
+    res.cookie('hello', 'world');
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end('<div cx-url="{{server:local}}/set-fragment-cookie"></div><div cx-url="{{server:local}}/set-fragment-cookie"></div>');
+  });
 
-    app.get('/user/:user?', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end("User: " + req.params.user || 'Unknown user');
-    });
+  app.get('/set-fragment-cookie', function (req, res) {
+    res.cookie('another', 'cookie');
+    res.cookie('hello', 'again');
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end('Fragment Cookies Set');
+  });
 
-    app.get('/', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/' + fileName, { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/country', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    var geo = req.query ? req.query.geo : undefined;
 
-    app.get('/delayed', function(req, res) {
-        setTimeout(function() {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.end("Delayed by 100ms");
-        },100);
-    });
+    res.end(geo || '');
+  });
 
-    app.get('/timeout', function(req, res) {
-        setTimeout(function() {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.end("Delayed by 6seconds");
-        },6000);
-    });
+  app.get('/lang', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers['accept-language']);
+  });
 
-    app.get('/500', function(req, res) {
-        res.writeHead(500, {"Content-Type": "text/html"});
-        res.end("500");
-    });
+  app.get('/ua', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers['user-agent']);
+  });
 
-    app.get('/404', function(req, res) {
-        res.writeHead(404, {"Content-Type": "text/html"});
-        res.end("404");
-    });
+  app.get('/device', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(req.headers['x-device']);
+  });
 
-    var alternate500 = true;
-    app.get('/alternate500', function(req, res) {
-        alternate500 = !alternate500;
-        if(alternate500) {
-            res.writeHead(500, {"Content-Type": "text/html"});
-            res.end("500");
-        } else {
-            res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100"});
-            var backendHtml = fs.readFileSync('./test/common/bundle500.html', { encoding: 'utf8' });
-            res.end(backendHtml);
-        }
-    });
+  app.get(['/arrayOfPattern1', '/arrayOfPattern2'], function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('arrayOfPattern');
+  });
 
-    app.get('/403', function(req, res) {
-        res.writeHead(403, {"Content-Type": "text/html"});
-        res.end("403");
-    });
+  app.get('/browser-extension-backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('Browser extension working');
+  });
 
-    app.get('/302', function(req, res) {
-       res.writeHead(302, {"location": "/replaced"});
-       res.end("");
-    });
+  app.get('/nested-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
+  });
 
-    app.get('/favicon.ico', function(req, res) {
-        res.end("");
-    });
+  app.get('/welcome-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
+  });
 
-    app.get('/broken', function(req) {
-        req.socket.end();
-    });
+  app.get('/fragment-content', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<p>Welcome content</p>');
+  });
 
-    app.get('/millis', function(req, res) {
-        res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'no-store'});
-        res.end('Millis since epoch:' + Date.now());
-    });
+  app.get('/multiple-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div cx-url="{{server:local}}/multiple-fragment-content" cx-replace-outer="true"></div>');
+  });
 
-    app.get('/millis-maxage', function(req, res) {
-        res.writeHead(200, {'Content-Type': 'text/html', 'Cache-Control': 'max-age=1'});
-        res.end('Millis since epoch:' + Date.now());
-    });
+  app.get('/multiple-fragment-content', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<body>' +
+      '<div cx-url="{{server:local}}/header-fragment" cx-replace-outer="true"></div>' +
+      '<main class="main"><p>bla bla bla</p></main>' +
+      '<div cx-url="{{server:local}}/footer-fragment" cx-replace-outer="true"></div>' +
+      '</body>');
+  });
 
-    app.get('/faulty', function(req, res) {
-         setTimeout(function() {
-            if(Math.random() > 0.5) {
-                res.writeHead(200, {"Content-Type": "text/html"});
-                res.end("Faulty service managed to serve good content!");
-            } else {
-                res.writeHead(500, {"Content-Type": "text/html"});
-                res.end("Faulty service broken");
-            }
-        },100);
-    });
+  app.get('/header-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<header class="header">Header</header>');
+  });
 
-    app.get('/intermittentslow', function(req, res) {
-        if(Math.random() > 0.5) {
-            setTimeout(function() {
-                res.writeHead(200, {"Content-Type": "text/html"});
-                res.end("Why is this service sometimes so slow?");
-            },2000);
-        } else {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            var largeHtml = fs.readFileSync('./test/common/large.html', { encoding: 'utf8' });
-            res.write(largeHtml);
-            setTimeout(function() {
-                res.end(largeHtml);
-            },100);
-        }
-    });
+  app.get('/footer-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<footer class="footer">Footer</footer>');
+  });
 
-    app.get('/403backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/test403.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/default-limit', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div cx-url="{{server:local}}/fragment1" cx-replace-outer="true"></div>');
+  });
 
-    app.get('/404backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/test404.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/fragment1', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><p>fragment 1</p><div cx-url="{{server:local}}/fragment2" cx-replace-outer="true"></div></div>');
+  });
 
-    app.get('/302backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/test302.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/fragment2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><p>fragment 2</p><div cx-url="{{server:local}}/fragment3" cx-replace-outer="true"></div></div>');
+  });
 
-    app.get('/ignore404backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/ignore404.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/fragment3', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><p>fragment 3</p><div cx-url="{{server:local}}/fragment4" cx-replace-outer="true"></div></div>');
+  });
 
-    app.get('/donotignore404backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/donotignore404.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
+  app.get('/fragment4', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><p>fragment 4</p><div cx-url="{{server:local}}/fragment5" cx-replace-outer="true"</div></div>');
+  });
 
-    app.get('/selectFnBackend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/selectFnBackend.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
-
-    app.get('/noCacheBackendFromFragment', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
-
-    app.get('/noCacheBackend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": 'no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0'});
-        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
-
-    app.get('/noCacheBackendViaFragment', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "Cache-Control": 'private'});
-        var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
-
-    app.get('/bundles', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        var backendHtml = fs.readFileSync('./test/common/bundles.html', { encoding: 'utf8' });
-        res.end(backendHtml);
-    });
-
-    app.get('/post', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end("GET /post");
-    });
-
-    app.post('/post', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end("POST " + req.cookies['PostCookie']);
-    });
-
-    app.get('/differenthost', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(req.headers.host);
-    });
-
-    app.get('/tracer', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end(req.headers['x-tracer']);
-    });
-
-    app.get('/header/:name', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain" });
-        res.end(req.headers[req.params.name]);
-    });
-
-    app.get('/service-one', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html", "x-static|service-one|top": "100", "x-static|service-one": "100"});
-        res.end('Service One - I have a bundle, hear me roar.');
-    });
-
-    app.get('/service-two', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('Service Two - my bundle is superior, but I have no version.');
-    });
-
-    app.get('/static/:service/:version/html/:file', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(req.params.service + " >> " + req.params.version + " >> " + req.params.file);
-    });
-
-    app.get('/cookie', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end(req.headers.cookie);
-    });
-
-    app.get('/set-cookie', function(req, res) {
-        res.cookie('hello', 'world');
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end('<div cx-url="{{server:local}}/set-fragment-cookie"></div><div cx-url="{{server:local}}/set-fragment-cookie"></div>');
-    });
-
-    app.get('/set-fragment-cookie', function(req, res) {
-        res.cookie('another', 'cookie');
-        res.cookie('hello', 'again');
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end('Fragment Cookies Set');
-    });
-
-    app.get('/country', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        var geo = req.query ? req.query.geo : undefined;
-
-        res.end(geo || '');
-    });
-
-    app.get('/lang', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end(req.headers['accept-language']);
-    });
-
-    app.get('/ua', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end(req.headers['user-agent']);
-    });
-
-    app.get('/device', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/plain"});
-        res.end(req.headers['x-device']);
-    });
-
-    app.get(['/arrayOfPattern1', '/arrayOfPattern2'], function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('arrayOfPattern');
-    });
-
-    app.get('/browser-extension-backend', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('Browser extension working');
-    });
-
-    app.get('/nested-fragment', function (req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
-    });
-
-    app.get('/welcome-fragment', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
-    });
-
-    app.get('/fragment-content', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<p>Welcome content</p>');
-    });
-
-    app.get('/multiple-fragment', function (req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div cx-url="{{server:local}}/multiple-fragment-content" cx-replace-outer="true"></div>');
-    });
-
-    app.get('/multiple-fragment-content', function (req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<body>' +
-          '<div cx-url="{{server:local}}/header-fragment" cx-replace-outer="true"></div>' +
-          '<main class="main"><p>bla bla bla</p></main>' +
-          '<div cx-url="{{server:local}}/footer-fragment" cx-replace-outer="true"></div>' +
-          '</body>');
-    });
-
-    app.get('/header-fragment', function (req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<header class="header">Header</header>');
-    });
-
-    app.get('/footer-fragment', function (req, res) {
-      res.writeHead(200, {"Content-Type": "text/html"});
-      res.end('<footer class="footer">Footer</footer>');
-    });
-
-    app.get('/default-limit', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div cx-url="{{server:local}}/fragment1" cx-replace-outer="true"></div>');
-    });
-
-    app.get('/fragment1', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div><p>fragment 1</p><div cx-url="{{server:local}}/fragment2" cx-replace-outer="true"></div></div>');
-    });
-
-    app.get('/fragment2', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div><p>fragment 2</p><div cx-url="{{server:local}}/fragment3" cx-replace-outer="true"></div></div>');
-    });
-
-    app.get('/fragment3', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div><p>fragment 3</p><div cx-url="{{server:local}}/fragment4" cx-replace-outer="true"></div></div>');
-    });
-
-    app.get('/fragment4', function(req, res) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end('<div><p>fragment 4</p><div cx-url="{{server:local}}/fragment5" cx-replace-outer="true"</div></div>');
-    });
-
-    return function(next) {
-        app.listen(port).on('listening', next);
-    };
+  return function (next) {
+    app.listen(port).on('listening', next);
+  };
 }
 
 module.exports = {
-    init: initStubServer
+  init: initStubServer
 };

@@ -1,4 +1,4 @@
-module.exports = function(req, res, next) {
+module.exports = function (req, res, next) {
   if (req.url === '/favicon.ico') {
     if (!res.headersSent) {
       res.writeHead(200, {
