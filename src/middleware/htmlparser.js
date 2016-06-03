@@ -204,7 +204,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       };
 
       reliableGet.get(opts, function (err, response) {
-        if (err) { next(err); }
+        if (err) { return next(err); }
         var contentVars;
         try {
           contentVars = JSON.parse(response.content)
