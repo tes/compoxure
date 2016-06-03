@@ -542,7 +542,7 @@ You need to have your CMS expose a simple endpoint that allows you to retrieve a
 
 You configure the base url in the configuration, adding:
 
-```
+```json
 "content": {
   "server": "http://my-cms.tes.com/content/compoxure"
 }
@@ -550,7 +550,7 @@ You configure the base url in the configuration, adding:
 
 You can then add a tag to your page (it can be anywhere, we put it in the head:
 
-```
+```html
 <meta cx-content="home" cx-cache-key="content:home" cx-cache-ttl="30m" />
 ```
 
@@ -558,7 +558,7 @@ This then makes a request to the following url: ```http://my-cms.tes.com/content
 
 Your CMS needs to respond to the GET request with a simple `key: content` map.
 
-```
+```json
 {
 "h1": "This is some CMS managed header text",
 "home_news": "<h3> </h3>\n<h3><a href=\"https://www.tes.com/news\">News</a></h3>\n<p>Get the latest school news - and views - from the trusted home of education journalism</p>\n"
@@ -567,7 +567,7 @@ Your CMS needs to respond to the GET request with a simple `key: content` map.
 
 This content map is then stored for the context of the request, and you can inject the content anywhere in the page:
 
-```
+```html
 <h1 cx-content-item="{{content:h1}}">Default Header</h1>
 ```
 
