@@ -532,6 +532,49 @@ An example of the statistics for an example page, showing stats about fragments 
 }
 ```
 
+## CMS Integration
+
+We have now added a feature that allows you to retrieve and then inject content from a CMS into any page served via compoxure.
+
+You need to have your CMS expose a simple endpoint that allows you to retrieve a batch of content based on a lookup key (e.g. a page name).  The batch is important, to ensure it only makes one very cacheable request for content.
+
+```{{cms-base-url}}/{{context}}```
+
+You configure the base url in the configuration, adding:
+
+```
+"content": {
+  "server": "http://my-cms.tes.com/content/compoxure"
+}
+```
+
+You can then add a tag to your page (it can be anywhere, we put it in the head:
+
+```
+<meta cx-content="home" cx-cache-key="content:home" cx-cache-ttl="30m" />
+```
+
+This then makes a request to the following url: ```http://my-cms.tes.com/content/compoxure/home```.  The `cx-cache-key` and `cx-cache-ttl` parameters are optional, they will get set to sensible defaults (the URL and 5m).
+
+Your CMS needs to respond to the GET request with a simple `key: content` map.
+
+```
+{
+"h1": "This is some CMS managed header text",
+"home_news": "<h3> </h3>\n<h3><a href=\"https://www.tes.com/news\">News</a></h3>\n<p>Get the latest school news - and views - from the trusted home of education journalism</p>\n"
+}
+```
+
+This content map is then stored for the context of the request, and you can inject the content anywhere in the page:
+
+```
+<h1 cx-content-item="{{content:h1}}">Default Header</h1>
+```
+
+If the CMS request fails, and your back end is configured to fail quietly then it will render the default text.
+
+If you need to dump HTML, remember to use the `{{{content:h1}}}` syntax.
+
 ## Alternatives / Rationale
 
 We built compoxure because it solved a set of problems that alternative solutions didn't quite reach.
