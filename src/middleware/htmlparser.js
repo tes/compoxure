@@ -42,7 +42,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           'accept': accept,
           'cx-page-url': templateVars['url:href'],
           'x-tracer': req.tracer
-        }
+        };
 
       if (req.cookies && req.headers.cookie) {
         var whitelist = config.cookies && config.cookies.whitelist;
@@ -189,6 +189,36 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
     }
 
+    function getContent(fragment, next) {
+      var tag = getCxAttr(fragment, 'cx-content');
+      var url = config.content.server + '/' + tag;
+      var cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key');
+      var cacheKey = cacheKeyAttr ? cacheKeyAttr : utils.urlToCacheKey(url);
+      var cacheTTL = utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl') || '1m');
+
+      var opts = {
+        url: url,
+        timeout: config.content.timeout || 5000,
+        cacheKey: cacheKey,
+        cacheTTL: cacheTTL
+      };
+
+      reliableGet.get(opts, function (err, response) {
+        if (err) { return next(err); }
+        var contentVars;
+        try {
+          contentVars = JSON.parse(response.content)
+        } catch (e) {
+          contentVars = {};
+        }
+        _.each(contentVars, function (value, key) {
+          templateVars['content:' + key] = value;
+          templateVars['content:' + key + ':encoded'] = encodeURI(value);
+        });
+        next(null);
+      });
+    }
+
     var parse = function (data, callback) {
       parxer({
         environment: config.environment,
@@ -201,11 +231,13 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.If,
           parxerPlugins.Url(getCx),
           parxerPlugins.Image(),
-          parxerPlugins.Bundle(getCx)
+          parxerPlugins.Bundle(getCx),
+          parxerPlugins.Content(getContent),
+          parxerPlugins.ContentItem
         ],
         variables: templateVars
       }, data, callback);
-    }
+    };
 
     var dealWithStats = function (err) {
       if (err && err.statistics && config.functions && config.functions.statisticsHandler) {

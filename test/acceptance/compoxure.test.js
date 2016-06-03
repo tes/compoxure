@@ -558,6 +558,16 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should add content tags as requested', function (done) {
+    var requestUrl = getPageComposerUrl('needs-content');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      var $ = cheerio.load(content);
+      expect($('#item').text()).to.be.equal('bar');
+      expect($('#tag').text()).to.be.equal('home');
+      done();
+    });
+  });
+
   it('should allow use of variables in a backend target', function (done) {
     var requestUrl = getPageComposerUrl('variabletarget');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
