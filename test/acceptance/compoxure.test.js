@@ -7,6 +7,7 @@ var _ = require('lodash');
 var http = require('http');
 var cheerio = require('cheerio');
 var stubServer = require('../common/stubServer');
+var stubServer2 = require('../common/stubServer2');
 var pcServer = require('../common/pcServer');
 
 describe("Page Composer", function () {
@@ -17,6 +18,7 @@ describe("Page Composer", function () {
   before(function (done) {
     async.series([
       initStubServer,
+      initStubServer2,
       initPageComposer
     ], done);
   });
@@ -32,6 +34,10 @@ describe("Page Composer", function () {
 
   function initStubServer(next) {
     stubServer.init('pageComposerTest.html', 5001, 'localhost')(next);
+  }
+
+  function initStubServer2(next) {
+    stubServer2.init('pageComposerTest.html', 6001, 'localhost')(next);
   }
 
   function initPageComposer(next) {
@@ -648,6 +654,30 @@ describe("Page Composer", function () {
       expect(response.body).to.contain('cx-url="{{server:local}}/fragment5"');
       done();
     });
+  });
+
+  context('x-compoxure-backend headers', function() {
+
+    it('should use allow you to specify a server via x-compoxure-backend headers that has backend config as defaults', function (done) {
+      var requestUrl = getPageComposerUrl('');
+      request.get(requestUrl, { headers: { 'x-compoxure-backend': 'different', 'x-compoxure-backend-target': 'http://localhost:6001', 'accept': 'text/html' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.headers['x-guid']).to.not.be(undefined);
+        expect(response.body).to.be('I am from the second stub server!');
+        done();
+      });
+    });
+
+    it('should use allow you to specify a server via x-compoxure-backend headers that doesnt have backend config', function (done) {
+      var requestUrl = getPageComposerUrl('');
+      request.get(requestUrl, { headers: { 'x-compoxure-backend-target': 'http://localhost:6001', 'accept': 'text/html' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.headers['x-guid']).to.be(undefined);
+        expect(response.body).to.be('I am from the second stub server!');
+        done();
+      });
+    });
+
   });
 
   context('Browser extension', function () {
