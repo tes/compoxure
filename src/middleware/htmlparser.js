@@ -203,8 +203,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         cacheTTL: cacheTTL
       };
 
+      var msg = _.template(errorTemplate);
+
       reliableGet.get(opts, function (err, response) {
-        if (err) { return next(err); }
+        if (err) { return next(msg({ 'err': err.message })); }
         var contentVars;
         try {
           contentVars = JSON.parse(response.content)
