@@ -372,13 +372,18 @@ function initStubServer(fileName, port/*, hostname*/) {
 
   app.get('/needs-content', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end('<html><div id="content" cx-content="home"></div><div id="item" cx-content-item="{{content:foo}}">default</div><div id="tag" cx-content-item="{{content:tag}}">not home</div></html>');
+    res.end('<html><meta cx-content="home"/><div id="item" cx-content-item="{{content:home:foo}}">default</div><div id="tag" cx-content-item="{{content:home:tag}}">not home</div></html>');
+  });
+
+  app.get('/needs-content-no-context', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<html><div id="item" cx-content-item="{{content:home:foo}}">default</div><div id="tag" cx-content-item="{{content:home:tag}}">default</div></html>');
   });
 
   app.get('/content/:tag', function (req, res) {
-    res.json({ 
-      tag: req.params.tag, 
-      foo: 'bar' 
+    res.json({
+      tag: req.params.tag,
+      foo: 'bar'
     });
   });
 

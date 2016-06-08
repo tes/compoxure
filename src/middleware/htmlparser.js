@@ -190,6 +190,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     }
 
     function getContent(fragment, next) {
+
+      var hasContentConfig = config.content && config.content.server;
+      if(!hasContentConfig) { return next(null); }
+
       var tag = getCxAttr(fragment, 'cx-content');
       var url = config.content.server + '/' + tag;
       var cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key');
@@ -214,10 +218,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           contentVars = {};
         }
         _.each(contentVars, function (value, key) {
-          templateVars['content:' + key] = value;
-          templateVars['content:' + key + ':encoded'] = encodeURI(value);
+          templateVars['content:' + tag + ':' + key] = value;
+          templateVars['content:' + tag + ':' + key + ':encoded'] = encodeURI(value);
         });
-        next(null);
+        next(null, '<!-- content ' + tag + ' loaded -->');
       });
     }
 

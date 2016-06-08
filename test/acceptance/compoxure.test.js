@@ -574,6 +574,16 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should ignore content tags if no context', function (done) {
+    var requestUrl = getPageComposerUrl('needs-content-no-context');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      var $ = cheerio.load(content);
+      expect($('#item').text()).to.be.equal('default');
+      expect($('#tag').text()).to.be.equal('default');
+      done();
+    });
+  });
+
   it('should allow use of variables in a backend target', function (done) {
     var requestUrl = getPageComposerUrl('variabletarget');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
