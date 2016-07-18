@@ -20,11 +20,11 @@ module.exports = function (config) {
   return function selectBackend(req, res, next) {
 
     var headerBackend = {
-      name: req.get('x-compoxure-backend'),
-      target: req.get('x-compoxure-backend-target'),
-      ttl: req.get('x-compoxure-backend-ttl'),
-      noCache: req.get('x-compoxure-backend-nocache'),
-      timeout: req.get('x-compoxure-backend-timeout')
+      name: req.get && req.get('x-compoxure-backend'),
+      target: req.get && req.get('x-compoxure-backend-target'),
+      ttl: req.get && req.get('x-compoxure-backend-ttl'),
+      noCache: req.get && req.get('x-compoxure-backend-nocache'),
+      timeout: req.get && req.get('x-compoxure-backend-timeout')
     };
 
     if (config.backend) {
