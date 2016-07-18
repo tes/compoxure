@@ -214,9 +214,17 @@ If you set this property to false, this means that you can write a status code h
 An example handler below (from the Compoxure tests):
 
 ```js
- 'handle302': function(req, res, variables, data, options, err) {
+ 'handle302': function(req, res, variables, data, options, err, responseCallback) {
       res.writeHead(302, {location: err.headers.location});
       res.end('');
+  }
+```
+
+You can use the `responseCallback` function to respond with HTML that would be rendered within any errored fragment:
+
+```js
+ 'handle600': function(req, res, variables, data, options, err, responseCallback) {
+      responseCallback('html to render on any status code of this type');
   }
 ```
 
