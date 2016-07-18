@@ -118,7 +118,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           return responseCallback(msg({ 'err': err.message }));
         }
 
-        // Check to see if we have any statusCode handlers defined, they take first priority
+        // Check to see if we have any statusCode handlers defined
         if (err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
           var handlerDefn = config.statusCodeHandlers[err.statusCode];
           var handlerFn = config.functions && config.functions[handlerDefn.fn];
