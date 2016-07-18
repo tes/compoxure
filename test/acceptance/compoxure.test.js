@@ -104,7 +104,6 @@ describe("Page Composer", function () {
     });
   });
 
-
   it('should return a 404 if any of the fragments have ignore-404 = false', function (done) {
     var requestUrl = getPageComposerUrl('donotignore404backend');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
@@ -391,6 +390,16 @@ describe("Page Composer", function () {
     }, function (err, response, content) {
       expect(response.statusCode).to.be.equal(302);
       expect(response.headers.location).to.be.equal('/replaced');
+      done();
+    });
+  });
+
+  it('should allow handler functions to respond and update fragments', function (done) {
+    request.get(getPageComposerUrl('418backend'), { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be.equal(200);
+      var $ = cheerio.load(response.body);
+      var handledValue = $('#handler').text();
+      expect(handledValue).to.be('Teapot');
       done();
     });
   });

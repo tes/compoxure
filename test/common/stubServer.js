@@ -103,6 +103,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end("");
   });
 
+  app.get('/418', function (req, res) {
+    res.writeHead(418, { "Content-Type": "text/html" });
+    res.end("418");
+  });
+
   app.get('/favicon.ico', function (req, res) {
     res.end("");
   });
@@ -152,6 +157,12 @@ function initStubServer(fileName, port/*, hostname*/) {
   app.get('/403backend', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
     var backendHtml = fs.readFileSync('./test/common/test403.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
+  app.get('/418backend', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    var backendHtml = fs.readFileSync('./test/common/test418.html', { encoding: 'utf8' });
     res.end(backendHtml);
   });
 

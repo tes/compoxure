@@ -31,6 +31,10 @@
       "target": "http://localhost:5001/404backend"
     },
     {
+      "pattern": "/418backend",
+      "target": "http://localhost:5001/418backend"
+    },
+    {
       "pattern": "/alternate500",
       "quietFailure": true,
       "ttl": 1,
@@ -173,6 +177,9 @@
     },
     "302": {
       "fn": "handle302"
+    },
+    "418": {
+      "fn": "handle418"
     }
   },
   "cache": {
