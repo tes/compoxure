@@ -1,6 +1,6 @@
 {
   "name": "compoxure",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Composition proxy middleware for Express, allows for composition of microservices using declarations and caching.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "lint": "jshint .",
     "coveralls": "NODE_ENV=test mocha --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
     "test": "istanbul cover _mocha -- -R spec test/unit/* test/acceptance/* && istanbul check-coverage --statements 90",
-    "precommit":"npm run lint; npm test"
+    "precommit": "npm run lint; npm test"
   },
   "repository": {
     "type": "git",
