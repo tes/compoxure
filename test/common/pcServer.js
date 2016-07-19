@@ -23,6 +23,9 @@ function initPcServer(port, hostname, eventHandler, configFile, enableExtension)
       res.writeHead(err.statusCode, { location: err.headers.location });
       res.end('');
     },
+    'handle418': function(req, res, variables, data, options, err, responseCallback) {
+      responseCallback('<div id="handler">Teapot</div>');
+    },
     'statisticsHandler': function (backend, statistics) {
       // Example statistics handler
     }
