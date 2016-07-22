@@ -58,6 +58,7 @@ The configuration object looks as follows:
         "leaveContentOnFail":false,
         "dontPassUrl":false,
         "passThrough":false,
+        "cacheKey":"{{url:path}}",
         "contentTypes":["html"]
     }],
     "parameters": {
@@ -103,6 +104,7 @@ These properties configure the backend server that the initial request goes to g
 | dontPassUrl        | Used to decide if the URL in the request is passed through to the backend.  Set to true if the backend should ignore the front URL and just serve the same page for all requests (e.g. a fixed template)|
 | contentTypes       | An array of content types which are accepted by this backend. Defaults to `['html']`. See the [accepts](https://www.npmjs.org/package/accepts) documentation regarding how headers are parsed. *Note: The order is important! We recommend that you always put `html` as the first item in the array.* |
 | headers            | An array of header names to specify headers forwarded to the backend server. |
+| cacheKey            | Cache key to use for requests to this backend |
 | noCache            | Do not cache this backend. |
 | passThroughHeaders | Pass this array of headers to the client if the backend sets them. E.g., `"passThroughHeaders": ["x-robot-tag","cache-control"]`|
 | addResponseHeaders | Set the response headers in this map always. E.g., `"addResponseHeaders": { "x-robots-tag": "noindex" }`
@@ -115,6 +117,7 @@ You can define multiple backends, by adding as many declarations for backends as
         "target":"http://www.tes.co.uk",
         "host":"www.tes.co.uk",
         "ttl":"10s",
+        "cacheKey":"{{params:resourceId}}",
         "replaceOuter":false,
         "quietFailure":true
     },
