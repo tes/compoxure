@@ -317,6 +317,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('Browser extension working');
   });
 
+  app.get('/nested-nested-fragment', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div cx-url="{{server:local}}/multiple-fragment" cx-replace-outer="true"></div>');
+  });
+
   app.get('/nested-fragment', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
