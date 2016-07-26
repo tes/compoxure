@@ -84,7 +84,7 @@ The configuration object looks as follows:
         "engine": "redis"
     },
     "followRedirect": false,
-    "fragmentPasses": 5
+    "fragmentDepth": 5
 }
 ```
 
@@ -252,9 +252,9 @@ The best option here is to use a different delimiter for Compoxure, and this can
 delimiters|New delimiter string - e.g. '<% %>'
 
 
-#### Fragment Passes
+#### Nested Fragments
 
-Compoxure will parse fragments within fragments up to ```fragmentPasses``` deep. If not specified with default to 5.
+Compoxure will parse fragments within fragments up to ```fragmentDepth``` deep. If not specified with default to 5. For this to remain performant, a service responding with a fragment containing compoxure directives will need also send a response header of ```cx-parse-me: true```.
 
 i.e.
 
