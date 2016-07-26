@@ -124,6 +124,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           return next(err, content, headers);
         }
 
+        if (!headers || ! headers['cx-parse-me']) {
+          return next(err, content, headers);
+        }
+
         parse(content, depth, function (err, fragmentCount, newDepth, newContent) {
           if (err && err.content) {
             return next(err, content, headers);

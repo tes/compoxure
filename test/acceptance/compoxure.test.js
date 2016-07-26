@@ -693,6 +693,15 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should not parse returned fragments without indicating header', function (done) {
+    var requestUrl = getPageComposerUrl('wont-parse');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be(200);
+      expect(response.body).to.contain('cx-url="{{server:local}}/fragment5"');
+      done();
+    });
+  })
+
   context('x-compoxure-backend headers', function() {
 
     it('should use allow you to specify a server via x-compoxure-backend headers that has backend config as defaults', function (done) {
