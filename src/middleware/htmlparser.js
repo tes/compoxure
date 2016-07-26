@@ -21,7 +21,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     var templateVars = req.templateVars;
     var fragmentTimings = [];
 
-    var parse = function (data, callback) {
+    var parse = function (data, depth, callback) {
+      var newDepth = depth + 1;
+
       parxer({
         environment: config.environment,
         cdn: config.cdn,
@@ -31,18 +33,19 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         plugins: [
           parxerPlugins.Test,
           parxerPlugins.If,
-          parxerPlugins.Url(getCx),
+          parxerPlugins.Url(getCx.bind(this, newDepth)),
           parxerPlugins.Image(),
-          parxerPlugins.Bundle(getCx),
+          parxerPlugins.Bundle(getCx.bind(this, newDepth)),
           parxerPlugins.Content(getContent),
           parxerPlugins.ContentItem
         ],
         variables: templateVars
-      }, data, callback);
+      }, data, function (err, fragmentCount, content) {
+        callback(err, fragmentCount, newDepth, content);
+      });
     };
 
-    function getCx(fragment, next) {
-
+    function getCx(depth, fragment, next) {
       /*jslint evil: true */
       var options,
         start = Date.now(),
@@ -117,7 +120,11 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           return next(err, content, headers);
         }
 
-        parse(content, function (err, fragmentCount, newContent) {
+        if (depth > (config.fragmentDepth || 5)) {
+          return next(err, content, headers);
+        }
+
+        parse(content, depth, function (err, fragmentCount, newDepth, newContent) {
           if (err && err.content) {
             return next(err, content, headers);
           }
@@ -263,7 +270,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     }
 
     res.parse = function (data) {
-      parse(data, function (err, fragmentIndex, content) {
+      parse(data, 0, function (err, fragmentIndex, depth, content) {
         // Overall errors
         if (err && err.content && !res.headersSent) {
           res.writeHead(err.statusCode || 500, { 'Content-Type': 'text/html' });
