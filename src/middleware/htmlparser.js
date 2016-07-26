@@ -3,7 +3,6 @@ var path = require('path');
 var parxer = require('parxer').parxer;
 var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
-var async = require('async');
 var utils = require('../utils');
 var errorTemplate = '<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>';
 var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
@@ -22,8 +21,31 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     var templateVars = req.templateVars;
     var fragmentTimings = [];
 
-    function getCx(fragment, next) {
+    var parse = function (data, depth, callback) {
+      var newDepth = depth + 1;
 
+      parxer({
+        environment: config.environment,
+        cdn: config.cdn,
+        minified: config.minified,
+        showErrors: !req.backend.quietFailure,
+        timeout: utils.timeToMillis(req.backend.timeout || '5000'),
+        plugins: [
+          parxerPlugins.Test,
+          parxerPlugins.If,
+          parxerPlugins.Url(getCx.bind(this, newDepth)),
+          parxerPlugins.Image(),
+          parxerPlugins.Bundle(getCx.bind(this, newDepth)),
+          parxerPlugins.Content(getContent),
+          parxerPlugins.ContentItem
+        ],
+        variables: templateVars
+      }, data, function (err, fragmentCount, content) {
+        callback(err, fragmentCount, newDepth, content);
+      });
+    };
+
+    function getCx(depth, fragment, next) {
       /*jslint evil: true */
       var options,
         start = Date.now(),
@@ -93,7 +115,26 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           utils.updateTemplateVariables(templateVars, headers);
           setResponseHeaders(headers);
         }
-        next(err, content ? content : null, headers);
+
+        if (err || !content) {
+          return next(err, content, headers);
+        }
+
+        if (depth > (config.fragmentDepth || 5)) {
+          return next(err, content, headers);
+        }
+
+        if (!headers || ! headers['cx-parse-me']) {
+          return next(err, content, headers);
+        }
+
+        parse(content, depth, function (err, fragmentCount, newDepth, newContent) {
+          if (err && err.content) {
+            return next(err, content, headers);
+          }
+
+          return next(null, newContent, headers);
+        });
       };
 
       var logError = function (err, message, ignoreError) {
@@ -225,26 +266,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       });
     }
 
-    var parse = function (data, callback) {
-      parxer({
-        environment: config.environment,
-        cdn: config.cdn,
-        minified: config.minified,
-        showErrors: !req.backend.quietFailure,
-        timeout: utils.timeToMillis(req.backend.timeout || '5000'),
-        plugins: [
-          parxerPlugins.Test,
-          parxerPlugins.If,
-          parxerPlugins.Url(getCx),
-          parxerPlugins.Image(),
-          parxerPlugins.Bundle(getCx),
-          parxerPlugins.Content(getContent),
-          parxerPlugins.ContentItem
-        ],
-        variables: templateVars
-      }, data, callback);
-    };
-
     var dealWithStats = function (err) {
       if (err && err.statistics && config.functions && config.functions.statisticsHandler) {
         // Send stats to the stats handler if it is defined
@@ -253,11 +274,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     }
 
     res.parse = function (data) {
-      parse(data, function (err, fragmentIndex, content) {
-        var lastPassFragmentIndex = fragmentIndex;
-        var lastPassContent = content;
-        var rePassCount = 0;
-
+      parse(data, 0, function (err, fragmentIndex, depth, content) {
         // Overall errors
         if (err && err.content && !res.headersSent) {
           res.writeHead(err.statusCode || 500, { 'Content-Type': 'text/html' });
@@ -275,37 +292,16 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             content = content.replace('</body>', debugScript + '</body>');
           }
 
-          async.whilst( // Look for nested fragments
-            function () {
-              return lastPassFragmentIndex > 0 && rePassCount < (config.fragmentPasses || 5);
-            },
-            function (next) {
-              ++rePassCount;
-              parse(lastPassContent, function (err, newPassFragmentIndex, newPassContent) {
-                if (err && err.content) {
-                  return next(err);
-                }
 
-                lastPassFragmentIndex = newPassFragmentIndex;
-                lastPassContent = newPassContent;
+          if (err && err.content && !res.headersSent) {
+            res.writeHead(err.statusCode || 500, { 'Content-Type': 'text/html' });
+            return res.end(err.content);
+          }
 
-                dealWithStats(err);
-
-                return next();
-              });
-            },
-            function (err) {
-              if (err && err.content && !res.headersSent) {
-                res.writeHead(err.statusCode || 500, { 'Content-Type': 'text/html' });
-                return res.end(err.content);
-              }
-
-              if (!res.headersSent) {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(lastPassContent);
-              }
-            }
-          );
+          if (!res.headersSent) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(content);
+          }
         }
       });
     };

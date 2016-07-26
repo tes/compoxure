@@ -666,6 +666,24 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should allow & parse an deep nesting fragments', function (done) {
+    var requestUrl = getPageComposerUrl('nested-nested-fragment');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be(200);
+      var $ = cheerio.load(response.body);
+      var expectedHTML = '<body>' +
+        '<header class="header">Header</header>' +
+        '<main class="main"><p>bla bla bla</p></main>' +
+        '<footer class="footer">Footer</footer>' +
+        '</body>';
+      expect(response.body).to.be(expectedHTML);
+      expect($('.header').text()).to.be('Header');
+      expect($('.main p').text()).to.be('bla bla bla');
+      expect($('.footer').text()).to.be('Footer');
+      done();
+    });
+  });
+
   it('should stop parsing once \`fragmentPasses\` limit is reached', function (done) {
     var requestUrl = getPageComposerUrl('default-limit');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
@@ -674,6 +692,15 @@ describe("Page Composer", function () {
       done();
     });
   });
+
+  it('should not parse returned fragments without indicating header', function (done) {
+    var requestUrl = getPageComposerUrl('wont-parse');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be(200);
+      expect(response.body).to.contain('cx-url="{{server:local}}/fragment5"');
+      done();
+    });
+  })
 
   context('x-compoxure-backend headers', function() {
 

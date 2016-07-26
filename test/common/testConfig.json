@@ -186,5 +186,5 @@
     "engine": "memorycache"
   },
   "followRedirect": false,
-  "fragmentPasses": 3
+  "fragmentDepth": 3
 }
