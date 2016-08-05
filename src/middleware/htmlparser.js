@@ -30,6 +30,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         minified: config.minified,
         showErrors: !req.backend.quietFailure,
         timeout: utils.timeToMillis(req.backend.timeout || '5000'),
+        parserTimeout: utils.timeToMillis(req.backend.parserTimeout || '5000'),
         plugins: [
           parxerPlugins.Test,
           parxerPlugins.If,
