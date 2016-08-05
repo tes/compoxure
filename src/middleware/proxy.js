@@ -97,7 +97,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           var handlerDefn = config.statusCodeHandlers[err.statusCode];
           var handlerFn = config.functions && config.functions[handlerDefn.fn];
           if (handlerFn) {
-            return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err);
+            return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err, res.parse);
           }
         }
 
