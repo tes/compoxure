@@ -262,9 +262,24 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('Service Two - my bundle is superior, but I have no version.');
   });
 
+  app.get('/service-resolved', function (req, res) {
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "x-static|service-resolved|top": "123",
+      "x-static|service-resolved": "123"
+    });
+    res.end('Service resolved - I have a bundle, hear me roar - over there.');
+  });
+
+
   app.get('/static/:service/:version/html/:file', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(req.params.service + " >> " + req.params.version + " >> " + req.params.file);
+  });
+
+  app.get('/resolved-static/:service/:version/html/:file', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('RESOLVED ' + req.params.service + " >> " + req.params.version + " >> " + req.params.file);
   });
 
   app.get('/cookie', function (req, res) {

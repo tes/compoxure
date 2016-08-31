@@ -44,6 +44,13 @@ function initPcServer(port, hostname, eventHandler, configFile, enableExtension)
     next(null, options);
   }
 
+  // Add CDN resolver
+  config.cdn.resolver = function(service) {
+    if (service === 'service-resolved') {
+      return 'http://localhost:5001/resolved-static/';
+    }
+  }
+
   var compoxureMiddleware = cx(config, eventHandler, optionsTransformer);
 
   var server = express();
