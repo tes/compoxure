@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+    - "6379:6379"
+  compoxure:
+    build: .
+    restart: always
+    environment:
+    - NODE_ENV=development
+    depends_on:
+    - redis
+    ports:
+    - "5000:5000"
+    - "5001:5001"
+    volumes:
+    - .:/app
+    - /app/node_modules
+    command: 'node example/index.js'
