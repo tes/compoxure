@@ -10,8 +10,7 @@ For rationale (e.g. why the heck would anyone build this), please see the ration
 ```bash
 git clone git@github.com:tes/compoxure.git
 cd compoxure
-npm install
-node example
+docker-compose up
 ```
 Visit [http://localhost:5000/](http://localhost:5000/)
 

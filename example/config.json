@@ -49,11 +49,11 @@
         "errorThreshold": 20,
         "volumeThreshold": 5,
         "includePath":true,
-        "publishToRedis":"redis://localhost:6379?db=0"
+        "publishToRedis":"redis://redis:6379?db=0"
     },
     "cache": {
         "engine": "redis",
-        "url":"redis://localhost:6379?db=0",
+        "url":"redis://redis:6379?db=0",
         "apiEnabled": true
     },
     "hogan": {

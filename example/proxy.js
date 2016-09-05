@@ -46,7 +46,7 @@ server.use(query());
 if (process.env.logging !== 'false') { server.use(morgan('combined')); }
 server.use(compoxureMiddleware);
 
-server.listen(5000, 'localhost', function () {
+server.listen(5000, function () {
   console.log('Example compoxure server on http://localhost:5000');
 });
 
