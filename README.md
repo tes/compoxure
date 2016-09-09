@@ -416,6 +416,18 @@ This works in the following way:
  * If no header is supplied by the service, it will revert to 'default'.
  * If you include https://github.com/tes/bundle-version middleware this can all be handled for you.
 
+### Common errors with including bundles
+
+#### 1.  You are including a bundle for a service but not including a fragment for the service in the page.
+
+Compoxure is able to convert `service-one/main.js` into an actual full, versioned, CDN based url only if there is a fragment from that service included in the page.  This is because it is only the service itself that knows which version of itself is deployed, and it responds with the bundle name and version in the headers of the response it makes to compoxure.  This information is cached in the context of the response, and used to generate the full bundle URLs.
+
+TL;DR - if you want to use a bundle from `service-a` you *must* be including a fragment (via `cx-url`) in the same page.  If you aren't for any reason, you can create a dummy endpoint - e.g. something that returns an empty string or comment, and request that in the page to ensure that the version for the bundles are available.
+
+#### 2.  You are including a bundle that doesn't exist from a service (e.g. isn't exported in the bosco-service.json).
+
+Similar to above, you must use the correct bundle name as exported in the services bosco-service.json.  It is case sensitive.
+
 ## Images
 
 In addition to bundles, you can use a directive to get access to images from a service that also respect the service version and cdn url.
