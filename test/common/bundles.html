@@ -3,11 +3,18 @@
         <div class='bundle' cx-bundles='service-one/top.js,service-two/top.js'>
             This fragment should include the bundles described with the version specified by the service response.
         </div>
+        <div class='resolved-bundle' cx-bundles='service-resolved/top.js'>
+            This fragment should include the bundles described with the version specified by the service response.
+        </div>
         <img class='image' cx-src='service-one/image.png' />
+        <img class='resolved-image' cx-src='service-resolved/image.png' />
         <div id='declarative1' cx-url='{{server:local}}/service-one' class='block'>
             Content
         </div>
         <div id='declarative2' cx-url='{{server:local}}/service-two' class='block'>
+            Content
+        </div>
+        <div id='declarative3' cx-url='{{server:local}}/service-resolved' class='block'>
             Content
         </div>
     </body>

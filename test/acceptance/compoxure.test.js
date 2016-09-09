@@ -495,6 +495,17 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should retrieve bundles via the cx-bundle directive and use cdn resolution if provided', function (done) {
+    var requestUrl = getPageComposerUrl('bundles');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.statusCode).to.be(200);
+      var $ = cheerio.load(response.body);
+      var bundles = $('.resolved-bundle');
+      expect($(bundles[0]).text()).to.be('RESOLVED service-resolved >> 123 >> top.js.html');
+      done();
+    });
+  });
+
   it('should retrieve images via the cx-src directive and cdn configuration using service supplied version numbers if appropriate', function (done) {
     var requestUrl = getPageComposerUrl('bundles');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
@@ -502,6 +513,17 @@ describe("Page Composer", function () {
       var $ = cheerio.load(response.body);
       var image = $('.image');
       expect(image['0'].attribs.src).to.be('http://localhost:5001/static/service-one/100/img/image.png');
+      done();
+    });
+  });
+
+  it('should retrieve images via the cx-src directive and use cdn resolution if provided', function (done) {
+    var requestUrl = getPageComposerUrl('bundles');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.statusCode).to.be(200);
+      var $ = cheerio.load(response.body);
+      var image = $('.resolved-image');
+      expect(image['0'].attribs.src).to.be('http://localhost:5001/resolved-static/service-resolved/123/img/image.png');
       done();
     });
   });

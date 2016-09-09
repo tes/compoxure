@@ -179,7 +179,20 @@ The configuration here is passed through to the services via two headers:
 |Property|Description|
 ---------|------------
 host|The hostname of the CDN - e.g. cdn.tes.co.uk
-url|Full url - e.g. https://cdn.tes.co.uk/assets/
+url|Full url - e.g. https://cdn.tes.co.uk/assets/ - required
+resolver|Resolver function (see below)
+
+If you provider a resolver function, it needs to be of the form:
+
+```js
+config.cdn.resolver = function(service) {
+  if (service = 'one') {
+    return 'https://base.cdn.path/';
+  }
+}
+```
+
+This allows you to lookup the CDN to use for a specific bundle based on the name of the service (however you choose to).  You must still pass the default url, as this is the fallback.
 
 #### Status Code Handlers
 
