@@ -528,6 +528,16 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should parse cx-library tags', function (done) {
+    request.get(getPageComposerUrl(), { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.statusCode).to.be(200);
+      var $ = cheerio.load(response.body);
+      var library = $('#library script');
+      expect(library['0'].attribs.src).to.be('http://localhost:5001/static/vendor/lib/bootstrap-0.3.0.js');
+      done();
+    });
+  });
+
   it('should use allow you to specify a host over-ride to use instead of the target host', function (done) {
     var requestUrl = getPageComposerUrl('differenthost');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

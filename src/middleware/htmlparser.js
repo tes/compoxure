@@ -38,7 +38,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.Image(),
           parxerPlugins.Bundle(getCx.bind(this, newDepth)),
           parxerPlugins.Content(getContent),
-          parxerPlugins.ContentItem
+          parxerPlugins.ContentItem,
+          parxerPlugins.Library
         ],
         variables: templateVars
       }, data, function (err, fragmentCount, content) {
