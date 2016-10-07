@@ -533,7 +533,7 @@ describe("Page Composer", function () {
       expect(response.statusCode).to.be(200);
       var $ = cheerio.load(response.body);
       var library = $('#library script');
-      expect(library['0'].attribs.src).to.be('http://localhost:5001/static/vendor/lib/bootstrap-0.3.0.js');
+      expect(library['0'].attribs.src).to.be('http://localhost:5001/static/vendor/library/bootstrap-0.3.0.js');
       done();
     });
   });
