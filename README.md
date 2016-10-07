@@ -441,6 +441,27 @@ TL;DR - if you want to use a bundle from `service-a` you *must* be including a f
 
 Similar to above, you must use the correct bundle name as exported in the services bosco-service.json.  It is case sensitive.
 
+## Libraries
+
+If you want to copy common libraries up to your CDN (e.g. via Bosco), but have the versioning managed by those libaries, there is a directive for that.
+
+```
+<script async="true" cx-library='bootstrap-0.3.0/bootstrap-0.3.0.js'></script>
+<link cx-library='bootstrap-0.3.0/bootstrap-0.3.0.css' media="all" rel="stylesheet"/>
+```
+
+This will resolve the `src` or `href` properties to:
+
+```
+{{cdn:url}}/{{environment:name}}/vendor/library/{{library}}
+```
+
+e.g.
+
+```
+https://duqxiy1o2cbw6.cloudfront.net/tes/vendor/library/bootstrap-3.2.0.min.css
+```
+
 ## Images
 
 In addition to bundles, you can use a directive to get access to images from a service that also respect the service version and cdn url.
