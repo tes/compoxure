@@ -148,7 +148,14 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             }
             setAdditionalHeaders();
             passThroughHeaders(response.headers);
-            res.parse(response.content);
+            if ('cx-template' in response.headers) {
+
+              reliableGet.get({ url: response.headers['cx-template'] }, function (err, response) {
+                res.parse(response.content);
+              });
+            } else {
+              res.parse(response.content);
+            }
           }
         });
       });

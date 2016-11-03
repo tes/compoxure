@@ -18,6 +18,14 @@ server.use(bodyParser.urlencoded({ extended: false }))
 
 server.use(connectRoute(function (router) {
 
+  router.get('/backend-layout', function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/html', 'cx-template': 'http://localhost:5001/layout.html' });
+    var content = ['<p>This is not the layout</p>',
+      '<p cx-use-slot="slot1">Slot 1</p>',
+      '<p cx-use-slot="slot2">Slot 2</p>'].join('\n')
+    res.end(content);
+  });
+
   router.get('/dynamic', function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html', 'x-static|service|top': '100' });
     res.end('This is some dynamic comment: ' + (new Date()));
