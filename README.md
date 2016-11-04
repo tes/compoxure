@@ -10,7 +10,7 @@ For rationale (e.g. why the heck would anyone build this), please see the ration
 ```bash
 git clone git@github.com:tes/compoxure.git
 cd compoxure
-docker-compose up
+npm run start
 ```
 Visit [http://localhost:5000/](http://localhost:5000/)
 
@@ -263,6 +263,42 @@ The best option here is to use a different delimiter for Compoxure, and this can
 ---------|------------
 delimiters|New delimiter string - e.g. '<% %>'
 
+#### Layout engine
+You can use this feature to push some sections of a template in a layout. You have to send an header ```cx-template: http://www.example.com/layout.html```. The layout should contain some slot definition:
+```html
+...
+<h1>I am the layout</h1>
+<div cx-define-slot="slot1">
+  <p>Default content of the slot 1</p>
+</div>
+...
+<div cx-define-slot="slot2">
+  <p>Default content of the slot 2</p>
+</div>
+...
+```
+The requested template can fill these slots:
+```html
+...
+<div cx-use-slot="slot1">
+  <p>This is the content of slot 1</p>
+</div>
+...
+```
+If a slot is not provided the default content will be used.
+So this will be output:
+```html
+...
+<h1>I am the layout</h1>
+<div>
+  <p>This is the content of slot 1</p>
+</div>
+...
+<div>
+  <p>Default content of the slot 2</p>
+</div>
+...
+```
 
 #### Nested Fragments
 

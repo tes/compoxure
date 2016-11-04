@@ -39,6 +39,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.Bundle(getCx.bind(this, newDepth)),
           parxerPlugins.Content(getContent),
           parxerPlugins.ContentItem,
+          parxerPlugins.DefineSlot,
           parxerPlugins.Library
         ],
         variables: templateVars
