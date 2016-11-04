@@ -39,7 +39,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.Bundle(getCx.bind(this, newDepth)),
           parxerPlugins.Content(getContent),
           parxerPlugins.ContentItem,
-          parxerPlugins.DefineSlot,
+          parxerPlugins.DefineSlot(getSlot),
           parxerPlugins.Library
         ],
         variables: templateVars
@@ -47,6 +47,19 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         callback(err, fragmentCount, newDepth, content);
       });
     };
+
+    function getSlot(fragment, next) {
+      var slotName = getCxAttr(fragment, 'cx-define-slot');
+      var content = templateVars.slots[slotName];
+      parse(content, 0, function (err, fragmentCount, newDepth, newContent) {
+        if (err && err.content) {
+          return next(err, content);
+        }
+
+        return next(null, newContent);
+      });
+    }
+
 
     function getCx(depth, fragment, next) {
       /*jslint evil: true */
@@ -277,8 +290,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     }
 
     res.parse = function (data) {
-
-
 
       parse(data, 0, function (err, fragmentIndex, depth, content) {
         // Overall errors

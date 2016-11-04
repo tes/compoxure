@@ -151,7 +151,6 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             setAdditionalHeaders();
             passThroughHeaders(response.headers);
             if ('cx-layout' in response.headers) {
-              res.setHeader('cx-parse-me', true);
               // extract slots from original html
               extractSlots(response.content, function (err, slots) {
                 req.templateVars.slots =  slots;
