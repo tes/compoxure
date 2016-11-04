@@ -19,10 +19,15 @@ server.use(bodyParser.urlencoded({ extended: false }))
 server.use(connectRoute(function (router) {
 
   router.get('/backend-layout', function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/html', 'cx-template': 'http://localhost:5001/layout.html' });
+    res.writeHead(200, { 'Content-Type': 'text/html', 'cx-template': '{{server:local}}/layout.html' });
     var content = ['<p>This is not the layout</p>',
       '<p cx-use-slot="slot1">Slot 1</p>',
-      '<p cx-use-slot="slot2">Slot 2</p>'].join('\n')
+      '<p cx-use-slot="slot2">Slot 2</p>',
+      '<div cx-use-slot="slot4">',
+        '<div cx-url="{{server:local}}/include.html" cx-cache-key="shakespeare" cx-cache-ttl="10s" class="block">',
+            'This will be replaced with some simple content that is cached if a cache is configured.',
+        '</div>',
+      '</div>'].join('\n');
     res.end(content);
   });
 

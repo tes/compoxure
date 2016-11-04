@@ -5,6 +5,7 @@ var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var url = require('url');
 var extractSlots = require('../extract-slots');
+var Core = require('parxer/lib/core');
 
 module.exports = function backendProxyMiddleware(config, eventHandler, optionsTransformer) {
 
@@ -150,11 +151,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             setAdditionalHeaders();
             passThroughHeaders(response.headers);
             if ('cx-template' in response.headers) {
+              res.setHeader('cx-parse-me', true);
+              // response.headers['cx-parse-me'] = true;
               // extract slots from original html
               extractSlots(response.content, function (err, slots) {
                 req.templateVars.slots =  slots;
                 // get the layout
-                reliableGet.get({ url: response.headers['cx-template'] }, function (err, response) {
+                reliableGet.get({ url: Core.render(response.headers['cx-template'], req.templateVars) }, function (err, response) {
                   res.parse(response.content);
                 });
               });
