@@ -150,14 +150,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             }
             setAdditionalHeaders();
             passThroughHeaders(response.headers);
-            if ('cx-template' in response.headers) {
+            if ('cx-layout' in response.headers) {
               res.setHeader('cx-parse-me', true);
-              // response.headers['cx-parse-me'] = true;
               // extract slots from original html
               extractSlots(response.content, function (err, slots) {
                 req.templateVars.slots =  slots;
                 // get the layout
-                reliableGet.get({ url: Core.render(response.headers['cx-template'], req.templateVars) }, function (err, response) {
+                reliableGet.get({ url: Core.render(response.headers['cx-layout'], req.templateVars) }, function (err, response) {
                   res.parse(response.content);
                 });
               });

@@ -19,7 +19,7 @@ server.use(bodyParser.urlencoded({ extended: false }))
 server.use(connectRoute(function (router) {
 
   router.get('/backend-layout', function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/html', 'cx-template': '{{server:local}}/layout.html' });
+    res.writeHead(200, { 'Content-Type': 'text/html', 'cx-layout': '{{server:local}}/layout.html'});
     var content = ['<p>This is not the layout</p>',
       '<p cx-use-slot="slot1">Slot 1</p>',
       '<p cx-use-slot="slot2">Slot 2</p>',

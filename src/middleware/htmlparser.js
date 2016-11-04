@@ -277,6 +277,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     }
 
     res.parse = function (data) {
+
+
+
       parse(data, 0, function (err, fragmentIndex, depth, content) {
         // Overall errors
         if (err && err.content && !res.headersSent) {
