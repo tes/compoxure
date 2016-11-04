@@ -102,7 +102,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         }
 
         if (req.backend.quietFailure && oldCacheData) {
-          req.templateVars = utils.updateTemplateVariables(req.templateVars, oldCacheData.headers);
+          var newTemplateVars = utils.formatTemplateVariables(oldCacheData.headers);
+          req.templateVars = _.assign(req.templateVars, newTemplateVars);
           res.parse(oldCacheData.content);
           logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey + ' : ' + err.message);
         } else {
@@ -142,7 +143,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           if (err) {
             handleError(err, response);
           } else {
-            req.templateVars = utils.updateTemplateVariables(req.templateVars, response.headers);
+            var newTemplateVars = utils.formatTemplateVariables(response.headers);
+            req.templateVars = _.assign(req.templateVars, newTemplateVars);
             if (response.headers['set-cookie']) {
               res.setHeader('set-cookie', response.headers['set-cookie']);
             }
