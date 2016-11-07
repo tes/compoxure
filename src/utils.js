@@ -44,21 +44,21 @@ function urlToCacheKey(url) {
   return url;
 }
 
-function updateTemplateVariables(templateVars, variables) {
+function formatTemplateVariables(variables) {
+  return _.reduce(variables, function (result, variable, cxKey) {
+    if (cxKey.indexOf('x-') === -1) {
+      return result;
+    }
 
-  _.each(_.filter(_.keys(variables), function (key) {
-    if (key.indexOf('x-') >= 0) { return true; }
-  }), function (cxKey) {
+    var strippedKey = cxKey.replace('x-', '');
+    var variableKey = strippedKey.split('|')[0];
+    var variableName = strippedKey.replace(variableKey + '|', '');
 
-    var variable = variables[cxKey],
-      strippedKey = cxKey.replace('x-', ''),
-      variableKey = strippedKey.split('|')[0],
-      variableName = strippedKey.replace(variableKey + '|', '');
+    result[variableKey + ':' + variableName] = variable;
+    result[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
 
-    templateVars[variableKey + ':' + variableName] = variable;
-    templateVars[variableKey + ':' + variableName + ':encoded'] = encodeURI(variable);
-  });
-  return templateVars;
+    return result;
+  }, {});
 }
 
 function filterCookies(whitelist, cookies) {
@@ -76,6 +76,6 @@ module.exports = {
   urlToCacheKey: urlToCacheKey,
   cacheKeytoStatsd: cacheKeytoStatsd,
   render: require('parxer').render,
-  updateTemplateVariables: updateTemplateVariables,
+  formatTemplateVariables: formatTemplateVariables,
   filterCookies: filterCookies
 };
