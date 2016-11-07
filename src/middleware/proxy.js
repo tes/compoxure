@@ -4,6 +4,8 @@ var HtmlParserProxy = require('./htmlparser');
 var HttpStatus = require('http-status-codes');
 var ReliableGet = require('reliable-get');
 var url = require('url');
+var extractSlots = require('../extract-slots');
+var Core = require('parxer/lib/core');
 
 module.exports = function backendProxyMiddleware(config, eventHandler, optionsTransformer) {
 
@@ -140,6 +142,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         }
 
         reliableGet.get(transformedOptions, function (err, response) {
+          var layoutUrl;
           if (err) {
             handleError(err, response);
           } else {
@@ -150,7 +153,23 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             }
             setAdditionalHeaders();
             passThroughHeaders(response.headers);
-            res.parse(response.content);
+            if ('cx-layout' in response.headers) {
+              // extract slots from original html
+              extractSlots(response.content, function (err, slots) {
+                req.templateVars.slots =  slots;
+                layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
+                // get the layout
+                reliableGet.get({
+                  url: layoutUrl,
+                  cacheKey: 'layout: '+ layoutUrl,
+                  cacheTTL: 60000 * 5 // 5 mins
+                }, function (err, response) {
+                  res.parse(response.content);
+                });
+              });
+            } else {
+              res.parse(response.content);
+            }
           }
         });
       });

@@ -87,6 +87,18 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       });
     }
 
+    function getSlot(fragment, next) {
+      var slotName = getCxAttr(fragment, 'cx-define-slot');
+      var content = templateVars.slots[slotName];
+      parxer(getParxerOpts(0), content, function (parxerErr, fragmentCount, newContent) {
+        if (parxerErr && parxerErr.content) {
+          return next(parxerErr, content);
+        }
+
+        return next(null, newContent);
+      });
+    }
+
     function getCookie() {
       if (req.cookies && req.headers.cookie) {
         var whitelist = config.cookies && config.cookies.whitelist;
@@ -268,6 +280,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.Bundle(getCx),
           parxerPlugins.Content(getContent),
           parxerPlugins.ContentItem,
+          parxerPlugins.DefineSlot(getSlot),
           parxerPlugins.Library
         ],
         variables: templateVars
