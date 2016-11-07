@@ -141,6 +141,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         }
 
         reliableGet.get(transformedOptions, function (err, response) {
+          var layoutUrl;
           if (err) {
             handleError(err, response);
           } else {
@@ -154,8 +155,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
               // extract slots from original html
               extractSlots(response.content, function (err, slots) {
                 req.templateVars.slots =  slots;
+                layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
                 // get the layout
-                reliableGet.get({ url: Core.render(response.headers['cx-layout'], req.templateVars) }, function (err, response) {
+                reliableGet.get({
+                  url: layoutUrl,
+                  cacheKey: 'layout: '+ layoutUrl,
+                  cacheTTL: 60000 * 5 // 5 mins
+                }, function (err, response) {
                   res.parse(response.content);
                 });
               });
