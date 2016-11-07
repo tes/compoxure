@@ -41,7 +41,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
   }
 
   function getCdnUrl() {
-    if (config.cdn.host) {
+    if (config.cdn.url) {
       return config.cdn.url;
     }
   }
