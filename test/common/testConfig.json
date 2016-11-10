@@ -137,6 +137,16 @@
       ]
     },
     {
+      "name": "noCacheBackend",
+      "pattern": "/set-cookie",
+      "noCache": true,
+      "dontPassUrl": false,
+      "target": "{{server:local}}",
+      "passThroughHeaders": [
+        "cache-control"
+      ]
+    },
+    {
       "pattern": [
         "/arrayOfPattern1",
         "/arrayOfPattern2"

@@ -3,7 +3,7 @@
         <div id='declarative' cx-url='{{server:local}}/replaced' cx-cache-ttl='1' cx-cache-key='replace:declarative:me' cx-timeout='1s' class='block'>
             Content to be replaced via a directive
         </div>
-        <div id='declarativeStale' cx-url='{{server:local}}/500' cx-cache-ttl='1' cx-cache-key='replace:declarative:me' cx-timeout='1s' class='block'>
+        <div id='declarativeStale' cx-url='{{server:local}}/500' cx-cache-ttl='1' cx-cache-key='replace:declarative:me:500' cx-timeout='1s' class='block'>
             Content should be replaced by stale content
         </div>
         <div id='declarativePrime' cx-url='{{server:local}}/replaced' cx-cache-ttl='20s' cx-cache-key='primed' cx-timeout='1s' class='block'>

@@ -290,7 +290,7 @@ function initStubServer(fileName, port/*, hostname*/) {
   app.get('/set-cookie', function (req, res) {
     res.cookie('hello', 'world');
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end('<div cx-url="{{server:local}}/set-fragment-cookie"></div><div cx-url="{{server:local}}/set-fragment-cookie"></div>');
+    res.end('<div cx-no-cache="true" cx-url="{{server:local}}/set-fragment-cookie"></div><div cx-url="{{server:local}}/set-fragment-cookie"></div>');
   });
 
   app.get('/set-fragment-cookie', function (req, res) {
