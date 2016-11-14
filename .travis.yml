@@ -1,7 +1,6 @@
 language: node_js
 sudo: false
 node_js:
-- '0.12'
 - '4'
 - '6'
 after_script:
@@ -12,3 +11,11 @@ notifications:
   hipchat:
     rooms:
       secure: bS4/Cv5LNy+CK2kMkkWgSojHhiAiJCuhsvtPusfCm29kMvelvgsETy8DUV7eQyCMab/lVAp8rbbMQ0x0xcX9yXkk3ubesVY5RFoXUyoQkc2FMx48bMrQQfqMDDK4D0BPRUPwGj9kvAYKSZ0CD/kW56KcrPl9wsPHznjocNHKU/M=
+env:
+  - CC=clang CXX=clang++ npm_config_clang=1
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
