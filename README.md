@@ -166,6 +166,8 @@ host|If Redis, set the host explicitly (this and params below are an alternative
 port|If Redis, set the port explicitly
 db|If Redis, set the db explicitly
 options|If redis, any option described at https://github.com/NodeRedis/node_redis#options-object-properties (e.g. to allow authentication)
+compress|Use snappy compression for caching
+namespace|Optional prefix for redis keys
 
 #### CDN Configuration
 
