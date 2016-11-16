@@ -17,6 +17,14 @@ describe('extractSlot', function () {
       });
     });
 
+    it('parses a custom tags', function (done) {
+      var s = '<p></p><compoxure cx-use-slot="content">this is the <b>content</b></compoxure><p></p>';
+      extractSlots(s, function (err, slots) {
+        expect(slots).to.eql({ content: 'this is the <b>content</b>' });
+        done();
+      });
+    });
+
     it('deals with self closed tags (xhtml style)', function (done) {
       var s = '<p></p><p cx-use-slot="content">this is the <b>con<br/>tent</b></p><p></p>';
       extractSlots(s, function (err, slots) {

@@ -19,7 +19,8 @@ describe("Page Composer", function () {
     async.series([
       initStubServer,
       initStubServer2,
-      initPageComposer
+      initPageComposer,
+      initPageComposerMinified
     ], done);
   });
 
@@ -44,12 +45,16 @@ describe("Page Composer", function () {
     pcServer.init(5000, 'localhost', createEventHandler())(next);
   }
 
-  function getPageComposerUrl(path, search) {
+  function initPageComposerMinified(next) {
+    pcServer.init(5004, 'localhost', createEventHandler(), 'testConfigMinified')(next);
+  }
+
+  function getPageComposerUrl(path, search, minified) {
 
     var url = require('url').format({
       protocol: 'http',
       hostname: 'localhost',
-      port: 5000,
+      port: minified ? 5004 : 5000,
       pathname: path,
       search: search
     });
@@ -502,6 +507,18 @@ describe("Page Composer", function () {
       var $ = cheerio.load(response.body);
       var bundles = $('.resolved-bundle');
       expect($(bundles[0]).text()).to.be('RESOLVED service-resolved >> 123 >> top.js.html');
+      done();
+    });
+  });
+
+  it('should set the link headers when config.minified', function (done) {
+    var requestUrl = getPageComposerUrl('bundles', null, true);
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.statusCode).to.be(200);
+      expect(response.headers.link).to.be('<http://localhost:5001/resolved-static/service-resolved/123/js/top.js>; rel=preload');
+      // var $ = cheerio.load(response.body);
+      // var bundles = $('.resolved-bundle');
+      // expect($(bundles[0]).text()).to.be('RESOLVED service-resolved >> 123 >> top.js.html');
       done();
     });
   });
