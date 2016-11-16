@@ -287,7 +287,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       };
     }
 
-    function parseCallback(err, fragmentIndex, content) {
+    function parseCallback(err, fragmentIndex, content, additionalHeaders) {
       if (err) {
         // Overall errors
         if (!res.headersSent && err.content) {
@@ -306,7 +306,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
 
       if (!res.headersSent) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, additionalHeaders || {}));
 
         if (req.query && req.query['cx-debug']) {
           return res.end(content.replace('</body>', debugScript + '</body>'));

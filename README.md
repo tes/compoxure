@@ -467,6 +467,12 @@ This works in the following way:
  * If no header is supplied by the service, it will revert to 'default'.
  * If you include https://github.com/tes/bundle-version middleware this can all be handled for you.
 
+If config.minified is true and you set the attribute "cx-server-push", this resource is added as a "hint" in the http header "link". Using this syntax:
+```
+link: </assets/jquery.js>; rel=preload
+```
+This suggest the browser to preload the resource as soon as possible (http://caniuse.com/#search=preload). It can be also used by HTTP2 compatible CDN for enabling the http2 server push feature (https://docs.fastly.com/guides/performance-tuning/http2-server-push).
+
 ### Common errors with including bundles
 
 #### 1.  You are including a bundle for a service but not including a fragment for the service in the page.
