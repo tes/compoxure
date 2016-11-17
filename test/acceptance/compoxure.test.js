@@ -685,8 +685,21 @@ describe("Page Composer", function () {
     });
   });
 
-  it('should allow & parse an additional fragment', function (done) {
+  it('should allow & parse an additional fragment (cx-parse-me header)', function (done) {
     var requestUrl = getPageComposerUrl('nested-fragment');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be(200);
+      var $ = cheerio.load(response.body);
+      var expectedHTML = '<div><h1>Welcome</h1><p>Welcome content</p></div>';
+      expect(response.body).to.be(expectedHTML);
+      expect($('h1').text()).to.be('Welcome');
+      expect($('p').text()).to.be('Welcome content');
+      done();
+    });
+  });
+
+  it('should allow & parse an additional fragment (cx-parse-me tag)', function (done) {
+    var requestUrl = getPageComposerUrl('nested-fragment-2');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
       expect(response.statusCode).to.be(200);
       var $ = cheerio.load(response.body);

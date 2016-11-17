@@ -342,8 +342,18 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<div cx-url="{{server:local}}/welcome-fragment" cx-replace-outer="true"></div>');
   });
 
+  app.get('/nested-fragment-2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div cx-parse-me cx-url="{{server:local}}/welcome-fragment-2" cx-replace-outer="true"></div>');
+  });
+
   app.get('/welcome-fragment', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true });
+    res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
+  });
+
+  app.get('/welcome-fragment-2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end('<div><h1>Welcome</h1><div cx-url="{{server:local}}/fragment-content" cx-replace-outer="true"></div></div>');
   });
 
