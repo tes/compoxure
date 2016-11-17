@@ -281,7 +281,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.Content(getContent),
           parxerPlugins.ContentItem,
           parxerPlugins.DefineSlot(getSlot),
-          parxerPlugins.Library
+          parxerPlugins.Library(getCx)
         ],
         variables: templateVars
       };
