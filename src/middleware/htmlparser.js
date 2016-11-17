@@ -10,6 +10,10 @@ var errorTemplate = _.template('<div style="color: red; font-weight: bold; font-
 var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
 var debugScript = '<script>' + fs.readFileSync(path.join(__dirname, '../debug-script.js'), 'utf8') + '</script>';
 
+function hasCxAttr(node, name) {
+  return name in node.attribs || ('data-' + name in node.attribs);
+}
+
 function getCxAttr(node, name, defaultAttr) {
   var value = node.attribs[name] || node.attribs['data-' + name];
 
@@ -143,6 +147,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     function getParxerOpts(depth) {
       function getCx(fragment, next) {
         var start = Date.now();
+        var parseMeTag = hasCxAttr(fragment, 'cx-parse-me');
         var url = getCxAttr(fragment, 'cx-url');
         var cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key');
         var ignoreError = getCxAttr(fragment, 'cx-ignore-error');
@@ -162,7 +167,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             return next(err, content, headers);
           }
 
-          if (!headers || !headers['cx-parse-me']) {
+          if (!parseMeTag && (!headers || !headers['cx-parse-me'])) {
             return next(err, content, headers);
           }
 
