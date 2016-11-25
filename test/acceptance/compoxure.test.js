@@ -790,7 +790,7 @@ describe("Page Composer", function () {
       var requestUrl = getPageComposerUrl('use-layout');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
         expect(response.statusCode).to.be(200);
-        expect(response.body).to.be('<html>hello<div>world</div></html>');
+        expect(response.body).to.be('<html>hello Service resolved 2<div>world</div></html>');
         done();
       });
     });
@@ -799,7 +799,16 @@ describe("Page Composer", function () {
       var requestUrl = getPageComposerUrl('use-layout-with-bundle');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
         expect(response.statusCode).to.be(200);
-        expect(response.body).to.be('<html>hello<div><div cx-url="http://localhost:5001/service-resolved" cx-url-raw="{{server:local}}/service-resolved" cx-url-done="true">Service resolved - I have a bundle, hear me roar - over there.</div><div class="bundle" cx-bundles="service-resolved/top.js" cx-bundles-done="true">RESOLVED service-resolved >> 123 >> top.js.html</div></div></html>');
+        expect(response.body).to.be('<html>hello Service resolved 2<div><div cx-url="http://localhost:5001/service-resolved" cx-url-raw="{{server:local}}/service-resolved" cx-url-done="true">Service resolved - I have a bundle, hear me roar - over there.</div><div class="bundle" cx-bundles="service-resolved/top.js" cx-bundles-done="true">RESOLVED service-resolved >> 123 >> top.js.html</div></div></html>');
+        done();
+      });
+    });
+
+    it('should use cx-layout, layout can contain bundle, handshake is in the layout', function (done) {
+      var requestUrl = getPageComposerUrl('use-layout-with-bundle2');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.body).to.be('<html>hello Service resolved 2<div><div class="bundle" cx-bundles="service-resolved2/top.js" cx-bundles-done="true">service-resolved2 >> 123 >> top.js.html</div></div></html>');
         done();
       });
     });

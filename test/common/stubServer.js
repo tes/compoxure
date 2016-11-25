@@ -271,6 +271,14 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('Service resolved - I have a bundle, hear me roar - over there.');
   });
 
+  app.get('/service-resolved2', function (req, res) {
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "x-static|service-resolved2|top": "123",
+      "x-static|service-resolved2": "123"
+    });
+    res.end('Service resolved 2');
+  });
 
   app.get('/static/:service/:version/html/:file', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
@@ -433,7 +441,7 @@ function initStubServer(fileName, port/*, hostname*/) {
 
   app.get('/layout', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end('<html>hello<div cx-define-slot="slot1"></div></html>');
+    res.end('<html>hello <div cx-replace-outer cx-url="{{server:local}}/service-resolved2"></div><div cx-define-slot="slot1"></div></html>');
   });
 
   app.get('/use-layout', function (req, res) {
@@ -442,6 +450,16 @@ function initStubServer(fileName, port/*, hostname*/) {
   });
 
   app.get('/use-layout-with-bundle', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
+    res.end('<html><div cx-use-slot="slot1"><div cx-url="{{server:local}}/service-resolved"></div><div class="bundle" cx-bundles="service-resolved/top.js"></div></div></html>');
+  });
+
+  app.get('/use-layout-with-bundle2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
+    res.end('<html><div cx-use-slot="slot1"><div class="bundle" cx-bundles="service-resolved2/top.js"></div></div></html>');
+  });
+
+  app.get('/use-layout-with-bundle-bundle-in-layout', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
     res.end('<html><div cx-use-slot="slot1"><div cx-url="{{server:local}}/service-resolved"></div><div class="bundle" cx-bundles="service-resolved/top.js"></div></div></html>');
   });
