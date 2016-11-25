@@ -431,6 +431,21 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<html><div id="item" cx-content-item="{{content:home:foo}}">default</div><div id="tag" cx-content-item="{{content:home:tag}}">default</div></html>');
   });
 
+  app.get('/layout', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<html>hello<div cx-define-slot="slot1"></div></html>');
+  });
+
+  app.get('/use-layout', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
+    res.end('<html><div cx-use-slot="slot1">world</div></html>');
+  });
+
+  app.get('/use-layout-with-bundle', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
+    res.end('<html><div cx-use-slot="slot1"><div cx-url="{{server:local}}/service-resolved"></div><div class="bundle" cx-bundles="service-resolved/top.js"></div></div></html>');
+  });
+
   app.get('/content/:tag', function (req, res) {
     res.json({
       tag: req.params.tag,

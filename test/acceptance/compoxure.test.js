@@ -786,6 +786,23 @@ describe("Page Composer", function () {
       });
     });
 
+    it('should use cx-layout', function (done) {
+      var requestUrl = getPageComposerUrl('use-layout');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.body).to.be('<html>hello<div>world</div></html>');
+        done();
+      });
+    });
+
+    it('should use cx-layout, layout can contain bundle', function (done) {
+      var requestUrl = getPageComposerUrl('use-layout-with-bundle');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.body).to.be('<html>hello<div><div cx-url="http://localhost:5001/service-resolved" cx-url-raw="{{server:local}}/service-resolved" cx-url-done="true">Service resolved - I have a bundle, hear me roar - over there.</div><div class="bundle" cx-bundles="service-resolved/top.js" cx-bundles-done="true">RESOLVED service-resolved >> 123 >> top.js.html</div></div></html>');
+        done();
+      });
+    });
   });
 
   context('Browser extension', function () {
