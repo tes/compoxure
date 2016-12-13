@@ -267,7 +267,7 @@ The best option here is to use a different delimiter for Compoxure, and this can
 delimiters|New delimiter string - e.g. '<% %>'
 
 #### Layout engine
-You can use this feature to push some sections of a template in a layout. You have to send an header ```cx-template: http://www.example.com/layout.html```. The layout should contain some slot definition:
+You can use this feature to push some sections of a template in a layout. You have to send an header ```cx-layout: http://www.example.com/layout.html```. The layout should contain some slot definition:
 ```html
 ...
 <h1>I am the layout</h1>
