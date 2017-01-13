@@ -474,6 +474,8 @@ link: </assets/jquery.js>; rel=preload
 ```
 This suggest the browser to preload the resource as soon as possible (http://caniuse.com/#search=preload). It can be also used by HTTP2 compatible CDN for enabling the http2 server push feature (https://docs.fastly.com/guides/performance-tuning/http2-server-push).
 
+A bundle is imported only once, any duplicated will be ignored.
+
 ### Common errors with including bundles
 
 #### 1.  You are including a bundle for a service but not including a fragment for the service in the page.
@@ -488,7 +490,7 @@ Similar to above, you must use the correct bundle name as exported in the servic
 
 ## Libraries
 
-If you want to copy common libraries up to your CDN (e.g. via Bosco), but have the versioning managed by those libaries, there is a directive for that.
+If you want to copy common libraries up to your CDN (e.g. via Bosco), but have the versioning managed by those libraries, there is a directive for that.
 
 ```
 <script async="true" cx-library='bootstrap-0.3.0/bootstrap-0.3.0.js'></script>
@@ -506,6 +508,7 @@ e.g.
 ```
 https://duqxiy1o2cbw6.cloudfront.net/tes/vendor/library/bootstrap-3.2.0.min.css
 ```
+A library is imported only once, any duplicated will be ignored.
 
 ## Images
 
