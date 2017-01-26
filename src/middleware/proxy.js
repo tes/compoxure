@@ -92,30 +92,37 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         });
       }
 
-      var handleError = function (err, oldCacheData) {
-
-        // Check to see if we have any statusCode handlers defined
-        if (err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
-          var handlerDefn = config.statusCodeHandlers[err.statusCode];
-          var handlerFn = config.functions && config.functions[handlerDefn.fn];
-          if (handlerFn) {
-            return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err, res.parse);
-          }
+      var handleError = function (err) {
+        if (!res.headersSent) {
+          res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+          res.end(err.message);
         }
+        logError(err, 'Backend FAILED but to respond: ' + err.message);
+      };
 
-        if (req.backend.quietFailure && oldCacheData) {
-          var newTemplateVars = utils.formatTemplateVariables(oldCacheData.headers);
-          req.templateVars = _.assign(req.templateVars, newTemplateVars);
-          res.parse(oldCacheData.content);
-          logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey + ' : ' + err.message);
-        } else {
-          if (!res.headersSent) {
-            res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
-            res.end(err.message);
+      var handleErrorDecorator = function (func) {
+        return function (err, response) {
+          if (!err) {
+            return func(null, response); // no errors!
           }
-          logError(err, 'Backend FAILED but to respond: ' + err.message);
-        }
-      }
+
+          // Check to see if we have any statusCode handlers defined
+          if (err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
+            var handlerDefn = config.statusCodeHandlers[err.statusCode];
+            var handlerFn = config.functions && config.functions[handlerDefn.fn];
+            if (handlerFn) {
+              return handlerFn(req, res, req.templateVars, handlerDefn.data, options, err, res.parse);
+            }
+          }
+
+          if (req.backend.quietFailure && response) {
+            logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey + ' : ' + err.message);
+            func(null, response);
+          } else {
+            handleError(err);
+          }
+        };
+      };
 
       var setAdditionalHeaders = function () {
         var headersToAdd = _.keys(backend.addResponseHeaders);
@@ -141,41 +148,33 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           return;
         }
 
-        reliableGet.get(transformedOptions, function (err, response) {
+        reliableGet.get(transformedOptions, handleErrorDecorator(function (err, response) {
           var layoutUrl;
-          if (err) {
-            handleError(err, response);
-          } else {
-            var newTemplateVars = utils.formatTemplateVariables(response.headers);
-            req.templateVars = _.assign(req.templateVars, newTemplateVars);
-            if (response.headers['set-cookie']) {
-              res.setHeader('set-cookie', response.headers['set-cookie']);
-            }
-            setAdditionalHeaders();
-            passThroughHeaders(response.headers);
-            if ('cx-layout' in response.headers) {
-              // extract slots from original html
-              extractSlots(response.content, function (err, slots) {
-                req.templateVars.slots =  slots;
-                layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
-                // get the layout
-                reliableGet.get({
-                  url: layoutUrl,
-                  cacheKey: 'layout: '+ layoutUrl,
-                  cacheTTL: 60000 * 5 // 5 mins
-                }, function (err, response) {
-                  if (err) {
-                    handleError(err, response);
-                  } else {
-                    res.parse(response.content);
-                  }
-                });
-              });
-            } else {
-              res.parse(response.content);
-            }
+          var newTemplateVars = utils.formatTemplateVariables(response.headers);
+          req.templateVars = _.assign(req.templateVars, newTemplateVars);
+          if (response.headers['set-cookie']) {
+            res.setHeader('set-cookie', response.headers['set-cookie']);
           }
-        });
+          setAdditionalHeaders();
+          passThroughHeaders(response.headers);
+          if ('cx-layout' in response.headers) {
+            // extract slots from original html
+            extractSlots(response.content, function (err, slots) {
+              req.templateVars.slots =  slots;
+              layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
+              // get the layout
+              reliableGet.get({
+                url: layoutUrl,
+                cacheKey: 'layout: '+ layoutUrl,
+                cacheTTL: 60000 * 5 // 5 mins
+              }, handleErrorDecorator(function (err, response) {
+                res.parse(response.content);
+              }));
+            });
+          } else {
+            res.parse(response.content);
+          }
+        }));
       });
 
     });
