@@ -164,7 +164,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   cacheKey: 'layout: '+ layoutUrl,
                   cacheTTL: 60000 * 5 // 5 mins
                 }, function (err, response) {
-                  res.parse(response.content);
+                  if (err) {
+                    handleError(err, response);
+                  } else {
+                    res.parse(response.content);
+                  }
                 });
               });
             } else {
