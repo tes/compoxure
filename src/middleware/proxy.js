@@ -92,6 +92,14 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         });
       }
 
+      var handleError = function (err) {
+        if (!res.headersSent) {
+          res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+          res.end(err.message);
+        }
+        logError(err, 'Backend FAILED but to respond: ' + err.message);
+      };
+
       var handleErrorDecorator = function (func) {
         return function (err, response) {
           if (!err) {
@@ -114,14 +122,6 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             handleError(err);
           }
         };
-      };
-
-      var handleError = function (err) {
-        if (!res.headersSent) {
-          res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
-          res.end(err.message);
-        }
-        logError(err, 'Backend FAILED but to respond: ' + err.message);
       };
 
       var setAdditionalHeaders = function () {
