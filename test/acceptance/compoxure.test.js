@@ -515,7 +515,7 @@ describe("Page Composer", function () {
     var requestUrl = getPageComposerUrl('bundles', null, true);
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
       expect(response.statusCode).to.be(200);
-      expect(response.headers.link).to.be('<http://localhost:5001/resolved-static/service-resolved/123/js/top.js>; rel=preload');
+      expect(response.headers.link).to.be('<http://localhost:5001/resolved-static/service-resolved/123/js/top.js>; rel=preload; as=script');
       // var $ = cheerio.load(response.body);
       // var bundles = $('.resolved-bundle');
       // expect($(bundles[0]).text()).to.be('RESOLVED service-resolved >> 123 >> top.js.html');
