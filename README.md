@@ -510,6 +510,13 @@ https://duqxiy1o2cbw6.cloudfront.net/tes/vendor/library/bootstrap-3.2.0.min.css
 ```
 A library is imported only once, any duplicated will be ignored.
 
+## Client hints
+You can apply the cx-client-hint=true attribute to a cx-library, cx-bundle or cx-src tag. This transforms the tag in a client hint:
+```
+<link rel="preload" src="script.js" as="script" />
+```
+By default rel="preload" is used, unless you specify a rel attribute with a different value.
+
 ## Images
 
 In addition to bundles, you can use a directive to get access to images from a service that also respect the service version and cdn url.
