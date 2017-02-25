@@ -52,6 +52,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
   return function parserMiddleware(req, res, cb) {
     var templateVars = req.templateVars;
+    var commonState = {}; // common between all parser
     var fragmentTimings = [];
 
     function getContent(fragment, next) {
@@ -98,7 +99,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (parxerErr && parxerErr.content) {
           return next(parxerErr, content);
         }
-
         return next(null, newContent);
       });
     }
@@ -175,7 +175,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             if (parxerErr && parxerErr.content) {
               return next(parxerErr, content, headers);
             }
-
             return next(null, newContent, headers);
           });
         }
@@ -288,11 +287,12 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           parxerPlugins.DefineSlot(getSlot),
           parxerPlugins.Library(getCx)
         ],
-        variables: templateVars
+        variables: templateVars,
+        commonState: commonState
       };
     }
 
-    function parseCallback(err, fragmentIndex, content, additionalHeaders) {
+    function parseCallback(err, fragmentIndex, content) {
       if (err) {
         // Overall errors
         if (!res.headersSent && err.content) {
@@ -311,7 +311,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
 
       if (!res.headersSent) {
-        res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, additionalHeaders || {}));
+        res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
 
         if (req.query && req.query['cx-debug']) {
           return res.end(content.replace('</body>', debugScript + '</body>'));
