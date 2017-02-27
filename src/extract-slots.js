@@ -20,7 +20,7 @@ function extractSlots(content, callback) {
             if (useSlot){
                 currentSlot = attribs[useSlot];
                 depth = 1;
-                slots[currentSlot] = '';
+                slots[currentSlot] = slots[currentSlot] || '';
             } else if (currentSlot) {
                 if(voidElements[tagname]) {
                     selfClosing = true;

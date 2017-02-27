@@ -302,6 +302,8 @@ So this will be output:
 </div>
 ...
 ```
+If there is more than one cx-use-slot with the same name, the content of all of them will be concatenated.
+This can be useful if fragments from different services want to add the content in the same place.
 
 #### Nested Fragments
 

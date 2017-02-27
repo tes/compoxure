@@ -49,4 +49,14 @@ describe('extractSlot', function () {
         done();
       });
     });
+
+    it('extract 2 slots with same name', function (done) {
+      var s = '<p></p><p cx-use-slot="content">this is the <b>content</b></p><p><div cx-use-slot="content">foo bar</div></p>';
+      extractSlots(s, function (err, slots) {
+        expect(slots).to.eql({
+          content: 'this is the <b>content</b>foo bar',
+        });
+        done();
+      });
+    });
 });
