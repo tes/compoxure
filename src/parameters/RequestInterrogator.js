@@ -78,6 +78,7 @@ module.exports = function (config, cdn, environment) {
     var queryParams = interrogateParams(parsedUrl.query);
     var pageUrl = getPageUrl(req, parsedUrl);
     var user = req.user || { userId: '_' };
+    user.loggedIn = Boolean(req.user);
     var deviceType = new Parser(req).get_type();
     if (deviceType === 'bot') { deviceType = 'desktop'; } // Serve desktop versions to bots ?
 
