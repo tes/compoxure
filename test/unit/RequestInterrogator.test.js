@@ -249,6 +249,49 @@ describe('RequestInterrogator', function () {
     });
   });
 
+
+  it('should set a loggedIn flag to true if user is logged in', function (done) {
+    var req = httpMocks.createRequest({
+      method: 'GET',
+      headers: {
+        host: 'localhost:5000'
+      },
+      url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420',
+      user: {
+        userId: 13579,
+        displayName: 'will.i.am'
+      }
+    });
+    req.connection = {};
+
+    var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, { name: 'test' });
+
+    interrogator.interrogateRequest(req, function (params) {
+      expect(params).to.have.property('user:loggedIn', true);
+      done();
+    });
+  });
+
+
+
+  it('should set a loggedIn flag to false if user is not logged in', function (done) {
+    var req = httpMocks.createRequest({
+      method: 'GET',
+      headers: {
+        host: 'localhost:5000'
+      },
+      url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+    });
+    req.connection = {};
+
+    var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, { name: 'test' });
+
+    interrogator.interrogateRequest(req, function (params) {
+      expect(params).to.have.property('user:loggedIn', false);
+      done();
+    });
+  });
+
   it('should get parse the user agent and generate a phone device type', function (done) {
 
     var req = httpMocks.createRequest({

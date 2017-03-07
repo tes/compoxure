@@ -395,7 +395,7 @@ header|Any incoming header value|/user/feature/{{header:x-feature-enabled}}
 server|A server short name from the configuration in the parameters section of config|{{server:feature}}/feature
 env|Environment, property available is name e.g. {{env:name}}
 cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
-user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}
+user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}. Also a 'loggedIn' boolean property is set on user eg {{user:loggedIn}}
 device|Device type {{device:type}} = desktop|phone|tablet
 
 Note: It also passes the device:type down to downstreams in a header - as 'x-device'.
