@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 var parxer = require('parxer').parxer;
 var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
@@ -269,8 +270,14 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         optionsTransformer(req, options, transformerCallback);
       }
 
+      var baseURL = url.format({
+        protocol: req.protocol,
+        host: req.get('host')
+      });
+
       return {
         environment: config.environment,
+        baseURL: config.useRelativeURL ? baseURL : undefined,
         cdn: config.cdn,
         minified: config.minified,
         showErrors: !req.backend.quietFailure,

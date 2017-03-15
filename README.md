@@ -196,6 +196,7 @@ config.cdn.resolver = function(service) {
 ```
 
 This allows you to lookup the CDN to use for a specific bundle based on the name of the service (however you choose to).  You must still pass the default url, as this is the fallback.
+If you use the option "useRelativeURL: true" the CDNURL will be translated (if possible) in an url relative to the domain.
 
 #### Status Code Handlers
 
