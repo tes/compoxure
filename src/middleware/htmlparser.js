@@ -270,10 +270,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         optionsTransformer(req, options, transformerCallback);
       }
 
-      var baseURL = url.format({
-        protocol: req.protocol,
-        host: req.get('host')
-      });
+      var baseURL = config.getBaseURL ? config.getBaseURL(req) : url.format({ protocol: req.protocol, host: req.get('host') });
 
       return {
         environment: config.environment,
