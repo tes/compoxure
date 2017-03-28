@@ -795,6 +795,15 @@ describe("Page Composer", function () {
       });
     });
 
+    it('should pass device header to layout service', function (done) {
+      var requestUrl = getPageComposerUrl('use-layout-with-device');
+      request.get(requestUrl, { headers: { 'accept': 'text/html', 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.body).to.be('<html>hello Service resolved 2<div>device-mobile</div></html>');
+        done();
+      });
+    });
+
     it('should use cx-layout, layout can contain bundle', function (done) {
       var requestUrl = getPageComposerUrl('use-layout-with-bundle');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

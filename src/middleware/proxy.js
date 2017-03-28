@@ -166,7 +166,10 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
               reliableGet.get({
                 url: layoutUrl,
                 cacheKey: 'layout: '+ layoutUrl,
-                cacheTTL: 60000 * 5 // 5 mins
+                cacheTTL: 60000 * 5, // 5 mins
+                headers: {
+                  'x-device': transformedOptions.headers['x-device']
+                }
               }, handleErrorDecorator(function (err, response) {
                 res.parse(response.content);
               }));
