@@ -68,7 +68,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       var opts = {
         url: url,
         timeout: config.content.timeout || 5000,
-        cacheKey: cacheKeyAttr || utils.urlToCacheKey(url),
+        cacheKey: cacheKeyAttr,
         cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m'))
       };
 

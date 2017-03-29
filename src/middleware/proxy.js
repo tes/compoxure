@@ -43,7 +43,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           'x-geoip-country-code': req.headers['x-geoip-country-code'],
           'x-csrf-token': req.headers['x-csrf-token']
         },
-        targetCacheKey = backend.cacheKey || utils.urlToCacheKey(targetUrl),
+        targetCacheKey = backend.cacheKey,
         targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
         explicitNoCache = backend.noCache || req.explicitNoCache,
         options;

@@ -38,6 +38,14 @@
       "pattern": "/alternate500",
       "quietFailure": true,
       "ttl": 1,
+      "cacheKey": "cache:alternate500",
+      "target": "{{server:local}}/alternate500"
+    },
+    {
+      "pattern": "/nocachekey-alternate500",
+      "quietFailure": true,
+      "ttl": 1,
+      "dontPassUrl": true,
       "target": "{{server:local}}/alternate500"
     },
     {

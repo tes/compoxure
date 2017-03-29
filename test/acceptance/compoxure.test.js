@@ -652,6 +652,19 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should use not cache fragments when backend has no cache key', function (done) {
+    var requestUrl = getPageComposerUrl('nocachekey-alternate500');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      expect(response.statusCode).to.be(200);
+      setTimeout(function () {
+        request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+          expect(response.statusCode).to.be(500);
+          done();
+        });
+      }, 50);
+    });
+  });
+
   it('should use cached headers when a backend 500s', function (done) {
     var requestUrl = getPageComposerUrl('alternate500');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
