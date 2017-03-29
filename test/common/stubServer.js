@@ -21,7 +21,7 @@ function initStubServer(fileName, port/*, hostname*/) {
   });
 
   app.get('/uuid', function (req, res) {
-    res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one|bundle": "100" });
+    res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one": "100" });
     res.end(uuid.v1());
   });
 
@@ -87,7 +87,7 @@ function initStubServer(fileName, port/*, hostname*/) {
       res.writeHead(500, { "Content-Type": "text/html" });
       res.end("500");
     } else {
-      res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one|top": "100" });
+      res.writeHead(200, { "Content-Type": "text/html", "x-static|service-one": "100" });
       var backendHtml = fs.readFileSync('./test/common/bundle500.html', { encoding: 'utf8' });
       res.end(backendHtml);
     }
@@ -251,7 +251,6 @@ function initStubServer(fileName, port/*, hostname*/) {
   app.get('/service-one', function (req, res) {
     res.writeHead(200, {
       "Content-Type": "text/html",
-      "x-static|service-one|top": "100",
       "x-static|service-one": "100"
     });
     res.end('Service One - I have a bundle, hear me roar.');
@@ -265,7 +264,6 @@ function initStubServer(fileName, port/*, hostname*/) {
   app.get('/service-resolved', function (req, res) {
     res.writeHead(200, {
       "Content-Type": "text/html",
-      "x-static|service-resolved|top": "123",
       "x-static|service-resolved": "123"
     });
     res.end('Service resolved - I have a bundle, hear me roar - over there.');
@@ -274,7 +272,6 @@ function initStubServer(fileName, port/*, hostname*/) {
   app.get('/service-resolved2', function (req, res) {
     res.writeHead(200, {
       "Content-Type": "text/html",
-      "x-static|service-resolved2|top": "123",
       "x-static|service-resolved2": "123"
     });
     res.end('Service resolved 2');
