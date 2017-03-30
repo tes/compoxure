@@ -1,8 +1,8 @@
 'use strict';
 
 var cx = require('../');
-var config = require('./config.json')
-var connect = require('connect');
+var config = require('./config.json');
+var express = require('express');
 var cookieParser = require('cookie-parser');
 var query = require('connect-query');
 var morgan = require('morgan');
@@ -40,7 +40,7 @@ config.minified = config.environment !== 'development';
 
 var compoxureMiddleware = cx(config, cxEventHandler);
 
-var server = connect();
+var server = express();
 server.use(cookieParser());
 server.use(query());
 if (process.env.logging !== 'false') { server.use(morgan('combined')); }
