@@ -168,7 +168,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 cacheKey: 'layout: '+ layoutUrl,
                 cacheTTL: 60000 * 5, // 5 mins
                 headers: {
-                  'x-device': transformedOptions.headers['x-device']
+                  'x-device': transformedOptions.headers['x-device'],
+                  cookie: transformedOptions.headers.cookie
                 }
               }, handleErrorDecorator(function (err, response) {
                 res.parse(response.content);

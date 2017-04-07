@@ -817,6 +817,15 @@ describe("Page Composer", function () {
       });
     });
 
+    it('should pass cookies to layout service', function (done) {
+      var requestUrl = getPageComposerUrl('use-layout-with-cookie');
+      request.get(requestUrl, { headers: { 'accept': 'text/html', 'cookie': 'siteCountry=US' } }, function (err, response) {
+        expect(response.statusCode).to.be(200);
+        expect(response.body).to.be('<html>hello Service resolved 2<div>siteCountry=US</div></html>');
+        done();
+      });
+    });
+
     it('should use cx-layout, layout can contain bundle', function (done) {
       var requestUrl = getPageComposerUrl('use-layout-with-bundle');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

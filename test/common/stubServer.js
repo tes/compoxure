@@ -451,6 +451,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<html><div cx-use-slot="slot1">' + (req.headers['x-device'] === 'phone' ? 'device-mobile' : '') + '</div></body></html>');
   });
 
+  app.get('/use-layout-with-cookie', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
+    res.end('<html><div cx-use-slot="slot1">' + req.headers.cookie + '</div></body></html>');
+  });
+
   app.get('/use-layout-with-bundle', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-layout": "{{server:local}}/layout" });
     res.end('<html><div cx-use-slot="slot1"><div cx-url="{{server:local}}/service-resolved"></div><div class="bundle" cx-bundles="service-resolved/top.js"></div></div></html>');

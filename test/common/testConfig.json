@@ -5,7 +5,8 @@
   "cookies": {
     "whitelist": [
       "CompoxureCookie",
-      "TSLCookie"
+      "TSLCookie",
+      "siteCountry"
     ]
   },
   "parameters": {
