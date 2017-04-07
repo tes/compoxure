@@ -162,10 +162,16 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             extractSlots(response.content, function (err, slots) {
               req.templateVars.slots =  slots;
               layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
+
+              var cacheKey = 'layout:'+ layoutUrl;
+              if (config.layoutCacheKey) {
+                cacheKey += ':' + Core.render(config.layoutCacheKey, req.templateVars);
+              }
+              
               // get the layout
               reliableGet.get({
                 url: layoutUrl,
-                cacheKey: 'layout: '+ layoutUrl,
+                cacheKey: cacheKey,
                 cacheTTL: 60000 * 5, // 5 mins
                 headers: {
                   'x-device': transformedOptions.headers['x-device'],
