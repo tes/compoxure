@@ -28,24 +28,16 @@ module.exports = function (config) {
     };
 
     if (config.backend) {
-      req.backend = _.find(config.backend, function (server) {
-        // First try to match based on header and use header values
-        if(headerBackend.target && headerBackend.name && server.name === headerBackend.name) {
-          return true;
-        }
-        // Then try to match based on pattern in backend Config
-        if (!headerBackend.target && server.pattern) {
-          return [].concat(server.pattern).some(function (pattern) {
-            return new RegExp(pattern).test(req.url);
-          });
-        }
-        // Finally try to match based on lookup function in backend Config
-        if (!headerBackend.target && server.fn) {
-          if (typeof config.functions[server.fn] == 'function') {
-            return config.functions[server.fn](req, req.templateVars, server);
+      // First try to match based on header and use header values
+      if (headerBackend.target) {
+        req.backend = _.find(config.backend, function (server) {
+          if(headerBackend.name && server.name === headerBackend.name) {
+            return true;
           }
-        }
-      });
+        });
+      } else {
+        req.backend = utils.getBackendConfig(config, req.url, req);
+      }
     }
 
     // If we haven't matched but have headers, lets just use these

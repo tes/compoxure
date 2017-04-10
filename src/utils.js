@@ -71,11 +71,29 @@ function filterCookies(whitelist, cookies) {
   }, '');
 }
 
+function getBackendConfig(config, url, req) {
+  return _.find(config.backend, function (server) {
+    // Then try to match based on pattern in backend Config
+    if (server.pattern) {
+      return [].concat(server.pattern).some(function (pattern) {
+        return new RegExp(pattern).test(url);
+      });
+    }
+    // Finally try to match based on lookup function in backend Config
+    if (server.fn) {
+      if (typeof config.functions[server.fn] == 'function') {
+        return config.functions[server.fn](req, req.templateVars, server);
+      }
+    }
+  });
+}
+
 module.exports = {
   timeToMillis: timeToMillis,
   urlToCacheKey: urlToCacheKey,
   cacheKeytoStatsd: cacheKeytoStatsd,
   render: require('parxer').render,
   formatTemplateVariables: formatTemplateVariables,
-  filterCookies: filterCookies
+  filterCookies: filterCookies,
+  getBackendConfig: getBackendConfig,
 };

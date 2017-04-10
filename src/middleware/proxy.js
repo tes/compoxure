@@ -158,21 +158,26 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           setAdditionalHeaders();
           passThroughHeaders(response.headers);
           if ('cx-layout' in response.headers) {
+            layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
+            req.templateVars.layout = layoutUrl;
             // extract slots from original html
             extractSlots(response.content, function (err, slots) {
               req.templateVars.slots =  slots;
-              layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
 
-              var cacheKey = 'layout:'+ layoutUrl;
-              if (config.layoutCacheKey) {
-                cacheKey += ':' + Core.render(config.layoutCacheKey, req.templateVars);
-              }
-              
+              var layoutConfig = utils.getBackendConfig(config, layoutUrl, req);
+              var cacheKey = layoutConfig && layoutConfig.cacheKey ?
+                Core.render(layoutConfig.cacheKey, req.templateVars) :
+                'layout:'+ layoutUrl;
+
+              var cacheTTL = layoutConfig && layoutConfig.cacheTTL ?
+                layoutConfig.cacheTTL :
+                60000 * 5; // 5 mins
+
               // get the layout
               reliableGet.get({
                 url: layoutUrl,
                 cacheKey: cacheKey,
-                cacheTTL: 60000 * 5, // 5 mins
+                cacheTTL: cacheTTL,
                 headers: {
                   'x-device': transformedOptions.headers['x-device'],
                   cookie: transformedOptions.headers.cookie
