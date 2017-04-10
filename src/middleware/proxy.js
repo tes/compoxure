@@ -164,7 +164,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             extractSlots(response.content, function (err, slots) {
               req.templateVars.slots =  slots;
 
-              var layoutConfig = utils.getBackendConfig(config, layoutUrl, req);
+              var layoutConfig = utils.getBackendConfig(config, layoutUrl);
               var cacheKey = layoutConfig && layoutConfig.cacheKey ?
                 Core.render(layoutConfig.cacheKey, req.templateVars) :
                 'layout:'+ layoutUrl;

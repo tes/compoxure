@@ -80,7 +80,7 @@ function getBackendConfig(config, url, req) {
       });
     }
     // Finally try to match based on lookup function in backend Config
-    if (server.fn) {
+    if (req && server.fn) { // for layout config I am not passing req !
       if (typeof config.functions[server.fn] == 'function') {
         return config.functions[server.fn](req, req.templateVars, server);
       }
