@@ -14,8 +14,8 @@ function createEventHandler() {
     logger: function (level, message) {
       if (process.env.logging !== 'false') { console.log('LOG ' + level + ': ' + message); }
     },
-    stats: function (type, key, value) {
-      if (process.env.logging !== 'false') { console.log('STAT ' + type + ' for ' + key + ' | ' + value); }
+    stats: function (type, key, tags, value) {
+      if (process.env.logging !== 'false') { console.log('STAT ' + type + ' for ' + key + ' | ' + tags + ' | ' + value); }
     }
   }
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var url = require('url');
 
 function timeToMillis(timeString) {
 
@@ -28,6 +29,12 @@ function timeToMillis(timeString) {
 
   return value;
 
+}
+
+function getServiceNameFromUrl(inputUrl) {
+  if (!url) { return 'unknown'; }
+  var hostname = url.parse(inputUrl).hostname;
+  return hostname && hostname.split('.')[0] || 'unknown';
 }
 
 function cacheKeytoStatsd(key) {
@@ -96,4 +103,5 @@ module.exports = {
   formatTemplateVariables: formatTemplateVariables,
   filterCookies: filterCookies,
   getBackendConfig: getBackendConfig,
+  getServiceNameFromUrl: getServiceNameFromUrl
 };

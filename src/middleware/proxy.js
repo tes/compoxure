@@ -81,7 +81,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         headers: backendHeaders,
         tracer: req.tracer,
         type: 'backend',
-        statsdKey: 'backend_' + utils.urlToCacheKey(host),
+        statsdKey: 'backend',
+        statsdTags: ['application:' + utils.getServiceNameFromUrl(targetUrl)],
         eventHandler: eventHandler
       };
 
@@ -178,6 +179,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 url: layoutUrl,
                 cacheKey: cacheKey,
                 cacheTTL: cacheTTL,
+                statsdKey: 'layout',
+                statsdTags: ['application:' + utils.getServiceNameFromUrl(layoutUrl)],
                 headers: {
                   'x-device': transformedOptions.headers['x-device'],
                   cookie: transformedOptions.headers.cookie

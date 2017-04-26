@@ -144,7 +144,7 @@ describe("Page Composer", function () {
   it('should add no-cache, no-store, must-revalidate cache-control header if any fragments use cx-no-cache', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackendFromFragment');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
-      expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
+      expect(response.headers['cache-control']).to.be.equal('private, s-maxage=0, no-cache, no-store, must-revalidate, max-age=0');
       done();
     });
   });

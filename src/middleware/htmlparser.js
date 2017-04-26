@@ -69,6 +69,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         url: url,
         timeout: config.content.timeout || 5000,
         cacheKey: cacheKeyAttr,
+        statsdKey: 'content',
+        statsdTags: ['application:drupal'],
         cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m'))
       };
 
@@ -149,7 +151,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       function getCx(fragment, next) {
         var start = Date.now();
         var parseMeTag = hasCxAttr(fragment, 'cx-parse-me');
-        var url = getCxAttr(fragment, 'cx-url');
+        var cxUrl = getCxAttr(fragment, 'cx-url');
         var cacheKeyAttr = getCxAttr(fragment, 'cx-cache-key');
         var ignoreError = getCxAttr(fragment, 'cx-ignore-error');
 
@@ -223,7 +225,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           }
 
           if (typeof eventHandler.stats === 'function') {
-            eventHandler.stats('increment', transformedOptions.statsdKey + '.error');
+            eventHandler.stats('increment', transformedOptions.statsdKey + '.errors', transformedOptions.statsdTags);
           }
 
           errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
@@ -231,15 +233,16 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         }
 
         var options = {
-          url: url,
+          url: cxUrl,
           timeout: utils.timeToMillis(getCxAttr(fragment, 'cx-timeout', '5s')),
-          cacheKey: cacheKeyAttr || utils.urlToCacheKey(url),
+          cacheKey: cacheKeyAttr || utils.urlToCacheKey(cxUrl),
           cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m')),
           explicitNoCache: req.explicitNoCache || getNoCacheAttr(fragment),
           ignore404: getCxAttr(fragment, 'cx-ignore-404', 'true') === 'true',
           type: 'fragment',
           tracer: req.tracer,
-          statsdKey: 'fragment_' + getCxAttr(fragment, 'cx-statsd-key', 'unknown'),
+          statsdKey: 'fragment',
+          statsdTags: ['application:' + utils.getServiceNameFromUrl(cxUrl)],
           headers: {
             accept: getCxAttr(fragment, 'cx-accept', 'text/html'),
             cookie: getCookie(),
@@ -260,7 +263,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
               return onErrorHandler(getErr, response, transformedOptions);
             }
 
-            fragmentTimings.push({ url: url, status: response.statusCode, timing: response.timing });
+            fragmentTimings.push({ url: cxUrl, status: response.statusCode, timing: response.timing });
 
             var content = isDebugEnabled() ? delimitContent(response, options) : response.content;
             responseCallback(null, content, response.headers);
