@@ -40,6 +40,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           'x-tracer': req.tracer,
           'user-agent': userAgent,
           'x-device': device,
+          'x-site-country': req.headers['x-site-country'],
+          'x-site-language': req.headers['x-site-language'],
           'x-geoip-country-code': req.headers['x-geoip-country-code'],
           'x-csrf-token': req.headers['x-csrf-token']
         },
