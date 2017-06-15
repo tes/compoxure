@@ -131,9 +131,16 @@
       "pattern": "/noCacheBackendViaFragment",
       "target": "{{server:local}}",
       "dontPassUrl": false,
+      "cacheKey": "noCacheBackendViaFragment",
       "passThroughHeaders": [
         "cache-control"
       ]
+    },
+    {
+      "name": "noCacheBackendNoHeader",
+      "pattern": "/noCacheBackendNoHeader",
+      "dontPassUrl": false,
+      "target": "{{server:local}}"
     },
     {
       "name": "noCacheBackend",
@@ -202,6 +209,9 @@
     }
   },
   "cache": {
+    "defaultNoCacheHeaders": {
+      "cache-control": "private, no-cache, max-age=0, must-revalidate, no-store"
+    },
     "engine": "memorycache"
   },
   "followRedirect": false,

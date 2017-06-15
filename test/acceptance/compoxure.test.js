@@ -149,7 +149,7 @@ describe("Page Composer", function () {
     });
   });
 
-  it('should pass through cache-control header', function (done) {
+  it('should pass through cache-control header from service if sent', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackend');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
       expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate, private, max-stale=0, post-check=0, pre-check=0');
@@ -157,10 +157,18 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should default cache-control header', function (done) {
+    var requestUrl = getPageComposerUrl('noCacheBackendNoHeader');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.headers['cache-control']).to.be.equal('private, no-cache, max-age=0, must-revalidate, no-store');
+      done();
+    });
+  });
+
   it('should use fragment\'s cache-control header overriding backend', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackendViaFragment');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
-      expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
+      expect(response.headers['cache-control']).to.be.equal('private, no-cache, max-age=0, must-revalidate, no-store');
       done();
     });
   });
@@ -295,8 +303,8 @@ describe("Page Composer", function () {
   });
 
   it('should pass no-cache, no-store, must-revalidate in Cache-control header from fragment response to client response', function (done) {
-    request.get(getPageComposerUrl(), function (err, response) {
-      expect(response.headers['cache-control']).to.be.equal('no-cache, no-store, must-revalidate');
+    request.get(getPageComposerUrl('/noCacheBackendViaFragment'), function (err, response) {
+      expect(response.headers['cache-control']).to.be.equal('private, no-cache, max-age=0, must-revalidate, no-store');
       done();
     });
   });

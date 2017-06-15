@@ -80,6 +80,9 @@ The configuration object looks as follows:
         "delimiters":"{{ }}"
     },
     "cache": {
+        "defaultNoCacheHeaders": {
+          "cache-control": "private, no-cache, max-age=0, must-revalidate, no-store"
+        },
         "engine": "redis"
     },
     "followRedirect": false,
@@ -161,6 +164,7 @@ To disable caching simply delete the entire config section.
 
 |Property|Description|
 ---------|------------
+defaultNoCacheHeaders|Headers to automatically append to any response that is not cached (optional)
 engine|The engine to use (currently only 'redis' is valid).
 url|If Redis, set a url for the redis server - e.g. localhost:6379?db=0
 host|If Redis, set the host explicitly (this and params below are an alternative to using url)
@@ -169,6 +173,7 @@ db|If Redis, set the db explicitly
 options|If redis, any option described at https://github.com/NodeRedis/node_redis#options-object-properties (e.g. to allow authentication)
 compress|Use snappy compression for caching
 namespace|Optional prefix for redis keys
+
 
 #### CDN Configuration
 

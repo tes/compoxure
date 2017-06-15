@@ -55,6 +55,10 @@ module.exports = function (config) {
       });
     } else {
       req.backend = _.defaults(_.clone(req.backend), headerBackend, backendDefaults);
+      var backendNoCache = !req.backend.cacheKey || req.backend.noCache;
+      if (backendNoCache && config.cache.defaultNoCacheHeaders) {
+        req.backend.addResponseHeaders = _.defaults(req.backend.addResponseHeaders, config.cache.defaultNoCacheHeaders);
+      }
       req.backend.target = utils.render(req.backend.target, req.templateVars);
       req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;
       return next();
