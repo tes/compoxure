@@ -211,6 +211,14 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end(backendHtml);
   });
 
+  app.get('/noCacheBackendNoHeader', function (req, res) {
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+    });
+    var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });
+    res.end(backendHtml);
+  });
+
   app.get('/noCacheBackendViaFragment', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "Cache-Control": 'private' });
     var backendHtml = fs.readFileSync('./test/common/noCacheBackendFromFragment.html', { encoding: 'utf8' });

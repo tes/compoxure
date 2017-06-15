@@ -125,7 +125,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         // it does not have no-cache or no-store.
         var backendCacheControl = res.getHeader('cache-control');
         if (!backendCacheControl || (backendCacheControl.indexOf('no-cache') === -1 && backendCacheControl.indexOf('no-store') === -1)) {
-          res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
+          var defaultCacheControl = config.cache.defaultNoCacheHeaders && config.cache.defaultNoCacheHeaders['cache-control'];
+          res.setHeader('cache-control', defaultCacheControl || 'private, no-cache, max-age=0, must-revalidate, no-store');
         }
       }
 
