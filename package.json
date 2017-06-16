@@ -1,6 +1,6 @@
 {
   "name": "compoxure",
-  "version": "2.1.24",
+  "version": "2.1.25",
   "description": "Composition proxy middleware for Express, allows for composition of microservices using declarations and caching.",
   "main": "index.js",
   "scripts": {
