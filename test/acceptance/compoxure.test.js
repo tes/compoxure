@@ -165,6 +165,14 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should allow case insensitve over-ride via addResponseHeaders', function (done) {
+    var requestUrl = getPageComposerUrl('noCacheBackendWithHeader');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.headers['cache-control']).to.be.equal('max-age=0');
+      done();
+    });
+  });
+
   it('should use fragment\'s cache-control header overriding backend', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackendViaFragment');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

@@ -143,6 +143,15 @@
       "target": "{{server:local}}"
     },
     {
+      "name": "noCacheBackendWithHeader",
+      "pattern": "/noCacheBackendWithHeader",
+      "dontPassUrl": false,
+      "target": "{{server:local}}",
+      "addResponseHeaders": {
+        "Cache-Control": "max-age=0"
+      }
+    },
+    {
       "name": "noCacheBackend",
       "pattern": "/noCacheBackend",
       "noCache": true,

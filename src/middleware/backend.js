@@ -2,6 +2,12 @@ var HttpStatus = require('http-status-codes');
 var _ = require('lodash');
 var utils = require('../utils');
 
+var lowerCaseKeys = function (obj) {
+  return _.mapKeys(obj, function(value, key) {
+    return key.toLowerCase();
+  });
+}
+
 module.exports = function (config) {
 
   var backendDefaults = _.defaults(config.backendDefaults || {}, {
@@ -57,7 +63,7 @@ module.exports = function (config) {
       req.backend = _.defaults(_.clone(req.backend), headerBackend, backendDefaults);
       var backendNoCache = !req.backend.cacheKey || req.backend.noCache;
       if (backendNoCache && config.cache.defaultNoCacheHeaders) {
-        req.backend.addResponseHeaders = _.defaults(req.backend.addResponseHeaders, config.cache.defaultNoCacheHeaders);
+        req.backend.addResponseHeaders = _.defaults(lowerCaseKeys(req.backend.addResponseHeaders), lowerCaseKeys(config.cache.defaultNoCacheHeaders));
       }
       req.backend.target = utils.render(req.backend.target, req.templateVars);
       req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;

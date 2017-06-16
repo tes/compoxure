@@ -33,7 +33,7 @@
     "html-entities": "^1.1.1",
     "htmlparser2": "^3.9.2",
     "http-status-codes": "^1.0.2",
-    "lodash": "~3.6.0",
+    "lodash": "^3.10.1",
     "morgan": "^1.2.1",
     "parxer": "^2.0.6",
     "reliable-get": "^1.0.8",
