@@ -250,7 +250,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             'cx-page-url': templateVars['url:href'],
             'x-tracer': req.tracer,
             'x-cdn-host': getCdnHost(),
-            'x-cdn-url': getCdnUrl()
+            'x-cdn-url': getCdnUrl(),
+            'x-site-country': req.headers['x-site-country'],
+            'x-site-language': req.headers['x-site-language']
           }
         };
 
