@@ -186,6 +186,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 statsdTags: ['application:' + utils.getServiceNameFromUrl(layoutUrl)],
                 headers: {
                   'x-device': transformedOptions.headers['x-device'],
+                  'x-site-country': transformedOptions.headers['x-site-country'],
+                  'x-site-language': transformedOptions.headers['x-site-language'],
                   cookie: transformedOptions.headers.cookie
                 }
               }, handleErrorDecorator(function (err, response) {
