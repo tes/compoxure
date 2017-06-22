@@ -31,9 +31,9 @@ function getNoCacheAttr(fragment) {
   return explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false;
 }
 
-function delimitContent(response, options) {
+function delimitContent(response, options, logEvents) {
   var id = _.uniqueId();
-  var openTag = debugScriptTag({ data: { options: options, status: response.statusCode, timing: response.timing }, id: id, type: 'open' });
+  var openTag = debugScriptTag({ data: { options: options, status: response.statusCode, timing: response.timing, realTiming: response.realTiming, logEvents: logEvents }, id: id, type: 'open' });
   var closeTag = debugScriptTag({ data: null, id: id, type: 'close' });
   return openTag + response.content + closeTag;
 }
@@ -257,10 +257,16 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         };
 
         function transformerCallback(err, transformedOptions) {
+          var logEvents;
           if (err) {
             return onErrorHandler(err, {}, transformedOptions);
           }
-
+          logEvents = [];
+          if(isDebugEnabled()) {
+            transformedOptions.onLog = function (evt, payload, ts) {
+              logEvents.push({evt: evt, ts: ts});
+            }
+          }
           reliableGet.get(transformedOptions, function getCallback(getErr, response) {
             if (getErr) {
               return onErrorHandler(getErr, response, transformedOptions);
@@ -268,7 +274,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
             fragmentTimings.push({ url: cxUrl, status: response.statusCode, timing: response.timing });
 
-            var content = isDebugEnabled() ? delimitContent(response, options) : response.content;
+            var content = isDebugEnabled() ? delimitContent(response, options, logEvents) : response.content;
             responseCallback(null, content, response.headers);
           });
         }
