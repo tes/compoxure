@@ -8,7 +8,32 @@ var lowerCaseKeys = function (obj) {
   });
 }
 
+function validateBackends(backend) {
+  if (!backend) {
+    return;
+  }
+  var names = {};
+  var dupes = [];
+
+  backend.forEach(function (b) {
+    if (!b.name) {
+      return;
+    }
+    if (names[b.name] === 1) {
+      dupes.push(b.name);
+    }
+    names[b.name] = names[b.name] || 0;
+    names[b.name]++;
+  });
+
+  if (dupes.length) {
+    throw new Error('Duplicate backend names: ' + dupes.join(', '));
+  }
+}
+
 module.exports = function (config) {
+
+  validateBackends(config.backend);
 
   var backendDefaults = _.defaults(config.backendDefaults || {}, {
     quietFailure: false,
@@ -25,22 +50,25 @@ module.exports = function (config) {
 
   return function selectBackend(req, res, next) {
 
-    var headerBackend = {
-      name: req.get && req.get('x-compoxure-backend'),
-      target: req.get && req.get('x-compoxure-backend-target'),
-      ttl: req.get && req.get('x-compoxure-backend-ttl'),
-      noCache: req.get && req.get('x-compoxure-backend-nocache'),
-      timeout: req.get && req.get('x-compoxure-backend-timeout')
-    };
+    var headerBackend = {};
+    if (req.get) {
+      headerBackend = {
+        name: req.get('x-compoxure-backend'),
+        target: req.get('x-compoxure-backend-target'),
+        ttl: req.get('x-compoxure-backend-ttl'),
+        noCache: req.get('x-compoxure-backend-nocache'),
+        timeout: req.get('x-compoxure-backend-timeout')
+      };
+    }
 
     if (config.backend) {
       // First try to match based on header and use header values
       if (headerBackend.target) {
-        req.backend = _.find(config.backend, function (server) {
-          if(headerBackend.name && server.name === headerBackend.name) {
-            return true;
-          }
-        });
+        if (headerBackend.name) {
+          req.backend = _.find(config.backend, function (server) {
+            return (server.name === headerBackend.name);
+          });
+        }
       } else {
         req.backend = utils.getBackendConfig(config, req.url, req);
       }
@@ -59,15 +87,15 @@ module.exports = function (config) {
         level: 'warn',
         message: 'Backend not found'
       });
-    } else {
-      req.backend = _.defaults(_.clone(req.backend), headerBackend, backendDefaults);
-      var backendNoCache = !req.backend.cacheKey || req.backend.noCache;
-      if (backendNoCache && config.cache.defaultNoCacheHeaders) {
-        req.backend.addResponseHeaders = _.defaults(lowerCaseKeys(req.backend.addResponseHeaders), lowerCaseKeys(config.cache.defaultNoCacheHeaders));
-      }
-      req.backend.target = utils.render(req.backend.target, req.templateVars);
-      req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;
-      return next();
     }
+
+    req.backend = _.defaults(_.clone(req.backend), headerBackend, backendDefaults);
+    var backendNoCache = !req.backend.cacheKey || req.backend.noCache;
+    if (backendNoCache && config.cache.defaultNoCacheHeaders) {
+      req.backend.addResponseHeaders = _.defaults(lowerCaseKeys(req.backend.addResponseHeaders), lowerCaseKeys(config.cache.defaultNoCacheHeaders));
+    }
+    req.backend.target = utils.render(req.backend.target, req.templateVars);
+    req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;
+    return next();
   }
 }

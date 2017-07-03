@@ -138,7 +138,7 @@
       ]
     },
     {
-      "name": "noCacheBackend",
+      "name": "noCacheBackendSetCookie",
       "pattern": "/set-cookie",
       "noCache": true,
       "dontPassUrl": false,
