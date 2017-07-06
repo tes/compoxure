@@ -31,9 +31,9 @@ function getNoCacheAttr(fragment) {
   return explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false;
 }
 
-function delimitContent(response, options, logEvents) {
+function delimitContent(response, options, logEvents, fragmentId) {
   var id = _.uniqueId();
-  var openTag = debugScriptTag({ data: { options: options, status: response.statusCode, timing: response.timing, realTiming: response.realTiming, logEvents: logEvents }, id: id, type: 'open' });
+  var openTag = debugScriptTag({ data: { id: fragmentId, options: options, status: response.statusCode, timing: response.realTiming, logEvents: logEvents }, id: id, type: 'open' });
   var closeTag = debugScriptTag({ data: null, id: id, type: 'close' });
   return openTag + response.content + closeTag;
 }
@@ -52,6 +52,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
   }
 
   return function parserMiddleware(req, res, cb) {
+    var fragmentId = 0;
+    var contentId = 0;
     var templateVars = req.templateVars;
     var commonState = {}; // common between all parser
     var fragmentTimings = [];
@@ -86,6 +88,11 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           // Ignore parse error
         }
 
+        contentId++;
+        /* server timing: content from drupal */
+        if(isDebugEnabled()) {
+          utils.appendServerTimings(res, utils.getServerTimingName('content:' + contentId, response), response.realTiming);
+        }
         _.each(contentVars, function (value, key) {
           templateVars['content:' + tag + ':' + key] = value;
           templateVars['content:' + tag + ':' + key + ':encoded'] = encodeURI(value);
@@ -271,10 +278,15 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             if (getErr) {
               return onErrorHandler(getErr, response, transformedOptions);
             }
+            fragmentId++;
 
             fragmentTimings.push({ url: cxUrl, status: response.statusCode, timing: response.timing });
 
-            var content = isDebugEnabled() ? delimitContent(response, options, logEvents) : response.content;
+            var content = isDebugEnabled() ? delimitContent(response, options, logEvents, fragmentId) : response.content;
+            /* server timing: fragment */
+            if(isDebugEnabled()) {
+              utils.appendServerTimings(res, utils.getServerTimingName('fragment:' + fragmentId, response), response.realTiming);
+            }
             responseCallback(null, content, response.headers);
           });
         }

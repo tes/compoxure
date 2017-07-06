@@ -95,6 +95,30 @@ function getBackendConfig(config, url, req) {
   });
 }
 
+function getServerTimingName(name, response) {
+  var flags = [];
+  if (response.stale) {
+    flags.push('stale');
+  }
+  if (response.cached) {
+    flags.push('cached');
+  }
+  if (response.deduped) {
+    flags.push('deduped');
+  }
+  return flags.length ? name + ' (' + flags.join(' ,') + ')': name;
+}
+
+function appendServerTimings(res, name, ms) {
+  var initials = name.split(/\W+/).map(function (word) { return word[0] || '' ; }).join('');
+  initials += '-' + Math.random().toString(36).substr(2, 4);
+  var newHeader = initials + '=' + ms + '; "' + name + '"';
+  var headerStr = res.getHeader('Server-Timing');
+  var header = headerStr ? headerStr.split(',') : [];
+  header.push(newHeader);
+  res.setHeader('Server-Timing', header.join(',') );
+}
+
 module.exports = {
   timeToMillis: timeToMillis,
   urlToCacheKey: urlToCacheKey,
@@ -103,5 +127,7 @@ module.exports = {
   formatTemplateVariables: formatTemplateVariables,
   filterCookies: filterCookies,
   getBackendConfig: getBackendConfig,
-  getServiceNameFromUrl: getServiceNameFromUrl
+  getServiceNameFromUrl: getServiceNameFromUrl,
+  appendServerTimings: appendServerTimings,
+  getServerTimingName: getServerTimingName,
 };

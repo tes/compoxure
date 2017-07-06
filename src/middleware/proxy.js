@@ -16,6 +16,9 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
   reliableGet.on('stat', eventHandler.stats);
 
   return function (req, res) {
+    function isDebugEnabled() {
+      return req.query && req.query['cx-debug'];
+    }
 
     htmlParserMiddleware(req, res, function () {
 
@@ -161,6 +164,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           }
           setAdditionalHeaders();
           passThroughHeaders(response.headers);
+          /* server timing: main page */
+          if(isDebugEnabled()) {
+            utils.appendServerTimings(res, utils.getServerTimingName('page', response), response.realTiming);
+          }
+
           if ('cx-layout' in response.headers) {
             layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
             req.templateVars.layout = layoutUrl;
@@ -191,6 +199,10 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   cookie: transformedOptions.headers.cookie
                 }
               }, handleErrorDecorator(function (err, response) {
+                /* server timing: layout */
+                if(isDebugEnabled()) {
+                  utils.appendServerTimings(res, utils.getServerTimingName('layout', response), response.realTiming);
+                }
                 res.parse(response.content);
               }));
             });

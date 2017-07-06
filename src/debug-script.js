@@ -18,7 +18,30 @@
     var id = openTag.getAttribute('data-cx-open-id');
     var closeTag = d.querySelector('script[data-cx-close-id="' + id + '"]');
     var nodes = elBetweenDelimiters(openTag, closeTag);
-    console.log('cx fragment', data, nodes);
+    if ('groupCollapsed' in console) {
+      console.groupCollapsed('cx fragment:' + data.id);
+    } else {
+      console.log('cx fragment:' + data.id);
+    }
+
+    if ('table' in console) {
+      console.table(data.logEvents);
+    } else {
+      console.log('events', data.logEvents);
+    }
+
+    console.log('Nodes:', nodes);
+
+    console.log('Options:', data.options);
+
+    console.log('Status:', data.status);
+
+    if ('groupEnd' in console) {
+      console.groupEnd();
+    } else {
+      console.log('----------------');
+    }
+
     nodes.forEach(function (el) {
       el.cxDebugId = id;
       el.cxDebugData = data;
