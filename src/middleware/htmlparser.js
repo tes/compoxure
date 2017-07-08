@@ -8,7 +8,6 @@ var utils = require('../utils');
 var htmlEntities = new (require('html-entities').AllHtmlEntities)();
 
 var errorTemplate = _.template('<div style="color: red; font-weight: bold; font-family: monospace;">Error: <%= err %></div>');
-var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
 var debugScript = '<script>' + fs.readFileSync(path.join(__dirname, '../debug-script.js'), 'utf8') + '</script>';
 
 function hasCxAttr(node, name) {
@@ -29,13 +28,6 @@ function getNoCacheAttr(fragment) {
   /* jslint evil: true */
   var explicitNoCacheAttr = getCxAttr(fragment, 'cx-no-cache');
   return explicitNoCacheAttr ? eval(explicitNoCacheAttr) : false;
-}
-
-function delimitContent(response, options, logEvents, fragmentId) {
-  var id = _.uniqueId();
-  var openTag = debugScriptTag({ data: { id: fragmentId, options: options, status: response.statusCode, timing: response.realTiming, logEvents: logEvents }, id: id, type: 'open' });
-  var closeTag = debugScriptTag({ data: null, id: id, type: 'close' });
-  return openTag + response.content + closeTag;
 }
 
 function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
@@ -76,6 +68,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m'))
       };
 
+      var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(opts);
       reliableGet.get(opts, function (err, response) {
         if (err) {
           return next(errorTemplate({ err: err.message }));
@@ -87,10 +80,11 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         } catch (e) {
           // Ignore parse error
         }
+        var debugTag = utils.isDebugEnabled(req) ? utils.delimitContent('', response, opts, logEvents, 'content', contentId) : '';
 
         contentId++;
         /* server timing: content from drupal */
-        if(isDebugEnabled()) {
+        if(utils.isDebugEnabled(req)) {
           utils.appendServerTimings(res, utils.getServerTimingName('content:' + contentId, response), response.realTiming);
         }
         _.each(contentVars, function (value, key) {
@@ -98,7 +92,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           templateVars['content:' + tag + ':' + key + ':encoded'] = encodeURI(value);
         });
 
-        next(null, '<!-- content ' + tag + ' loaded -->');
+        next(null, '<!-- content ' + tag + ' loaded -->' + debugTag);
       });
     }
 
@@ -149,10 +143,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       if (typeof eventHandler.logger === 'function') {
         eventHandler.logger(logLevel, message, { tracer: req.tracer });
       }
-    }
-
-    function isDebugEnabled() {
-      return req.query && req.query['cx-debug'];
     }
 
     function getParxerOpts(depth) {
@@ -264,16 +254,11 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         };
 
         function transformerCallback(err, transformedOptions) {
-          var logEvents;
           if (err) {
             return onErrorHandler(err, {}, transformedOptions);
           }
-          logEvents = [];
-          if(isDebugEnabled()) {
-            transformedOptions.onLog = function (evt, payload, ts) {
-              logEvents.push({evt: evt, ts: ts});
-            }
-          }
+          var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
+
           reliableGet.get(transformedOptions, function getCallback(getErr, response) {
             if (getErr) {
               return onErrorHandler(getErr, response, transformedOptions);
@@ -282,9 +267,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
 
             fragmentTimings.push({ url: cxUrl, status: response.statusCode, timing: response.timing });
 
-            var content = isDebugEnabled() ? delimitContent(response, options, logEvents, fragmentId) : response.content;
+            var content = utils.isDebugEnabled(req) ? utils.delimitContent(response.content, response, options, logEvents, 'fragment', fragmentId) : response.content;
             /* server timing: fragment */
-            if(isDebugEnabled()) {
+            if(utils.isDebugEnabled(req)) {
               utils.appendServerTimings(res, utils.getServerTimingName('fragment:' + fragmentId, response), response.realTiming);
             }
             responseCallback(null, content, response.headers);
@@ -341,8 +326,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       if (!res.headersSent) {
         res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
 
-        if (req.query && req.query['cx-debug']) {
-          return res.end(content.replace('</body>', debugScript + '</body>'));
+        if (utils.isDebugEnabled(req)) {
+          return res.end(content.replace('</body>', res.debugInfo + debugScript + '</body>'));
         }
 
         return res.end(content);

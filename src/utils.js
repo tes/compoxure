@@ -119,6 +119,31 @@ function appendServerTimings(res, name, ms) {
   res.setHeader('Server-Timing', header.join(',') );
 }
 
+function isDebugEnabled(req) {
+  return req.query && req.query['cx-debug'];
+}
+
+var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
+
+function delimitContent(content, response, options, logEvents, fragmentType, fragmentId) {
+  var id = _.uniqueId();
+  var data = { type: fragmentType, options: options, status: response.statusCode, timing: response.realTiming, logEvents: logEvents };
+  if (fragmentId) {
+    data.id = fragmentId;
+  }
+  var openTag = debugScriptTag({ data: data, id: id, type: 'open' });
+  var closeTag = debugScriptTag({ data: null, id: id, type: 'close' });
+  return openTag + content + closeTag;
+}
+
+function attachEventLogger(opts) {
+  var logEvents = [];
+  opts.onLog = function (evt, payload, ts) {
+    logEvents.push({evt: evt, ts: ts});
+  }
+  return logEvents;
+}
+
 module.exports = {
   timeToMillis: timeToMillis,
   urlToCacheKey: urlToCacheKey,
@@ -130,4 +155,7 @@ module.exports = {
   getServiceNameFromUrl: getServiceNameFromUrl,
   appendServerTimings: appendServerTimings,
   getServerTimingName: getServerTimingName,
+  isDebugEnabled: isDebugEnabled,
+  delimitContent: delimitContent,
+  attachEventLogger: attachEventLogger,
 };

@@ -18,10 +18,11 @@
     var id = openTag.getAttribute('data-cx-open-id');
     var closeTag = d.querySelector('script[data-cx-close-id="' + id + '"]');
     var nodes = elBetweenDelimiters(openTag, closeTag);
+    var dataId = typeof data.id !== 'undefined' ? ':' + data.id : '';
     if ('groupCollapsed' in console) {
-      console.groupCollapsed('cx fragment:' + data.id);
+      console.groupCollapsed('cx ' + data.type + dataId);
     } else {
-      console.log('cx fragment:' + data.id);
+      console.log('cx ' + data.type + dataId);
     }
 
     if ('table' in console) {
@@ -30,7 +31,9 @@
       console.log('events', data.logEvents);
     }
 
-    console.log('Nodes:', nodes);
+    if (data.type  === 'fragment') {
+      console.log('Nodes:', nodes);
+    }
 
     console.log('Options:', data.options);
 

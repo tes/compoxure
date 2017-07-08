@@ -16,10 +16,6 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
   reliableGet.on('stat', eventHandler.stats);
 
   return function (req, res) {
-    function isDebugEnabled() {
-      return req.query && req.query['cx-debug'];
-    }
-
     htmlParserMiddleware(req, res, function () {
 
       req.tracer = req.headers['x-tracer'] || 'no-tracer';
@@ -155,6 +151,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           return;
         }
 
+        var logEventsPage = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
         reliableGet.get(transformedOptions, handleErrorDecorator(function (err, response) {
           var layoutUrl;
           var newTemplateVars = utils.formatTemplateVariables(response.headers);
@@ -165,8 +162,9 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           setAdditionalHeaders();
           passThroughHeaders(response.headers);
           /* server timing: main page */
-          if(isDebugEnabled()) {
+          if(utils.isDebugEnabled(req)) {
             utils.appendServerTimings(res, utils.getServerTimingName('page', response), response.realTiming);
+            res.debugInfo = utils.delimitContent('', response, transformedOptions, logEventsPage, 'page');
           }
 
           if ('cx-layout' in response.headers) {
@@ -185,8 +183,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 layoutConfig.cacheTTL :
                 60000 * 5; // 5 mins
 
-              // get the layout
-              reliableGet.get({
+              var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
+              var layoutOptions = {
                 url: layoutUrl,
                 cacheKey: cacheKey,
                 cacheTTL: cacheTTL,
@@ -198,10 +196,13 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   'x-site-language': transformedOptions.headers['x-site-language'],
                   cookie: transformedOptions.headers.cookie
                 }
-              }, handleErrorDecorator(function (err, response) {
+              };
+              // get the layout
+              reliableGet.get(layoutOptions, handleErrorDecorator(function (err, response) {
                 /* server timing: layout */
-                if(isDebugEnabled()) {
+                if(utils.isDebugEnabled(req)) {
                   utils.appendServerTimings(res, utils.getServerTimingName('layout', response), response.realTiming);
+                  res.debugInfo += utils.delimitContent('', response, layoutOptions, logEventsLayout, 'layout');
                 }
                 res.parse(response.content);
               }));
