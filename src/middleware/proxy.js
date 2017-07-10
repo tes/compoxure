@@ -183,7 +183,6 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 layoutConfig.cacheTTL :
                 60000 * 5; // 5 mins
 
-              var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
               var layoutOptions = {
                 url: layoutUrl,
                 cacheKey: cacheKey,
@@ -197,6 +196,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   cookie: transformedOptions.headers.cookie
                 }
               };
+              var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(layoutOptions);
               // get the layout
               reliableGet.get(layoutOptions, handleErrorDecorator(function (err, response) {
                 /* server timing: layout */
