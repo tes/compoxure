@@ -53,20 +53,23 @@ function initPcServer(port, hostname, eventHandler, configFile, enableExtension)
 
   var compoxureMiddleware = cx(config, eventHandler, optionsTransformer);
 
-  var server = express();
+  var app = express();
 
-  server.use(cookieParser());
-  server.use(function (req, res, next) {
+  app.use(cookieParser());
+  app.use(function (req, res, next) {
     // This would be a call off to a service (e.g. planout based)
     // To retrieve active experiments for the current user.
     // Assumed it returns a simple object one level of properties deep
     req.experiments = { details_block: 'A123', another_test: 'B112' };
     next();
   });
-  server.use(compoxureMiddleware);
+  app.use(compoxureMiddleware);
 
   return function (next) {
-    server.listen(port, hostname).on('listening', next)
+    var server = app.listen(port);
+    server.on('listening', function() {
+      next(null, server);
+    });
   }
 
 }

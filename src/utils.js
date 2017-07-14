@@ -78,8 +78,8 @@ function filterCookies(whitelist, cookies) {
   }, '');
 }
 
-function getBackendConfig(config, url, req) {
-  return _.find(config.backend, function (server) {
+function getBackendConfig(config, backends, url, req) {
+  return _.find(backends, function (server) {
     // Then try to match based on pattern in backend Config
     if (server.pattern) {
       return [].concat(server.pattern).some(function (pattern) {

@@ -12,6 +12,8 @@ var pcServer = require('../common/pcServer');
 
 describe("Page Composer", function () {
 
+  var runningServers;
+
   this.timeout(5000);
   this.slow(3000);
 
@@ -21,7 +23,17 @@ describe("Page Composer", function () {
       initStubServer2,
       initPageComposer,
       initPageComposerMinified
-    ], done);
+    ], function(err, servers) {
+      runningServers = servers;
+      done();
+    });
+  });
+
+  after(function (done) {
+    async.map(runningServers, function(server, cb) {
+      server.close();
+      cb();
+    }, done);
   });
 
   function createEventHandler() {

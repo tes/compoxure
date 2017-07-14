@@ -495,7 +495,10 @@ function initStubServer(fileName, port/*, hostname*/) {
   });
 
   return function (next) {
-    app.listen(port).on('listening', next);
+    var server = app.listen(port);
+    server.on('listening', function() {
+      next(null, server);
+    });
   };
 }
 

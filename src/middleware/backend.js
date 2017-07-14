@@ -33,7 +33,12 @@ function validateBackends(backend) {
 
 module.exports = function (config) {
 
-  validateBackends(config.backend);
+  // Switch keyed object to an array here on startup, not on each request
+  var backendIsArray = Array.isArray(config.backend);
+  var backendArray = backendIsArray ? config.backend : _.values(config.backend);
+  if (backendIsArray) {
+    validateBackends(backendArray);
+  }
 
   var backendDefaults = _.defaults(config.backendDefaults || {}, {
     quietFailure: false,
@@ -61,16 +66,21 @@ module.exports = function (config) {
       };
     }
 
-    if (config.backend) {
+    if (backendArray) {
       // First try to match based on header and use header values
       if (headerBackend.target) {
         if (headerBackend.name) {
-          req.backend = _.find(config.backend, function (server) {
-            return (server.name === headerBackend.name);
-          });
+          if (backendArray) {
+            req.backend = _.find(backendArray, function (server) {
+              return (server.name === headerBackend.name);
+            });
+          } else {
+            // It is an object, we can just retrieve by key
+            req.backend = config.backend[headerBackend.name];
+          }
         }
       } else {
-        req.backend = utils.getBackendConfig(config, req.url, req);
+        req.backend = utils.getBackendConfig(config, backendArray, req.url, req);
       }
     }
 
