@@ -108,7 +108,7 @@ These properties configure the backend server that the initial request goes to g
 | passThrough        | Defaults to false, but if set to true it will proxy all non HTML assets through completely un-parsed. It's best to serve static assets like Javascript and CSS from a CDN so the requests don't go through Compoxure, but there could be exceptions to this, eg service workers that have to be requested from the same domain as the app (for this case, also see contentTypes config option above). |
 | headers            | An array of header names to specify headers forwarded to the backend server. |
 | cacheKey            | Cache key to use for requests to this backend |
-| noCache            | Do not cache this backend. |
+| noCache            | ~~Do not cache this backend.~~ Deprecated - caching is now off by default |
 | passThroughHeaders | Pass this array of headers to the client if the backend sets them. E.g., `"passThroughHeaders": ["x-robot-tag","cache-control"]`|
 | addResponseHeaders | Set the response headers in this map always. E.g., `"addResponseHeaders": { "x-robots-tag": "noindex" }`
 
