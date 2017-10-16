@@ -511,7 +511,8 @@ describe("Page Composer", function () {
       expect(response.statusCode).to.be(200);
       var $ = cheerio.load(response.body);
       var bundles = $('.bundle');
-      expect($(bundles[0]).text()).to.be('service-one >> 100 >> top.js.htmlservice-two >> YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE >> top.js.html');
+      expect(bundles['1'].attribs.src).to.be('http://localhost:5001/static/service-one/100/js/top.js');
+      expect(bundles['2'].attribs.src).to.be('http://localhost:5001/static/service-two/YOU_SPECIFIED_A_BUNDLE_THAT_ISNT_AVAILABLE_TO_THIS_PAGE/js/top.js');
       done();
     });
   });
@@ -522,7 +523,7 @@ describe("Page Composer", function () {
       expect(response.statusCode).to.be(200);
       var $ = cheerio.load(response.body);
       var bundles = $('.resolved-bundle');
-      expect($(bundles[0]).text()).to.be('RESOLVED service-resolved >> 123 >> top.js.html');
+      expect(bundles['1'].attribs.src).to.be('http://localhost:5001/resolved-static/service-resolved/123/js/top.js');
       done();
     });
   });
@@ -689,7 +690,7 @@ describe("Page Composer", function () {
         request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
           var $ = cheerio.load(content);
           expect(response.statusCode).to.be(200);
-          expect($('.bundle').text()).to.be('service-one >> 100 >> top.js.html');
+          expect($('.bundle')['1'].attribs.src).to.be('http://localhost:5001/static/service-one/100/js/top.js');
           done();
         });
       }, 50);
@@ -846,7 +847,8 @@ describe("Page Composer", function () {
       var requestUrl = getPageComposerUrl('use-layout-with-bundle');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
         expect(response.statusCode).to.be(200);
-        expect(response.body).to.be('<html>hello Service resolved 2<div><div cx-url="http://localhost:5001/service-resolved" cx-url-raw="{{server:local}}/service-resolved" cx-url-done="true">Service resolved - I have a bundle, hear me roar - over there.</div><div class="bundle" cx-bundles="service-resolved/top.js" cx-bundles-done="true">RESOLVED service-resolved >> 123 >> top.js.html</div></div></html>');
+        var $ = cheerio.load(response.body);
+        expect($('.bundle')['1'].attribs.src).to.be('http://localhost:5001/resolved-static/service-resolved/123/js/top.js');
         done();
       });
     });
@@ -855,7 +857,8 @@ describe("Page Composer", function () {
       var requestUrl = getPageComposerUrl('use-layout-with-bundle2');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
         expect(response.statusCode).to.be(200);
-        expect(response.body).to.be('<html>hello Service resolved 2<div><div class="bundle" cx-bundles="service-resolved2/top.js" cx-bundles-done="true">service-resolved2 >> 123 >> top.js.html</div></div></html>');
+        var $ = cheerio.load(response.body);
+        expect($('.bundle')['1'].attribs.src).to.be('http://localhost:5001/static/service-resolved2/123/js/top.js');
         done();
       });
     });
