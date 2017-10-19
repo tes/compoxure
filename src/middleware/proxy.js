@@ -47,6 +47,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         },
         targetCacheKey = backend.cacheKey,
         targetCacheTTL = utils.timeToMillis(backend.ttl || '30s'),
+        targetTags = backend.tags,
         explicitNoCache = backend.noCache || req.explicitNoCache,
         options;
 
@@ -78,6 +79,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         url: targetUrl,
         cacheKey: targetCacheKey,
         cacheTTL: targetCacheTTL,
+        tags: targetTags,
         explicitNoCache: explicitNoCache,
         timeout: utils.timeToMillis(backend.timeout || DEFAULT_LOW_TIMEOUT),
         headers: backendHeaders,
