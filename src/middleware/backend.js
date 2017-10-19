@@ -96,6 +96,8 @@ module.exports = function (config) {
     }
     req.backend.target = utils.render(req.backend.target, req.templateVars);
     req.backend.cacheKey = req.backend.cacheKey ? utils.render(req.backend.cacheKey, req.templateVars) : null;
+    var tags = req.backend.tags ? utils.render(req.backend.tags, req.templateVars) : undefined;
+    req.backend.tags = tags ? tags.split(/\s+/) : [];
     return next();
   }
 }

@@ -109,6 +109,7 @@ These properties configure the backend server that the initial request goes to g
 | headers            | An array of header names to specify headers forwarded to the backend server. |
 | cacheKey            | Cache key to use for requests to this backend |
 | noCache            | ~~Do not cache this backend.~~ Deprecated - caching is now off by default |
+| tags            | a space separated list of tags. They are used to mark a cached item, so they should be easy to bulk delete |
 | passThroughHeaders | Pass this array of headers to the client if the backend sets them. E.g., `"passThroughHeaders": ["x-robot-tag","cache-control"]`|
 | addResponseHeaders | Set the response headers in this map always. E.g., `"addResponseHeaders": { "x-robots-tag": "noindex" }`
 
