@@ -71,9 +71,7 @@ The configuration object looks as follows:
         }
     },
     "cdn": {
-        "host": "server.cloudfront.net",
-        "protocol": "https",
-        "path": "/assets"
+        "url": "https://server.cloudfront.net",        
     },
     "environment":{
         "name":"development"
