@@ -1,7 +1,9 @@
 # Compoxure Composition Middleware
 [![Build Status](https://travis-ci.org/tes/compoxure.svg?branch=master)](https://travis-ci.org/tes/compoxure) [![Dependencies](https://david-dm.org/tes/compoxure.svg)](https://david-dm.org/tes/compoxure) [![Coverage Status](https://img.shields.io/coveralls/tes/compoxure.svg)](https://coveralls.io/r/tes/compoxure?branch=master)
 
-Composition proxy replacement for ESI or SSI uses [htmlparser2](https://github.com/fb55/htmlparser2/) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as connect middleware to allow quick creation of a proxy server.
+Composition proxy replacement for ESI or SSI uses [htmlparser2](https://github.com/fb55/htmlparser2/) to parse HTML from backend services and compose fragments from microservices into the response.  This is exposed as Express middleware to allow quick creation of a proxy server.
+
+If you are looking for a almost 'ready to use' server that has the middleware configured with some examples, please look here:  https://github.com/tes/compoxure-example
 
 For rationale (e.g. why the heck would anyone build this), please see the rationale section at the bottom.
 
