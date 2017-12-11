@@ -47,7 +47,7 @@
         "defaultNoCacheHeaders": {
             "cache-control": "private, no-cache, max-age=0, must-revalidate, no-store"
         },
-        "engine": "memory",
+        "engine": "memorycache",
         "apiEnabled": true
     },
     "hogan": {
