@@ -148,7 +148,8 @@
       "dontPassUrl": false,
       "target": "{{server:local}}",
       "addResponseHeaders": {
-        "Cache-Control": "max-age=0"
+        "Cache-Control": "max-age=0",
+        "Surrogate-Key": "path:{{url:path}}"
       }
     },
     {

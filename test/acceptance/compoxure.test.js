@@ -173,6 +173,14 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should allow use of template variables in addResponseHeaders', function (done) {
+    var requestUrl = getPageComposerUrl('noCacheBackendWithHeader');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.headers['surrogate-key']).to.be.equal('path:/noCacheBackendWithHeader');
+      done();
+    });
+  });
+
   it('should use fragment\'s cache-control header overriding backend', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackendViaFragment');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

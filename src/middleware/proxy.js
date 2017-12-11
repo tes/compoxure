@@ -132,7 +132,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
       var setAdditionalHeaders = function () {
         var headersToAdd = _.keys(backend.addResponseHeaders);
         headersToAdd.forEach(function (header) {
-          var headerValue = backend.addResponseHeaders[header];
+          var headerValue = Core.render(backend.addResponseHeaders[header], req.templateVars);
           if (headerValue) { res.setHeader(header, headerValue); }
         });
       }
