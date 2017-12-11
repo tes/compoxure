@@ -278,8 +278,26 @@ The best option here is to use a different delimiter for Compoxure, and this can
 ---------|------------
 delimiters|New delimiter string - e.g. '<% %>'
 
-#### Layout engine
-You can use this feature to push some sections of a template in a layout. You have to send an header ```cx-layout: http://www.example.com/layout.html```. The layout should contain some slot definition:
+#### Layout engine and Slots
+
+You can use this feature to push some sections of a template in a layout.
+
+To get this feature to work, you need a few things setup:
+
+1. An endpoint (service) that serves a HTML page that forms the layout, that contains 'define slots'.
+2. An application that serves the correct headers, and a fragment of HTML that with 'use slots'
+
+The headers your application needs to send are:
+
+```
+{
+  'cx-layout': 'http://www.example.com/layout.html',
+  'cx-parse-me': 'true'
+}
+```
+
+The layout should contain some slot definition:
+
 ```html
 ...
 <h1>I am the layout</h1>
@@ -292,7 +310,9 @@ You can use this feature to push some sections of a template in a layout. You ha
 </div>
 ...
 ```
-The requested template can fill these slots:
+
+The application then should respond with some HTML that describes what to put in each slot:
+
 ```html
 ...
 <div cx-use-slot="slot1">
@@ -300,8 +320,11 @@ The requested template can fill these slots:
 </div>
 ...
 ```
+
 If a slot is not provided the default content will be used.
+
 So this will be output:
+
 ```html
 ...
 <h1>I am the layout</h1>
@@ -314,7 +337,9 @@ So this will be output:
 </div>
 ...
 ```
+
 If there is more than one cx-use-slot with the same name, the content of all of them will be concatenated.
+
 This can be useful if fragments from different services want to add the content in the same place.
 
 #### Nested Fragments
@@ -329,20 +354,26 @@ Component1
   <p>Widget 1</p>
 </div>
 ```
+
 Component2
+
 ```html
 <div>
   <p>Widget Two</p>
   <div cx-url='{{server:local}}/application/component1'></div>
 </div>
 ```
+
 Root
+
 ```html
 <body>
   <div cx-url='{{server:local}}/application/component2'></div>
 </body>
 ```
+
 Result of rendering Root:
+
 ```html
 <body>
   <div cx-url='{{server:local}}/application/component2'>
@@ -368,11 +399,11 @@ As composure uses a mustache syntax for variable substition, when using compoxur
 |Property|Description|
 ---------|------------
 cx-url|The url to call to get the content to put into the section matching the selector (specific to replacement).
-cx-cache-key|The key to use to cache the response (if blank it will use the cx-url to create a cache key)
-cx-cache-ttl|The time to cache the response (set to zero for no cache - defaults to 60s).
+cx-cache-key|The key to use to cache the response, if none provided compoxure will not cache.
+cx-cache-ttl|The time to cache the response.
 cx-statsd-key|The key to use to report stats to statsd, defaults to cache-key if not set.
 cx-timeout|The timeout to wait for the service to respond.
-cx-no-cache|Explicit instruction to not cache when value value eval's to true, overrides all other cache instruction.
+cx-no-cache|Explicit instruction to not cache when value value eval's to true, overrides all other cache instruction (deprecated - compoxure no longer caches by default)
 cx-replace-outer|Whether to completely replace the outer HTML element. Overrides configuration in backend.
 cx-test|Use to test a string, it will parse the string and output that (e.g. change cx-url to cx-test to test)
 cx-ignore-404|If this call returns a 404 then dont pass it up and 404 the entire page, defaults to TRUE.
