@@ -166,7 +166,7 @@ To disable caching simply delete the entire config section.
 |Property|Description|
 ---------|------------
 defaultNoCacheHeaders|Headers to automatically append to any response that is not cached (optional)
-engine|The engine to use (currently only 'redis' is valid).
+engine|The engine to use: 'nocache', 'memorycache', 'redis'.
 url|If Redis, set a url for the redis server - e.g. localhost:6379?db=0
 host|If Redis, set the host explicitly (this and params below are an alternative to using url)
 port|If Redis, set the port explicitly
@@ -174,7 +174,6 @@ db|If Redis, set the db explicitly
 options|If redis, any option described at https://github.com/NodeRedis/node_redis#options-object-properties (e.g. to allow authentication)
 compress|Use snappy compression for caching
 namespace|Optional prefix for redis keys
-
 
 #### CDN Configuration
 
@@ -228,6 +227,12 @@ You can specify a function to be executed if any of your backend services return
        }
     }
  }
+```
+
+The function has a signature of:
+
+```
+(req, res, variables, data, options, error) => {}
 ```
 
 #### Follow Redirect
