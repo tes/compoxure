@@ -18,7 +18,7 @@
          <div id='invalidurl' cx-url='invalid' cx-timeout='1s' class='block'>
             Invalid url
         </div>
-        <div id='cacheurl1' cx-url='cache' cx-timeout='1s' class='block'>
+        <div id='cacheurl1' cx-url='cache' cx-cache-key="cache" cx-timeout='1s' class='block'>
             Cache url
         </div>
         <div id='cacheurl2' cx-url='cache' cx-cache-key="primed" class='block'>
@@ -27,7 +27,7 @@
         <div id='no-store' cx-url='{{server:local}}/millis' cx-timeout='10s' class='block'>
             Not stored
         </div>
-        <div id='max-age' cx-url='{{server:local}}/millis-maxage' cx-timeout='10s' class='block'>
+        <div id='max-age' cx-url='{{server:local}}/millis-maxage' cx-timeout='10s' class='block' cx-cache-key="max-age">
             Not stored
         </div>
         <div id='cookie' cx-url='{{server:local}}/cookie' cx-no-cache="true" cx-timeout='10s' class='block'>

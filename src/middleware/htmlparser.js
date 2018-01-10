@@ -233,7 +233,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         var options = {
           url: cxUrl,
           timeout: utils.timeToMillis(getCxAttr(fragment, 'cx-timeout', '5s')),
-          cacheKey: cacheKeyAttr || utils.urlToCacheKey(cxUrl),
+          cacheKey: cacheKeyAttr,
           cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m')),
           explicitNoCache: req.explicitNoCache || getNoCacheAttr(fragment),
           ignore404: getCxAttr(fragment, 'cx-ignore-404', 'true') === 'true',
