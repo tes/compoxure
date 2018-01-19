@@ -149,6 +149,18 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should add default cache-control header if any fragments dont have a cache key', function (done) {
+    var requestUrl = getPageComposerUrl('noCacheBackendFromFragmentNoKey');
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
+      expect(response.headers['cache-control']).to.be.equal('private, no-cache, max-age=0, must-revalidate, no-store');
+      expect(response.headers['cx-notice']).to.be.contain('cache-control defaulted due to fragment nocache:');
+      // Order can change, so just check presence, logs all nocache fragments
+      expect(response.headers['cx-notice']).to.be.contain('{{server:local}}/replaced');
+      expect(response.headers['cx-notice']).to.be.contain('{{server:local}}/uuid');
+      done();
+    });
+  });
+
   it('should pass through cache-control header from service if sent', function (done) {
     var requestUrl = getPageComposerUrl('noCacheBackend');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

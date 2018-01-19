@@ -137,6 +137,16 @@
       ]
     },
     {
+      "name": "noCacheBackendFromFragmentNoKey",
+      "pattern": "/noCacheBackendFromFragmentNoKey",
+      "target": "{{server:local}}",
+      "dontPassUrl": false,
+      "cacheKey": "noCacheBackendFromFragmentNoKey",
+      "passThroughHeaders": [
+        "cache-control"
+      ]
+    },
+    {
       "name": "noCacheBackendNoHeader",
       "pattern": "/noCacheBackendNoHeader",
       "dontPassUrl": false,

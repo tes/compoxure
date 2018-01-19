@@ -49,6 +49,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     var templateVars = req.templateVars;
     var commonState = {}; // common between all parser
     var fragmentTimings = [];
+    var defaultedToNoCache = false;
+    var noCacheFragments = [];
 
     function getContent(fragment, next) {
       if (!(config.content && config.content.server)) {
@@ -114,7 +116,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
     }
 
-    function setResponseHeaders(headers) {
+    function setResponseHeaders(headers, fragment) {
       if (res.headersSent) {
         return; // ignore late joiners
       }
@@ -128,6 +130,11 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (!backendCacheControl || (backendCacheControl.indexOf('no-cache') === -1 && backendCacheControl.indexOf('no-store') === -1)) {
           var defaultCacheControl = config.cache.defaultNoCacheHeaders && config.cache.defaultNoCacheHeaders['cache-control'];
           res.setHeader('cache-control', defaultCacheControl || 'private, no-cache, max-age=0, must-revalidate, no-store');
+          defaultedToNoCache = true;
+        }
+        if (defaultedToNoCache) {
+          // Push into list so we can add a debug header later
+          noCacheFragments.push(getCxAttr(fragment, 'cx-url-raw'));
         }
       }
 
@@ -157,7 +164,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
           if (headers) {
             var newTemplateVars = utils.formatTemplateVariables(headers);
             _.assign(templateVars, newTemplateVars);
-            setResponseHeaders(headers);
+            setResponseHeaders(headers, fragment);
           }
 
           if (err || !content) {
@@ -324,8 +331,10 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
 
       if (!res.headersSent) {
+        if (noCacheFragments.length) {
+          commonState.additionalHeaders['cx-notice'] = 'cache-control defaulted due to fragment nocache: ' + noCacheFragments.join(', ');
+        }
         res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
-
         if (utils.isDebugEnabled(req)) {
           return res.end(content.replace('</body>', res.debugInfo + debugScript + '</body>'));
         }
