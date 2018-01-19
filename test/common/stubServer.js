@@ -95,7 +95,7 @@ function initStubServer(fileName, port/*, hostname*/) {
 
   app.get('/403', function (req, res) {
     res.writeHead(403, { "Content-Type": "text/html" });
-    res.end("403");
+    res.end("This is a 403 response from a backend! <div cx-url='{{server:local}}/replaced'></div>");
   });
 
   app.get('/302', function (req, res) {

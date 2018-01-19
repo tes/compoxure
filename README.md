@@ -155,6 +155,20 @@ urls|This is an array of objects containing pattern / names values.  Pattern is 
 query|This is an array of objects containing key / mapTo values. Key is the query parameter name, mapTo is the name to assign the value. The values are added to the parameters that can then be used in the microservice requests.  The full list of these are found below.
 servers|A list of server name to server URL configurations that can be used to avoid repetition of server names in your fragments
 
+#### Allowing backends to render their own error pages
+
+You can now add an array parameter to config:
+
+```
+{
+  renderContentOnErrorCode: [403]
+}
+```
+
+This configuration means that compoxure will take the content rendered (along with the error), and render that through to the end user, this is in place of a bland compoxure error string indicating that the backend served a 403.
+
+This response is parsed.
+
 #### Cache Engine
 
 Compoxure allows caching of both the back end response and page fragments.  This is currently done using Redis, but other cache engines could be put in place.

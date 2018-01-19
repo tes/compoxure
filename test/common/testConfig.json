@@ -26,6 +26,7 @@
   "content": {
     "server": "http://localhost:5001/content"
   },
+  "renderContentOnErrorCode": [403],
   "backend": [
     {
       "pattern": "/404backend",
@@ -215,12 +216,6 @@
     "volumeThreshold": 20
   },
   "statusCodeHandlers": {
-    "403": {
-      "fn": "handle403",
-      "data": {
-        "redirect": "http://www.google.com"
-      }
-    },
     "302": {
       "fn": "handle302"
     },

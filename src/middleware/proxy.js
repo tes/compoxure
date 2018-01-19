@@ -97,6 +97,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         });
       }
 
+      var showResponseContentOnError = function(statusCode) {
+        var codes = config.renderContentOnErrorCode || [];
+        return codes.includes(statusCode);
+      }
+
       var handleError = function (err) {
         if (!res.headersSent) {
           res.writeHead(err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
@@ -111,6 +116,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             return func(null, response); // no errors!
           }
 
+          // If we are allowing the backend to respond with content, then do so
+          if (showResponseContentOnError(err.statusCode)) {
+            return func(null, response);
+          }
+
           // Check to see if we have any statusCode handlers defined
           if (err.statusCode && config.statusCodeHandlers && config.statusCodeHandlers[err.statusCode]) {
             var handlerDefn = config.statusCodeHandlers[err.statusCode];
@@ -120,11 +130,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             }
           }
 
-          if (req.backend.quietFailure && response) {
+          if (req.backend.quietFailure && response.stale) {
             logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey + ' : ' + err.message);
             func(null, response);
           } else {
-            handleError(err);
+            handleError(err, response);
           }
         };
       };
@@ -206,11 +216,11 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   utils.appendServerTimings(res, utils.getServerTimingName('layout', response), response.realTiming);
                   res.debugInfo += utils.delimitContent('', response, layoutOptions, logEventsLayout, 'layout');
                 }
-                res.parse(response.content);
+                res.parse(response.content, response.statusCode);
               }));
             });
           } else {
-            res.parse(response.content);
+            res.parse(response.content, response.statusCode);
           }
         }));
       });

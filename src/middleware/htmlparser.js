@@ -51,6 +51,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     var fragmentTimings = [];
     var defaultedToNoCache = false;
     var noCacheFragments = [];
+    var responseStatusCode = 200;
 
     function getContent(fragment, next) {
       if (!(config.content && config.content.server)) {
@@ -334,7 +335,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (noCacheFragments.length) {
           commonState.additionalHeaders['cx-notice'] = 'cache-control defaulted due to fragment nocache: ' + noCacheFragments.join(', ');
         }
-        res.writeHead(200, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
+        res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
         if (utils.isDebugEnabled(req)) {
           return res.end(content.replace('</body>', res.debugInfo + debugScript + '</body>'));
         }
@@ -343,7 +344,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
     }
 
-    res.parse = function parse(data) {
+    res.parse = function parse(data, statusCode) {
+      responseStatusCode = statusCode || responseStatusCode;
       parxer(getParxerOpts(1), data, parseCallback);
     };
 

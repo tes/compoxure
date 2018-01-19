@@ -399,16 +399,20 @@ describe("Page Composer", function () {
     });
   });
 
-  it('should use the handler functions to respond to a 403 status code', function (done) {
+  it('should pass through content when a 403 status code is served and parse it', function (done) {
     request.get(getPageComposerUrl('403backend'), { headers: { 'accept': 'text/html' } }, function (err, response, content) {
       expect(response.statusCode).to.be.equal(403);
+      expect(content).to.contain('This is a 403 response from a backend!');
+      expect(content).to.contain('Replaced');
       done();
     });
   });
 
-  it('should use the handler functions to respond to a 403 status code of the backend template', function (done) {
+  it('should pass through content when a 403 status code is served by a fragment and parse it', function (done) {
     request.get(getPageComposerUrl('403'), { headers: { 'accept': 'text/html' } }, function (err, response, content) {
       expect(response.statusCode).to.be.equal(403);
+      expect(content).to.contain('This is a 403 response from a backend!');
+      expect(content).to.contain('Replaced');
       done();
     });
   });
@@ -698,7 +702,7 @@ describe("Page Composer", function () {
           expect(response.statusCode).to.be(500);
           done();
         });
-      }, 50);
+      }, 100);
     });
   });
 
