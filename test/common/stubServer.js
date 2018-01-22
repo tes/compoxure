@@ -103,6 +103,13 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end("");
   });
 
+  var toggle = 'A';
+  app.get('/302cached', function (req, res) {
+    res.writeHead(302, { "location": '/' + toggle });
+    res.end("This is some content served with 302");
+    toggle = toggle === 'A' ? 'B' : 'A';
+  });
+
   app.get('/418', function (req, res) {
     res.writeHead(418, { "Content-Type": "text/html" });
     res.end("418");

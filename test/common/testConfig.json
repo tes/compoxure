@@ -55,6 +55,12 @@
       "target": "http://localhost:5001/403"
     },
     {
+      "pattern": "/302cached",
+      "cacheKey": "302cached",
+      "ttl": "1m",
+      "target": "http://localhost:5001/302cached"
+    },
+    {
       "pattern": "/302",
       "target": "http://localhost:5001/302"
     },

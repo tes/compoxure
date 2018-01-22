@@ -439,6 +439,26 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should never cache a response with a non 200 code even if it has a cache key and ttl', function (done) {
+    request.get(getPageComposerUrl('302cached'), {
+      headers: { 'accept': 'text/html' },
+      followRedirect: false
+    }, function (err, response, content) {
+      expect(response.statusCode).to.be.equal(302);
+      expect(response.headers.location).to.be.equal('/A');
+      setTimeout(function() {
+        request.get(getPageComposerUrl('302cached'), {
+          headers: { 'accept': 'text/html' },
+          followRedirect: false
+        }, function (err, response, content) {
+          expect(response.statusCode).to.be.equal(302);
+          expect(response.headers.location).to.be.equal('/B');
+          done();
+        });
+      }, 200);
+    });
+  });
+
   it('should allow handler functions to respond and update fragments', function (done) {
     request.get(getPageComposerUrl('418backend'), { headers: { 'accept': 'text/html' } }, function (err, response, content) {
       expect(response.statusCode).to.be.equal(200);
