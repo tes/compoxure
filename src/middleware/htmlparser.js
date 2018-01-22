@@ -335,11 +335,14 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (noCacheFragments.length) {
           commonState.additionalHeaders['cx-notice'] = 'cache-control defaulted due to fragment nocache: ' + noCacheFragments.join(', ');
         }
-        res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
+        try {
+          res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
+        } catch(ex) {
+          eventHandler.logger('error', 'TypeError, unable to set response headers due to invalid character: ' + JSON.stringify(commonState.additionalHeaders));
+        }
         if (utils.isDebugEnabled(req)) {
           return res.end(content.replace('</body>', res.debugInfo + debugScript + '</body>'));
         }
-
         return res.end(content);
       }
     }
