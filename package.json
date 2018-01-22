@@ -38,7 +38,7 @@
     "lodash": "^3.10.1",
     "morgan": "^1.2.1",
     "parxer": "^3.0.1",
-    "reliable-get": "^5.0.1",
+    "reliable-get": "^5.0.2",
     "request": "^2.39.0",
     "serve-static": "^1.8.0",
     "uglify-js": "^2.6.0",
