@@ -130,7 +130,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
             }
           }
 
-          if (req.backend.quietFailure && response.stale) {
+          if (req.backend.quietFailure && response && response.stale) {
             logError(err, 'Backend FAILED but serving STALE content from key ' + targetCacheKey + ' : ' + err.message);
             func(null, response);
           } else {
