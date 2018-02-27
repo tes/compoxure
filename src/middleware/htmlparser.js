@@ -53,6 +53,14 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     var noCacheFragments = [];
     var responseStatusCode = 200;
 
+    function logError(err, message, ignoreError) {
+      var logLevel = (err.statusCode === 404 || ignoreError) ? 'warn' : 'error';
+
+      if (typeof eventHandler.logger === 'function') {
+        eventHandler.logger(logLevel, message, { tracer: req.tracer });
+      }
+    }
+
     function getContent(fragment, next) {
       if (!(config.content && config.content.server)) {
         return next(null);
@@ -74,7 +82,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(opts);
       reliableGet.get(opts, function (err, response) {
         if (err) {
-          return next(errorTemplate({ err: err.message }));
+          logError(err, 'Error retrieving content for tag "' + tag + '", message:' + err.message);
+          return next(null, '<!-- content ' + tag + ' failed due to "' + err.message + '"" -->');
         }
 
         var contentVars = {};
@@ -142,14 +151,6 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       if (headers['set-cookie']) {
         var existingResponseCookies = res.getHeader('set-cookie') || [];
         res.setHeader('set-cookie', _.union(existingResponseCookies, headers['set-cookie']));
-      }
-    }
-
-    function logError(err, message, ignoreError) {
-      var logLevel = (err.statusCode === 404 || ignoreError) ? 'warn' : 'error';
-
-      if (typeof eventHandler.logger === 'function') {
-        eventHandler.logger(logLevel, message, { tracer: req.tracer });
       }
     }
 
