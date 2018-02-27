@@ -82,7 +82,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(opts);
       reliableGet.get(opts, function (err, response) {
         if (err) {
-          return logError(err, 'Error retrieving content for tag "' + tag + '", message:' + err.message);
+          logError(err, 'Error retrieving content for tag "' + tag + '", message:' + err.message);
+          return next(null, '<!-- content ' + tag + ' failed due to "' + err.message + '"" -->');
         }
 
         var contentVars = {};
