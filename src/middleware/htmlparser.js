@@ -32,13 +32,13 @@ function getNoCacheAttr(fragment) {
 
 function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
   function getCdnHost() {
-    if (config.cdn.host) {
+    if (config.cdn && config.cdn.host) {
       return config.cdn.host;
     }
   }
 
   function getCdnUrl() {
-    if (config.cdn.url) {
+    if (config.cdn && config.cdn.url) {
       return config.cdn.url;
     }
   }
