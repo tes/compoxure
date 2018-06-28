@@ -202,6 +202,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                 statsdKey: 'layout',
                 statsdTags: ['application:' + utils.getServiceNameFromUrl(layoutUrl)],
                 headers: {
+                  'user-agent': transformedOptions.headers['user-agent'],
                   'x-device': transformedOptions.headers['x-device'],
                   'x-site-country': transformedOptions.headers['x-site-country'],
                   'x-site-language': transformedOptions.headers['x-site-language'],
