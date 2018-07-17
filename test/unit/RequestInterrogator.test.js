@@ -148,6 +148,24 @@ describe('RequestInterrogator', function () {
     });
   });
 
+  it('should extract url groups based on the path', function (done) {
+    var req = httpMocks.createRequest({
+      method: 'GET',
+      headers: {
+        host: 'localhost:5000'
+      },
+      url: '/teaching-resource/Queen-Elizabeth-II-Diamond-jubilee-2012-6206420'
+    });
+    req.connection = {};
+
+    var interrogator = new RequestInterrogator(config.parameters, config.cdn || {}, { name: 'test' });
+
+    interrogator.interrogateRequest(req, function (params) {
+      expect(params).to.have.property('url:group', 'resources');
+      done();
+    });
+  });
+
   it('should extract query parameters', function (done) {
     var req = httpMocks.createRequest({
       method: 'GET',

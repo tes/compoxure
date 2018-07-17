@@ -66,6 +66,10 @@ The configuration object looks as follows:
         "urls": [
             {"pattern": "/teaching-resource/.*-(\\d+)", "names": ["resourceId"]}
         ],
+        "urlGroups": [
+            {"pattern": "/teaching-resource*", "group": "resources"}
+            {"pattern": ".*", "group": "home"}
+        ],
         "servers": {
             "local": "http://localhost:5001"
         }
@@ -446,7 +450,7 @@ Page composer allows you to use mustache like templates for a number of strings,
 -------|-----------|--------
 param|Parameters matched from the parameters configuration (regex + name) pairs in the configuration|/resource/{{param:resourceId}}
 query|Parameters matched from any query string key values in the incoming URL|/user/{{query:userId}}
-url|Any elements of the incoming url (search, query, pathname, path, href)|/search{{url:search}}
+url|Any elements of the incoming url (search, query, pathname, path, href, group)|/search{{url:search}}
 cookie|Any cookie value|/user/{{cookie:TSL_UserID}}
 header|Any incoming header value|/user/feature/{{header:x-feature-enabled}}
 server|A server short name from the configuration in the parameters section of config|{{server:feature}}/feature
@@ -473,6 +477,7 @@ Note that you can add an additional :encoded key to any parameter to get the val
   'url:pathname': '/resource/123456',
   'url:path': '/resource/123456?param=true',
   'url:href': 'http://localhost:5000/resource/123456?param=true',
+  'url:group': 'resources',
   'cookie:example': '12345',
   'header:host': 'localhost:5000',
   'header:connection': 'keep-alive',

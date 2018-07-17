@@ -15,7 +15,6 @@ module.exports = function (config, cdn, environment) {
 
   environment = { name: environment || process.env.NODE_ENV || 'development' };
 
-
   function flatten(variables, type, key, value) {
     variables[type + ':' + key] = value;
     variables[type + ':' + key + ':encoded'] = encodeURIComponent(value);
@@ -57,6 +56,13 @@ module.exports = function (config, cdn, environment) {
     return res ? res[1] : req.connection.pair ? '443' : '80';
   }
 
+  function getUrlGroup(path) {
+    return _.result(_.find(config.urlGroups || [], function(urlGroup) {
+      var pattern = new RegExp(urlGroup.pattern);
+      return path.match(pattern);
+    }), 'group') || 'none';
+  }
+
   function getPageUrl(req, parsedUrl) {
 
     var components = {
@@ -67,7 +73,9 @@ module.exports = function (config, cdn, environment) {
       pathname: parsedUrl.pathname
     };
 
-    return url.parse(url.format(components), false);
+    var structuredUrl = url.parse(url.format(components), false);
+    structuredUrl.group = getUrlGroup(parsedUrl.pathname);
+    return structuredUrl;
 
   }
 

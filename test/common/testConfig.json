@@ -21,7 +21,17 @@
     "servers": {
       "local": "http://localhost:5001",
       "local-extension": "http://localhost:5011"
-    }
+    },
+    "urlGroups": [
+      {
+        "pattern": "/teaching-resource*",
+        "group": "resources"
+      },
+      {
+        "pattern": ".*",
+        "group": "home"
+      }
+    ]
   },
   "content": {
     "server": "http://localhost:5001/content"
