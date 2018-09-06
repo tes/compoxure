@@ -175,7 +175,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           passThroughHeaders(response.headers);
           /* server timing: main page */
           if(utils.isDebugEnabled(req)) {
-            utils.appendServerTimings(res, utils.getServerTimingName('page', response), response.realTiming);
+            utils.appendServerTimings(res, 'page', utils.getServerTimingName('page', response), response.realTiming);
             res.debugInfo = utils.delimitContent('', response, transformedOptions, logEventsPage, 'page');
           }
 
@@ -214,7 +214,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
               reliableGet.get(layoutOptions, handleErrorDecorator(function (err, response) {
                 /* server timing: layout */
                 if(utils.isDebugEnabled(req)) {
-                  utils.appendServerTimings(res, utils.getServerTimingName('layout', response), response.realTiming);
+                  utils.appendServerTimings(res, 'layout', utils.getServerTimingName('layout', response), response.realTiming);
                   res.debugInfo += utils.delimitContent('', response, layoutOptions, logEventsLayout, 'layout');
                 }
                 res.parse(response.content, response.statusCode);

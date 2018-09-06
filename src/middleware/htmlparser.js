@@ -97,7 +97,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         contentId++;
         /* server timing: content from drupal */
         if(utils.isDebugEnabled(req)) {
-          utils.appendServerTimings(res, utils.getServerTimingName('content:' + contentId, response), response.realTiming);
+          utils.appendServerTimings(res, 'content', utils.getServerTimingName('content:' + contentId, response), response.realTiming);
         }
         _.each(contentVars, function (value, key) {
           templateVars['content:' + tag + ':' + key] = value;
@@ -279,7 +279,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             var content = utils.isDebugEnabled(req) ? utils.delimitContent(response.content, response, options, logEvents, 'fragment', fragmentId) : response.content;
             /* server timing: fragment */
             if(utils.isDebugEnabled(req)) {
-              utils.appendServerTimings(res, utils.getServerTimingName('fragment:' + fragmentId, response), response.realTiming);
+              utils.appendServerTimings(res, 'fragment', utils.getServerTimingName('fragment:' + fragmentId, response), response.realTiming);
             }
             responseCallback(null, content, response.headers);
           });

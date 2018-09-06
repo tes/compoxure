@@ -21,18 +21,18 @@ describe('appendServerTimings', function () {
     });
     it('append to header', function () {
       var res = getRes();
-      utils.appendServerTimings(res, 'test timing', 123);
-      expect(res.getHeader('Server-Timing').match(/tt-[0-9a-z]{4}=123; "test timing"/)).to.be.ok();
+      utils.appendServerTimings(res, 'label', 'test timing', 123);
+      expect(res.getHeader('Server-Timing')).to.be('cx-label;desc="test timing"; dur=123');
     });
     it('uses decimals', function () {
       var res = getRes();
-      utils.appendServerTimings(res, 'test timing', 123.45);
-      expect(res.getHeader('Server-Timing').match(/tt-[0-9a-z]{4}=123.45; "test timing"/)).to.be.ok();
+      utils.appendServerTimings(res, 'label', 'test timing', 123.45);
+      expect(res.getHeader('Server-Timing')).to.be('cx-label;desc="test timing"; dur=123.45');
     });
     it('appends', function () {
       var res = getRes();
       res.setHeader('Server-Timing', 'xxx')
-      utils.appendServerTimings(res, 'test timing', 123.45);
-      expect(res.getHeader('Server-Timing').match(/xxx,tt-[0-9a-z]{4}=123.45; "test timing"/)).to.be.ok();
+      utils.appendServerTimings(res, 'label', 'test timing', 123.45);
+      expect(res.getHeader('Server-Timing')).to.be('xxx,cx-label;desc="test timing"; dur=123.45');
     });
 });

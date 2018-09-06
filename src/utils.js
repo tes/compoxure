@@ -109,13 +109,10 @@ function getServerTimingName(name, response) {
   return flags.length ? name + ' (' + flags.join(' ,') + ')': name;
 }
 
-function appendServerTimings(res, name, ms) {
-  var initials = name.split(/\W+/).map(function (word) { return word[0] || '' ; }).join('');
-  initials += '-' + Math.random().toString(36).substr(2, 4);
-  var newHeader = initials + '=' + ms + '; "' + name + '"';
+function appendServerTimings(res, name, description, ms) {
   var headerStr = res.getHeader('Server-Timing');
   var header = headerStr ? headerStr.split(',') : [];
-  header.push(newHeader);
+  header.push('cx-' + name + ';desc="' + description + '"; dur=' + ms);
   res.setHeader('Server-Timing', header.join(',') );
 }
 
