@@ -727,6 +727,20 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should use cx-no-cache query string parameter', function (done) {
+    var requestUrl = getPageComposerUrl('random', 'cx-no-cache=true');
+    var randomContent;
+    request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+      randomContent = content;
+      setTimeout(function () {
+        request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+          expect(content).not.to.be(randomContent);
+          done();
+        });
+      }, 100);
+    });
+  });
+
   it('should use not cache fragments when backend has no cache key', function (done) {
     var requestUrl = getPageComposerUrl('nocachekey-alternate500');
     request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {

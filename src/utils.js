@@ -120,6 +120,10 @@ function isDebugEnabled(req) {
   return req.query && req.query['cx-debug'];
 }
 
+function isNoCacheEnabled(req) {
+  return req.query && req.query['cx-no-cache'];
+}
+
 var debugScriptTag = _.template('<script type="cx-debug-<%- type %>" data-cx-<%- type %>-id="<%- id %>"><%= data && JSON.stringify(data) %></script>');
 
 function delimitContent(content, response, options, logEvents, fragmentType, fragmentId) {
@@ -153,6 +157,7 @@ module.exports = {
   appendServerTimings: appendServerTimings,
   getServerTimingName: getServerTimingName,
   isDebugEnabled: isDebugEnabled,
+  isNoCacheEnabled: isNoCacheEnabled,
   delimitContent: delimitContent,
   attachEventLogger: attachEventLogger,
 };

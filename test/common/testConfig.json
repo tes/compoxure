@@ -223,7 +223,8 @@
       "name": "random",
       "pattern": "/random",
       "cacheKey": "{{url:path}}",
-      "dontPassUrl": false
+      "dontPassUrl": false,
+      "target": "{{server:local}}"
     },
     {
       "pattern": ".*",

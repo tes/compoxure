@@ -76,7 +76,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         cacheKey: cacheKeyAttr,
         statsdKey: 'content',
         statsdTags: ['application:drupal'],
-        cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m'))
+        cacheTTL: utils.timeToMillis(getCxAttr(fragment, 'cx-cache-ttl', '1m')),
+        explicitNoCache: utils.isNoCacheEnabled(req)
       };
 
       var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(opts);
@@ -267,6 +268,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             return onErrorHandler(err, {}, transformedOptions);
           }
           var logEvents = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
+          transformedOptions.explicitNoCache = utils.isNoCacheEnabled(req);
 
           reliableGet.get(transformedOptions, function getCallback(getErr, response) {
             if (getErr) {

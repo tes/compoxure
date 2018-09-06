@@ -164,6 +164,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         }
 
         var logEventsPage = utils.isDebugEnabled(req) && utils.attachEventLogger(transformedOptions);
+        transformedOptions.explicitNoCache = utils.isNoCacheEnabled(req);
         reliableGet.get(transformedOptions, handleErrorDecorator(function (err, response) {
           var layoutUrl;
           var newTemplateVars = utils.formatTemplateVariables(response.headers);
@@ -207,7 +208,8 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
                   'x-site-country': transformedOptions.headers['x-site-country'],
                   'x-site-language': transformedOptions.headers['x-site-language'],
                   cookie: transformedOptions.headers.cookie
-                }
+                },
+                explicitNoCache: utils.isNoCacheEnabled(req)
               };
               var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(layoutOptions);
               // get the layout

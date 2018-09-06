@@ -624,6 +624,9 @@ In the example app it produces:
 200 : 1ms : http://localhost:5001/cdn/service/100/html/top.js.html
 ```
 
+## View the page without caching
+Adding the query string parameter ```?cx-no-cache=true``` will force compoxure not to use cache.
+
 ## Statistics
 
 You can add a statisticsHandler to the config functions to allow the underlying parsing engine to provide statistics back to you on each render:
