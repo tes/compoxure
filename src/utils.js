@@ -145,6 +145,21 @@ function attachEventLogger(opts) {
   return logEvents;
 }
 
+function renderLogEntry(debugLogEntry){
+  return 'console.log(\'' + debugLogEntry  + '\')';
+}
+
+function renderScriptClientDebugLogEntry(req){
+  return '<script>' + (req.clientDebugLogEntry || []).map(renderLogEntry).join(';') + '</script>';
+}
+
+function addClientDebugLogEntry(req, message){
+  if(isDebugEnabled(req)){
+    req.clientDebugLogEntry = req.clientDebugLogEntry || [];
+    req.clientDebugLogEntry.push(message);
+  }
+}
+
 module.exports = {
   timeToMillis: timeToMillis,
   urlToCacheKey: urlToCacheKey,
@@ -160,4 +175,6 @@ module.exports = {
   isNoCacheEnabled: isNoCacheEnabled,
   delimitContent: delimitContent,
   attachEventLogger: attachEventLogger,
+  addClientDebugLogEntry: addClientDebugLogEntry,
+  renderScriptClientDebugLogEntry: renderScriptClientDebugLogEntry,
 };

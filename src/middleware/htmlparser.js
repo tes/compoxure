@@ -141,6 +141,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (!backendCacheControl || (backendCacheControl.indexOf('no-cache') === -1 && backendCacheControl.indexOf('no-store') === -1)) {
           var defaultCacheControl = config.cache.defaultNoCacheHeaders && config.cache.defaultNoCacheHeaders['cache-control'];
           res.setHeader('cache-control', defaultCacheControl || 'private, no-cache, max-age=0, must-revalidate, no-store');
+          if (!defaultCacheControl) {
+            utils.addClientDebugLogEntry(req, 'Forcing no-cache because a fragment is telling us not to cache');
+          }
           defaultedToNoCache = true;
         }
         if (defaultedToNoCache) {
@@ -343,8 +346,9 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         } catch(ex) {
           eventHandler.logger('error', 'TypeError, unable to set response headers due to invalid character: ' + JSON.stringify(commonState.additionalHeaders));
         }
+
         if (utils.isDebugEnabled(req)) {
-          return res.end(content.replace('</body>', res.debugInfo + debugScript + '</body>'));
+          return res.end(content.replace('</body>', res.debugInfo + debugScript + utils.renderScriptClientDebugLogEntry(req) + '</body>'));
         }
         return res.end(content);
       }
