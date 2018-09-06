@@ -141,9 +141,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if (!backendCacheControl || (backendCacheControl.indexOf('no-cache') === -1 && backendCacheControl.indexOf('no-store') === -1)) {
           var defaultCacheControl = config.cache.defaultNoCacheHeaders && config.cache.defaultNoCacheHeaders['cache-control'];
           res.setHeader('cache-control', defaultCacheControl || 'private, no-cache, max-age=0, must-revalidate, no-store');
-          if (!defaultCacheControl) {
-            utils.addClientDebugLogEntry(req, 'Forcing no-cache because a fragment is telling us not to cache');
-          }
+          utils.addClientDebugLogEntry(req, 'Forcing no-cache because a fragment is telling us not to cache');
           defaultedToNoCache = true;
         }
         if (defaultedToNoCache) {

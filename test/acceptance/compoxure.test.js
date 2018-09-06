@@ -337,6 +337,14 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should pass no-cache, no-store, must-revalidate in Cache-control header from fragment response to client response and log the decision', function (done) {
+    request.get(getPageComposerUrl('/noCacheBackendViaFragment', '?cx-debug=true'), function (err, response, content) {
+      expect(response.headers['cache-control']).to.be.equal('private, no-cache, max-age=0, must-revalidate, no-store');
+      expect(content).match(/console\.log\('Forcing no-cache because a fragment is telling us not to cache'\)/);
+      done();
+    });
+  });
+
   it('should honor max-age when sent through in fragments', function (done) {
     setTimeout(function () {
       getSection('', '', '#max-age', function (text) {
