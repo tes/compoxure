@@ -220,6 +220,12 @@
       ]
     },
     {
+      "name": "random",
+      "pattern": "/random",
+      "cacheKey": "{{url:path}}",
+      "dontPassUrl": false
+    },
+    {
       "pattern": ".*",
       "dontPassUrl": false,
       "target": "http://localhost:5001"
