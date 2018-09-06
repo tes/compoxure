@@ -458,6 +458,7 @@ env|Environment, property available is name e.g. {{env:name}}
 cdn|CDN configuration, properties available are host and url e.g. {{cdn:url}}
 user|User properties, if set on the request as property user - e.g. req.user = {name: bob} >> {{user:name}}. Also a 'loggedIn' boolean property is set on user eg {{user:loggedIn}}
 device|Device type {{device:type}} = desktop|phone|tablet
+layout|This is the layout url (available only after getting the response, useful for cacheKey)|{{layout}}
 
 Note: It also passes the device:type down to downstreams in a header - as 'x-device'.
 
