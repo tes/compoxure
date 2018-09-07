@@ -409,7 +409,7 @@ Result of rendering Root:
 
 ### Declarative Parameters
 
-To use compoxure in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exist.
+To use compoxure in a declarative fashion, simply add the following tags to any HTML element.  The replacement is within the element, so the element containing the declarations will remain.  The element can be anything (div, span), the only requirement is that the cx-url attribute exists.
 
 **Warning:**
 As composure uses a mustache syntax for variable substition, when using compoxure params within a mustache/handlebars template you must escape the page composer params e.g. ```\{{server:resource-list}}``` or change the delimiter in the hogan configuration.
@@ -494,6 +494,17 @@ Note that you can add an additional :encoded key to any parameter to get the val
   'device:type': 'phone'
   }
   ```
+
+## Multiple urls in cx-url and strategy
+You can optionally have multiple ```cx-url``` attributes with different suffixes. All the contents will be retrieved and will be added to the html. You can modify the default behaviour using the ```cx-strategy``` attribute. These are the currently supported strategies:
+* ```default```: all the contents
+* ```first-non-empty```: this is returning the first non empty content
+* ```random```: this is returning a random content
+When you have multiple urls you can also have multiple versions of these attributes having the same suffix: cx-cache-key, cx-timeout, cx-ttl, cx-no-cache.
+For example:
+```html
+<div cx-url-1="{{server:name}}/path1" cx-url-2="{{server:name}}/path2" cx-cache-key-1="content1" cx-cache-key-2="content2" cx-strategy="random"></div>
+```
 
 ## From Cache Only
 
