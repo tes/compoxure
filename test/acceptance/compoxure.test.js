@@ -942,6 +942,25 @@ describe("Page Composer", function () {
         done();
       });
     });
+
+    it('should return multiple fragments with multiple urls in cx-url with \'default\' strategy', function (done) {
+      var requestUrl = getPageComposerUrl('cx-strategy-default');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var $ = cheerio.load(response.body);
+        expect($('.container').text()).to.be('Welcome content fragment-1Welcome content fragment-2');
+        done();
+      });
+    });
+
+    it('should return first non empty fragment with multiple urls in cx-url with \'first-non-empty\' strategy', function (done) {
+      var requestUrl = getPageComposerUrl('cx-strategy-first-non-empty');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var $ = cheerio.load(response.body);
+        expect($('.container').text()).to.be('Welcome content fragment-2');
+        done();
+      });
+    });
+
   });
 
   context('Browser extension', function () {

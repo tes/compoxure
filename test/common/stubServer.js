@@ -80,6 +80,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end("404");
   });
 
+  app.get('/empty', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('');
+  });
+
   var alternate500 = true;
   app.get('/alternate500', function (req, res) {
     alternate500 = !alternate500;
@@ -401,6 +406,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<p>Welcome content</p>');
   });
 
+  app.get('/fragment-content-id', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true });
+    res.end('<p>Welcome content ' + req.query.id + '</p>');
+  });
+
   app.get('/multiple-fragment', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true });
     res.end('<div cx-url="{{server:local}}/multiple-fragment-content" cx-replace-outer="true"></div>');
@@ -510,6 +520,16 @@ function initStubServer(fileName, port/*, hostname*/) {
       tag: req.params.tag,
       foo: 'bar'
     });
+  });
+
+  app.get('/cx-strategy-default', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><div cx-url-1="{{server:local}}/fragment-content-id?id=fragment-1" cx-url-2="{{server:local}}/fragment-content-id?id=fragment-2" class="container"></div></div>');
+  });
+
+  app.get('/cx-strategy-first-non-empty', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<div><div cx-url-1="{{server:local}}/empty" cx-url-2="{{server:local}}/fragment-content-id?id=fragment-2" cx-url-3="{{server:local}}/fragment-content-id?id=fragment-3" cx-strategy="first-non-empty" class="container"></div></div>');
   });
 
   return function (next) {
