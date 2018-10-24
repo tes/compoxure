@@ -70,7 +70,7 @@ function formatTemplateVariables(variables) {
 
 function filterCookies(whitelist, cookies) {
   return _.reduce(cookies, function (result, value, key) {
-    if (whitelist.length === 0 || _.contains(whitelist, key)) {
+    if (whitelist.length === 0 || _.includes(whitelist, key)) {
       result += result ? '; ' : '';
       result += key + '=' + value;
     }

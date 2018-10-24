@@ -1,6 +1,7 @@
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var ware = require('ware');
+var debug = require('debug')('compoxure');
 
 module.exports = function(config, eventHandler, optionsTransformer) {
 
@@ -34,6 +35,7 @@ module.exports = function(config, eventHandler, optionsTransformer) {
   return function(req, res) {
     middleware.run(req, res, function(err) {
         if(err) {
+            debug('Caught compoxure error', err);
             // Just end fast - headers sent above if needed.
             res.end('');
         }

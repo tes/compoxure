@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var url = require('url');
 var parxer = require('parxer').parxer;
+var debug = require('debug')('compoxure');
 var parxerPlugins = require('parxer/Plugins');
 var _ = require('lodash');
 var utils = require('../utils');
@@ -91,7 +92,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         try {
           contentVars = JSON.parse(response.content);
         } catch (e) {
-          // Ignore parse error
+          debug('Invalid json parsed from content', e);
         }
         var debugTag = utils.isDebugEnabled(req) ? utils.delimitContent('', response, opts, logEvents, 'content', contentId) : '';
 
@@ -100,7 +101,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         if(utils.isDebugEnabled(req)) {
           utils.appendServerTimings(res, 'content', utils.getServerTimingName('content:' + contentId, response), response.realTiming);
         }
-        _.each(contentVars, function (value, key) {
+        _.forEach(contentVars, function (value, key) {
           templateVars['content:' + tag + ':' + key] = value;
           templateVars['content:' + tag + ':' + key + ':encoded'] = encodeURI(value);
         });

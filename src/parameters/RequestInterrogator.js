@@ -26,12 +26,12 @@ module.exports = function (config, cdn, environment) {
       var regexp = new RegExp(url.pattern);
       var match = regexp.exec(path);
       if (!match) { return {}; }
-      return _.object(url.names, _.rest(match, 1));
+      return _.zipObject(url.names, _.tail(match, 1));
     });
 
     var parameters = {};
-    _.each(matches, function (match) {
-      _.each(match, function (value, key) {
+    _.forEach(matches, function (match) {
+      _.forEach(match, function (value, key) {
         parameters[key] = value;
       });
     });
@@ -93,7 +93,7 @@ module.exports = function (config, cdn, environment) {
     var requestVariables = {};
 
     var requestConfig = {
-      param: _.extend(queryParams, templateParams),
+      param: _.assignIn(queryParams, templateParams),
       url: pageUrl,
       query: parsedUrl.query,
       cookie: req.cookies,
