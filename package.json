@@ -38,8 +38,8 @@
     "http-status-codes": "^1.0.2",
     "lodash": "^4.17.5",
     "morgan": "^1.2.1",
-    "parxer": "^4.0.0",
-    "reliable-get": "^5.0.6",
+    "parxer": "^4.0.1",
+    "reliable-get": "^5.0.7",
     "request": "^2.88.0",
     "serve-static": "^1.8.0",
     "uglify-js": "^2.6.0",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "blanket": "^1.1.6",
-    "cheerio": "^0.17.0",
+    "cheerio": "^0.22.0",
     "coveralls": "^3.0.2",
     "debug": "^4.1.0",
     "expect.js": "~0.3.1",
@@ -57,7 +57,7 @@
     "jshint": "^2.5.6",
     "mocha": "^5.2.0",
     "mocha-lcov-reporter": "0.0.1",
-    "node-mocks-http": "^1.0.4",
+    "node-mocks-http": "^1.7.3",
     "node-uuid": "^1.4.1"
   },
   "config": {
