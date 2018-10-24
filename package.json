@@ -40,7 +40,7 @@
     "morgan": "^1.2.1",
     "parxer": "^4.0.0",
     "reliable-get": "^5.0.6",
-    "request": "^2.39.0",
+    "request": "^2.88.0",
     "serve-static": "^1.8.0",
     "uglify-js": "^2.6.0",
     "ware": "^1.2.0"
@@ -48,7 +48,7 @@
   "devDependencies": {
     "blanket": "^1.1.6",
     "cheerio": "^0.17.0",
-    "coveralls": "^2.11.1",
+    "coveralls": "^3.0.2",
     "debug": "^4.1.0",
     "expect.js": "~0.3.1",
     "express": "^4.12.3",
