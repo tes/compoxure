@@ -159,7 +159,7 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
         if (err) { return handleError(err); }
 
         if (config.enableExtension && req.method === 'POST' && req.is('text/compoxure')) {
-          res.parse(req.body);
+          res.parseAndResponse(req.body);
           return;
         }
 
@@ -183,47 +183,49 @@ module.exports = function backendProxyMiddleware(config, eventHandler, optionsTr
           if ('cx-layout' in response.headers) {
             layoutUrl = Core.render(response.headers['cx-layout'], req.templateVars);
             req.templateVars.layout = layoutUrl;
-            // extract slots from original html
-            extractSlots(response.content, function (err, slots) {
-              req.templateVars.slots =  slots;
-
-              var layoutConfig = utils.getBackendConfig(config, layoutUrl);
-              var cacheKey = layoutConfig && layoutConfig.cacheKey ?
-                Core.render(layoutConfig.cacheKey, req.templateVars) :
-                'layout:'+ layoutUrl;
-
-              var cacheTTL = layoutConfig && layoutConfig.cacheTTL ?
-                layoutConfig.cacheTTL :
-                60000 * 5; // 5 mins
-
-              var layoutOptions = {
-                url: layoutUrl,
-                cacheKey: cacheKey,
-                cacheTTL: cacheTTL,
-                statsdKey: 'layout',
-                statsdTags: ['application:' + utils.getServiceNameFromUrl(layoutUrl)],
-                headers: {
-                  'user-agent': transformedOptions.headers['user-agent'],
-                  'x-device': transformedOptions.headers['x-device'],
-                  'x-site-country': transformedOptions.headers['x-site-country'],
-                  'x-site-language': transformedOptions.headers['x-site-language'],
-                  cookie: transformedOptions.headers.cookie
-                },
-                explicitNoCache: utils.isNoCacheEnabled(req)
-              };
-              var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(layoutOptions);
-              // get the layout
-              reliableGet.get(layoutOptions, handleErrorDecorator(function (err, response) {
-                /* server timing: layout */
-                if(utils.isDebugEnabled(req)) {
-                  utils.appendServerTimings(res, 'layout', utils.getServerTimingName('layout', response), response.realTiming);
-                  res.debugInfo += utils.delimitContent('', response, layoutOptions, logEventsLayout, 'layout');
-                }
-                res.parse(response.content, response.statusCode);
-              }));
+            res.parse(response.content, function (err, fragmentIndex, content) {
+              // extract slots from original html
+              extractSlots(content, function (err, slots) {
+                req.templateVars.slots =  slots;
+  
+                var layoutConfig = utils.getBackendConfig(config, layoutUrl);
+                var cacheKey = layoutConfig && layoutConfig.cacheKey ?
+                  Core.render(layoutConfig.cacheKey, req.templateVars) :
+                  'layout:'+ layoutUrl;
+  
+                var cacheTTL = layoutConfig && layoutConfig.cacheTTL ?
+                  layoutConfig.cacheTTL :
+                  60000 * 5; // 5 mins
+  
+                var layoutOptions = {
+                  url: layoutUrl,
+                  cacheKey: cacheKey,
+                  cacheTTL: cacheTTL,
+                  statsdKey: 'layout',
+                  statsdTags: ['application:' + utils.getServiceNameFromUrl(layoutUrl)],
+                  headers: {
+                    'user-agent': transformedOptions.headers['user-agent'],
+                    'x-device': transformedOptions.headers['x-device'],
+                    'x-site-country': transformedOptions.headers['x-site-country'],
+                    'x-site-language': transformedOptions.headers['x-site-language'],
+                    cookie: transformedOptions.headers.cookie
+                  },
+                  explicitNoCache: utils.isNoCacheEnabled(req)
+                };
+                var logEventsLayout = utils.isDebugEnabled(req) && utils.attachEventLogger(layoutOptions);
+                // get the layout
+                reliableGet.get(layoutOptions, handleErrorDecorator(function (err, response) {
+                  /* server timing: layout */
+                  if(utils.isDebugEnabled(req)) {
+                    utils.appendServerTimings(res, 'layout', utils.getServerTimingName('layout', response), response.realTiming);
+                    res.debugInfo += utils.delimitContent('', response, layoutOptions, logEventsLayout, 'layout');
+                  }
+                  res.parseAndResponse(response.content, response.statusCode);
+                }));
+              });
             });
           } else {
-            res.parse(response.content, response.statusCode);
+            res.parseAndResponse(response.content, response.statusCode);
           }
         }));
       });

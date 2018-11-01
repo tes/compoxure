@@ -933,16 +933,6 @@ describe("Page Composer", function () {
       });
     });
 
-    it('should use cx-layout, layout can contain bundle, handshake is in the layout', function (done) {
-      var requestUrl = getPageComposerUrl('use-layout-with-bundle2');
-      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {
-        expect(response.statusCode).to.be(200);
-        var $ = cheerio.load(response.body);
-        expect($('.bundle')['1'].attribs.src).to.be('http://localhost:5001/static/service-resolved2/123/js/top.js');
-        done();
-      });
-    });
-
     it('should return multiple fragments with multiple urls in cx-url with \'default\' strategy', function (done) {
       var requestUrl = getPageComposerUrl('cx-strategy-default');
       request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {

@@ -113,12 +113,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
     function getSlot(fragment, next) {
       var slotName = getCxAttr(fragment, 'cx-define-slot');
       var content = templateVars.slots[slotName];
-      parxer(getParxerOpts(0), content, function (parxerErr, fragmentCount, newContent) {
-        if (parxerErr && parxerErr.content) {
-          return next(parxerErr, content);
-        }
-        return next(null, newContent);
-      });
+      next(null, content);
     }
 
     function getCookie() {
@@ -353,9 +348,13 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       }
     }
 
-    res.parse = function parse(data, statusCode) {
+    res.parse = function parse(data, cb) {
+      parxer(getParxerOpts(1), data, cb);
+    };
+
+    res.parseAndResponse = function parseAndResponse(data, statusCode) {
       responseStatusCode = statusCode || responseStatusCode;
-      parxer(getParxerOpts(1), data, parseCallback);
+      res.parse(data, parseCallback);
     };
 
     cb();
