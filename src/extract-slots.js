@@ -17,7 +17,7 @@ function extractSlots(content, callback) {
     var parser = new htmlparser.Parser({
         onopentag: function(tagname, attribs) {
             var useSlot = attr.getAttr(config.prefix + 'use-slot', attribs);
-            if (useSlot){
+            if (useSlot && !currentSlot){
                 currentSlot = attribs[useSlot];
                 depth = 1;
                 slots[currentSlot] = slots[currentSlot] || '';
