@@ -360,6 +360,20 @@ If there is more than one cx-use-slot with the same name, the content of all of 
 
 This can be useful if fragments from different services want to add the content in the same place.
 
+Note: By default only content assigned to a slot from the initial content request will be considered for loading into a slot.
+
+If you want to have nested fragments load content into the slots defined as part of the layout then you will need to have an additional header returned by your first content response.  In addition to the cx-layout and cx-parse-me headers you will need to assign the cx-allow-slot-use header.  For example:
+
+```
+{
+  'cx-layout': 'http://www.example.com/layout.html',
+  'cx-parse-me': 'true',
+  'cx-allow-slot-use': 'true',
+}
+```
+
+This configuration causes an additional parse of the initial content response to take place so has been added as an opt in option to keep the performance stable for exising applications.
+
 #### Nested Fragments
 
 Compoxure will parse fragments within fragments up to ```fragmentDepth``` deep. If not specified with default to 5. For this to remain performant, a service responding with a fragment containing compoxure directives will need also send a response header of ```cx-parse-me: true```.
