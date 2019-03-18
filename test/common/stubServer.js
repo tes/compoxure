@@ -537,6 +537,11 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.end('<html>Slot1:<div cx-define-slot="slot1"></div>Slot2:<div cx-define-slot="slot2"></div></html>');
   });
 
+  app.get('/slot-layout-2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end('<html>Header:<div cx-define-slot="header"></div>Content:<div cx-define-slot="content"></div>Footer:<div cx-define-slot="footer"></div></html>');
+  });
+
   app.get('/cx-simple-slot-use', function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true, "cx-layout": "{{server:local}}/slot-layout" });
     res.end('<html><div cx-use-slot="slot1">Slot1</div><div cx-use-slot="slot2">For slot 2</div></html>');
@@ -562,6 +567,18 @@ function initStubServer(fileName, port/*, hostname*/) {
     res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true });
     res.end('<div cx-use-slot="slot2" cx-replace-outer="true">Bar</div>');
   });
+
+  app.get('/cx-slot-sub-request-2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/compoxure", "cx-parse-me": true, "cx-allow-slot-use": true, "cx-layout": "{{server:local}}/slot-layout-2"
+  });
+    res.end('<div cx-use-slot="header" cx-replace-outer="true">Foo1</div><div cx-use-slot="footer">Foo2</div><div cx-use-slot="content"><div cx-url="{{server:local}}/cx-slot-sub-request-content-2" cx-replace-outer="true"></div></div>');
+  });
+
+  app.get('/cx-slot-sub-request-content-2', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html", "cx-parse-me": true });
+    res.end('<div cx-use-slot="header" cx-replace-outer="true">Bar1</div><div cx-use-slot="footer" cx-replace-outer="true">Bar2</div>Leave behind me');
+  });
+
 
   return function (next) {
     app.listen(port).on('listening', next);

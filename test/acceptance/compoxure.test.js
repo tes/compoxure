@@ -1023,6 +1023,19 @@ describe("Page Composer", function () {
         done();
       });
     });
+
+    it('should handle sub requests using slots while leaving body in place', function (done) {
+      var requestUrl = getPageComposerUrl('cx-slot-sub-request-2');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var expectedHTML = '<html>Header:<div>Foo1Bar1</div>Content:<div>Leave behind me</div>Footer:<div>Foo2Bar2</div></html>';
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be(expectedHTML);
+        expect($('div').slice(0, 1).text()).to.be('Foo1Bar1');
+        done();
+      });
+    });
+
+
   });
 
   function getSection(path, search, query, next) {
