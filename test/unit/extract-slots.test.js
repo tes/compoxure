@@ -59,4 +59,18 @@ describe('extractSlot', function () {
         done();
       });
     });
+
+    it('extracts nested slots', function (done) {
+      var s = '<div cx-use-slot="header" cx-replace-outer="true">Foo1</div><div cx-use-slot="footer">Foo2</div><div cx-use-slot="content"><span cx-use-slot="header" cx-replace-outer="true">Bar1</span><span cx-use-slot="footer" cx-replace-outer="true">Bar2</span>Leave behind me</div>';
+      extractSlots(s, function (err, slots) {
+        expect(slots).to.eql({
+          header: 'Foo1Bar1',
+          footer: 'Foo2Bar2',
+          content: 'Leave behind me',
+        });
+        done();
+      });
+    });
+
+    //
 });

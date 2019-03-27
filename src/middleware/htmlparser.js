@@ -358,6 +358,18 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
       parxer(getParxerOpts(1), data, parseCallback);
     };
 
+    // used to parse the content without returning it on the request
+    res.parseOnly = function parseOnly(data, pocb) {
+      parxer(getParxerOpts(1), data, function(err, fragmentIndex, content) {
+        // Overall errors
+        if (!res.headersSent && err.content) {
+          res.writeHead(err.statusCode || 500, { 'Content-Type': 'text/html' });
+          return res.end(err.content);
+        }
+
+        pocb(null, content);
+      });
+    }
     cb();
   };
 }

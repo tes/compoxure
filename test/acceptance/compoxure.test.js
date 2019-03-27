@@ -981,6 +981,63 @@ describe("Page Composer", function () {
     });
   });
 
+  context('Slot handling', function () {
+    it('should process simple slot definitions', function (done) {
+      var requestUrl = getPageComposerUrl('cx-simple-slot-use');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var expectedHTML = '<html>Slot1:<div>Slot1</div>Slot2:<div>For slot 2</div></html>';
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be(expectedHTML);
+        expect($('div').slice(0, 1).text()).to.be('Slot1');
+        done();
+      });
+    });
+
+    it('shouldn\'t handle slot use without the header', function (done) {
+      var requestUrl = getPageComposerUrl('cx-additional-slot-use');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be('<html>Slot1:<div>Slot1SLOT3</div>Slot2:<div>For slot 2</div></html>');
+        done();
+      });
+    });
+
+    it('should handle combining content into slots', function (done) {
+      var requestUrl = getPageComposerUrl('cx-double-slot-use');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var expectedHTML = '<html>Slot1:<div>THISTHAT</div>Slot2:<div></div></html>';
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be(expectedHTML);
+        expect($('div').slice(0, 1).text()).to.be('THISTHAT');
+        done();
+      });
+    });
+
+    it('should handle sub requests using slots', function (done) {
+      var requestUrl = getPageComposerUrl('cx-slot-sub-request');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var expectedHTML = '<html>Slot1:<div><p id="foo">Foo</p></div>Slot2:<div>Bar</div></html>';
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be(expectedHTML);
+        expect($('#foo').text()).to.be('Foo');
+        done();
+      });
+    });
+
+    it('should handle sub requests using slots while leaving body in place', function (done) {
+      var requestUrl = getPageComposerUrl('cx-slot-sub-request-2');
+      request.get(requestUrl, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
+        var expectedHTML = '<html>Header:<div>Foo1Bar1</div>Content:<div>Leave behind me</div>Footer:<div>Foo2Bar2</div></html>';
+        var $ = cheerio.load(response.body);
+        expect(response.body).to.be(expectedHTML);
+        expect($('div').slice(0, 1).text()).to.be('Foo1Bar1');
+        done();
+      });
+    });
+
+
+  });
+
   function getSection(path, search, query, next) {
     var url = getPageComposerUrl(path, search);
     request.get(url, { headers: { 'accept': 'text/html' } }, function (err, response, content) {
