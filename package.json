@@ -8,7 +8,7 @@
     "lint": "jshint .",
     "coveralls": "NODE_ENV=test mocha --exit --require blanket --reporter mocha-lcov-reporter test/unit/* test/acceptance/* | ./node_modules/coveralls/bin/coveralls.js",
     "test-no-cover": "mocha --exit",
-    "test": "istanbul cover _mocha -- --exit && istanbul check-coverage --statements 85",
+    "test": "nyc --check-coverage --lines 85 mocha --exit",
     "precommit": "npm run lint && npm test"
   },
   "repository": {
@@ -53,12 +53,12 @@
     "expect.js": "~0.3.1",
     "express": "^4.16.4",
     "husky": "^0.11.5",
-    "istanbul": "^0.4.5",
     "jshint": "^2.5.6",
     "mocha": "^5.2.0",
     "mocha-lcov-reporter": "0.0.1",
     "node-mocks-http": "^1.7.3",
-    "node-uuid": "^1.4.1"
+    "node-uuid": "^1.4.1",
+    "nyc": "^14.1.1"
   },
   "config": {
     "blanket": {
