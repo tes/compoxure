@@ -2,14 +2,27 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var ware = require('ware');
 var debug = require('debug')('compoxure');
+var utils = require('./src/utils');
+
 
 module.exports = function(config, eventHandler, optionsTransformer) {
 
   eventHandler = eventHandler || {};
   eventHandler.logger = eventHandler.logger || function() {};
   eventHandler.stats = eventHandler.stats || function() {};
+  eventHandler.inspection = eventHandler.inspection || function() {};
 
   optionsTransformer = optionsTransformer || function(req, options, next) { next(null, options); };
+
+  var inspectionMiddleware = function(req, res, next) {
+    try {
+      eventHandler.inspection(req, utils.getBackendConfig(config, req.url, req));
+    } catch (e) {
+      debug('Caught eventHandler.inspection error', e);
+      eventHandler.logger('error', 'Caught eventHandler.inspection error', { error: e });
+    }
+    next();
+  };
 
   var backendProxyMiddleware = require('./src/middleware/proxy')(config, eventHandler, optionsTransformer);
   var cacheMiddleware = require('reliable-get/CacheMiddleware')(config);
@@ -23,6 +36,7 @@ module.exports = function(config, eventHandler, optionsTransformer) {
   var middleware = ware()
                     .use(cleanInvalidUri)
                     .use(dropFavIcon)
+                    .use(inspectionMiddleware)
                     .use(cacheMiddleware)
                     .use(interrogateRequest)
                     .use(selectBackend)
