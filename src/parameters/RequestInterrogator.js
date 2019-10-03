@@ -13,6 +13,20 @@ module.exports = function (config, cdn, environment) {
       ], servers: {}
     };
 
+  if (config.urls) {
+    config.urls = config.urls.map(function (url) {
+      url.regexp = new RegExp(url.pattern);
+      return url;
+    });
+  }
+
+  if (config.urlGroups) {
+    config.urlGroups = config.urlGroups.map(function (group) {
+      group.regexp = new RegExp(group.pattern);
+      return group;
+    });
+  }
+
   environment = { name: environment || process.env.NODE_ENV || 'development' };
 
   function flatten(variables, type, key, value) {
@@ -21,10 +35,8 @@ module.exports = function (config, cdn, environment) {
   }
 
   function interrogatePath(path) {
-
     var matches = _.map(config.urls, function (url) {
-      var regexp = new RegExp(url.pattern);
-      var match = regexp.exec(path);
+      var match = url.regexp.exec(path);
       if (!match) { return {}; }
       return _.zipObject(url.names, _.tail(match, 1));
     });
@@ -58,8 +70,7 @@ module.exports = function (config, cdn, environment) {
 
   function getUrlGroup(path) {
     return _.result(_.find(config.urlGroups || [], function(urlGroup) {
-      var pattern = new RegExp(urlGroup.pattern);
-      return path.match(pattern);
+      return path.match(urlGroup.pattern);
     }), 'group') || 'none';
   }
 
