@@ -85,6 +85,24 @@ describe("Page Composer", function () {
     });
   });
 
+  it('should respond status 200 if etag does NOT match, and have a body', function (done) {
+    request.get(getPageComposerUrl('needs-content'), { headers: { 'accept': '*/*', 'If-None-Match': 'foobar' } }, function (err, response, content) {
+      expect(err).to.be(null);
+      expect(response.body.length) > 0;
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should respond status 304 if etag matches, and NOT have a body', function (done) {
+    request.get(getPageComposerUrl('needs-content'), { headers: { 'accept': '*/*', 'If-None-Match': 'NTfJlUCxbFeEp5FACoS5Zs3n5zU' } }, function (err, response, content) {
+      expect(err).to.be(null);
+      expect(response.body.length).to.be.equal(0);
+      expect(response.statusCode).to.be(304);
+      done();
+    });
+  });
+
   it('should not die if given a poisoned url', function (done) {
     var targetUrl = getPageComposerUrl() + '?cid=271014_Primary-103466_email_et_27102014_%%%3dRedirectTo(%40RESOURCEURL1)%3d%%&mid=_&rid=%%External_ID%%&utm_source=ET&utm_medium=email&utm_term=27102014&utm_content=_&utm_campaign=271014_Primary_103466_%%%3dRedirectTo(%40RESOURCEURL1)%3d%%';
     request.get(targetUrl, { headers: { 'accept': 'text/html' } }, function (err, response) {

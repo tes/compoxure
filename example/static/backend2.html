@@ -1,0 +1,31 @@
+<html>
+<head>
+    <style>
+    .block {
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 30px;
+        border: solid 1px silver;
+        padding: 5px;
+    }
+    code {
+        background: silver;
+        border: solid 1px #444444;
+    }
+    </style>
+</head>
+<body>
+    <h3>Include of content</h3>
+    <div>Click here to see this in 'quiet' mode: <a href="/quiet/example">Quiet View</a></div>
+    <p>To see this in debug mode, append ?cx-debug=true (then open the console): <a href="?cx-debug=true">Debug Mode</a></p>
+    <code>
+        &lt;div cx-url=&#039;{{server:local}}/include.html&#039; cx-cache-key=&#039;shakespeare&#039; cx-cache-ttl=&#039;10s&#039; class=&#039;block&#039;&gt;&lt;/div&gt;
+    </code>
+    <div cx-url='{{server:local}}/include.html' cx-cache-key='shakespeare' cx-cache-ttl='10s' class='block'>
+        This will be replaced with some simple content that is cached if a cache is configured.
+    </div>
+
+
+</body>
+
+</html>

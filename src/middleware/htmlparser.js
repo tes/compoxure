@@ -336,20 +336,31 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
         }
       }
 
+      var contentWithDebugging = content;
+      if (utils.isDebugEnabled(req)) {
+        contentWithDebugging = content.replace('</body>', res.debugInfo + debugScript + utils.renderScriptClientDebugLogEntry(req) + '</body>');
+      }
+
       if (!res.headersSent) {
-        if (noCacheFragments.length) {
-          commonState.additionalHeaders['cx-notice'] = 'cache-control defaulted due to fragment nocache: ' + noCacheFragments.join(', ');
-        }
         try {
-          res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
+          if (noCacheFragments.length) {
+            commonState.additionalHeaders['cx-notice'] = 'cache-control defaulted due to fragment nocache: ' + noCacheFragments.join(', ');
+            res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, commonState.additionalHeaders || {}));
+          } else {
+            var etag = utils.calculateEtag(contentWithDebugging);
+            var etagFromReq = req.headers['if-none-match'];
+            if (etag === etagFromReq) {
+              res.status(304).send();
+              return;
+            }
+            res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, { ETag: etag }, commonState.additionalHeaders || {}));
+          }
+          
         } catch(ex) {
           eventHandler.logger('error', 'TypeError, unable to set response headers due to invalid character: ' + JSON.stringify(commonState.additionalHeaders));
         }
 
-        if (utils.isDebugEnabled(req)) {
-          return res.end(content.replace('</body>', res.debugInfo + debugScript + utils.renderScriptClientDebugLogEntry(req) + '</body>'));
-        }
-        return res.end(content);
+        return res.end(contentWithDebugging);
       }
     }
 

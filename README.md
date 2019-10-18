@@ -193,6 +193,10 @@ options|If redis, any option described at https://github.com/NodeRedis/node_redi
 compress|Use snappy compression for caching
 namespace|Optional prefix for redis keys
 
+#### Conditional GET request & Etag
+
+HTTP conditional requests are requests that are executed differently, depending on the value of specific headers. In the `htmlparser.js`, we implement the entity tag, or the etag, as the validator to determine if the resource/content stored on the server matches a specific version.  We calculate the etag hash if we can cache the page (meaning, there are no fragments with no-cache specified), and return statusCode _304_ (Not modified) when the ETags match to that of the request header _"If-None-Match"_, _200_ otherwise. When we return statusCode _304_ it indicates that there is no need for the server to send a resource/content because the request indicates that the client, which made the request conditional, already has a valid content; the server is therefore redirecting the client to make use of that stored content as if it were the payload of a 200 OK response.
+
 #### CDN Configuration
 
 Compoxure can pass through CDN configuration through to each of the backend services, this is to allow them to render any links required to images or other static assets.

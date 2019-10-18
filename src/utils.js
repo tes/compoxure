@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var url = require('url');
+var crypto = require('crypto');
 
 var _RX_TIME_EXT_P = new RegExp('[^0-9]+$');
 function timeToMillis(timeString) {
@@ -155,6 +156,14 @@ function addClientDebugLogEntry(req, message){
   }
 }
 
+function calculateEtag (content) {
+  return crypto
+    .createHash('sha1')
+    .update(content, 'utf8')
+    .digest('base64')
+    .substring(0, 27);
+}
+
 module.exports = {
   timeToMillis: timeToMillis,
   urlToCacheKey: urlToCacheKey,
@@ -172,4 +181,5 @@ module.exports = {
   attachEventLogger: attachEventLogger,
   addClientDebugLogEntry: addClientDebugLogEntry,
   renderScriptClientDebugLogEntry: renderScriptClientDebugLogEntry,
+  calculateEtag: calculateEtag,
 };
