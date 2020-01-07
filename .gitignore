@@ -12,3 +12,4 @@ dump.rdb
 coverage
 example/memory.csv
 .nyc_output/
+package-lock.json
