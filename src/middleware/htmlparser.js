@@ -238,8 +238,8 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             eventHandler.stats('increment', transformedOptions.statsdKey + '.errors', transformedOptions.statsdTags);
           }
 
-          errorMsg = _.template('FAIL <%= url %> did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
-          logError(err, errorMsg({ url: transformedOptions.url, timing: timing, elapsed: elapsed }));
+          errorMsg = _.template('FAIL <%= url %> (<%= cxUrl %>) did not respond in <%= timing%>, elapsed <%= elapsed %>. Reason: ' + err.message);
+          logError(err, errorMsg({ url: transformedOptions.url, timing: timing, elapsed: elapsed, cxUrl: cxUrl }));
         }
 
         var options = {
@@ -355,7 +355,7 @@ function getMiddleware(config, reliableGet, eventHandler, optionsTransformer) {
             }
             res.writeHead(responseStatusCode, _.assign({ 'Content-Type': 'text/html' }, { ETag: etag }, commonState.additionalHeaders || {}));
           }
-          
+
         } catch(ex) {
           eventHandler.logger('error', 'TypeError, unable to set response headers due to invalid character: ' + JSON.stringify(commonState.additionalHeaders));
         }
